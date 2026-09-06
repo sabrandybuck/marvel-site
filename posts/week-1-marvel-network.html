@@ -111,8 +111,8 @@
     characters' articles link <em>to</em> a character (roughly, how often they're referenced),
     while out-degree counts how many characters that character's own article links <em>out to</em>.
     Plotting one against the other for every character shows only a moderate positive relationship
-    (Pearson <em>r</em>&nbsp;&asymp;&nbsp;0.50) — being linked to often doesn't necessarily mean
-    linking out to many others in return, which is exactly what happens with the biggest hubs.
+    — being linked to often doesn't necessarily mean linking out to many others in return, which
+    is exactly what happens with the biggest hubs.
   </p>
 
   <figure>
@@ -120,11 +120,8 @@
     <figcaption>In-degree vs. out-degree, one point per character. Pearson <em>r</em> &asymp; 0.4965 — a moderate but far from tight relationship.</figcaption>
   </figure>
 
-  <h2>In- vs. out-degree, on log-log axes</h2>
   <p>
-    The linear scatter above put the Pearson correlation between in- and out-degree at only
-    &asymp;&nbsp;0.50. Redrawing the same comparison on log-log axes — plotting degree&nbsp;+&nbsp;1
-    so the isolated characters stay on the chart — sharpens the picture. The dashed diagonal marks
+    Redrawing the same comparison on log-log axes sharpens the picture. The dashed diagonal marks
     in-degree&nbsp;=&nbsp;out-degree: characters above it are referenced by more articles than they
     link out from (the celebrities), while characters below it point at more articles than point
     back at them (the generous linkers). In rank terms the two are strongly related — Spearman
@@ -136,15 +133,14 @@
 
   <figure>
     <img src="../assets/week1/week1_in_vs_out_degree_loglog.png" alt="Log-log scatter of in-degree vs. out-degree for all 303 Marvel characters, with the in-degree = out-degree diagonal and the most extreme characters labelled">
-    <figcaption>In-degree vs. out-degree on log-log axes (degree&nbsp;+&nbsp;1). Spearman &rho; &asymp; 0.70 — a strong rank correlation, but the labelled outliers show the two leaderboards barely overlap.</figcaption>
+    <figcaption>In-degree vs. out-degree on log-log axes (degree&nbsp;+&nbsp;1). Spearman &rho; &asymp; 0.70.</figcaption>
   </figure>
 
   <h2>Visualizing the network</h2>
   <p>
     The static drawing below lays out the giant component with a force-directed layout, and pulls
     the smaller island and the 17 isolated characters into their own clearly-labeled regions so
-    they don't get lost inside — or randomly scattered on top of — the main component. Node size
-    scales with in-degree, so hubs like Spider-Man stand out immediately.
+    they don't get lost inside — or randomly scattered on top of — the main component.
   </p>
 
 </article>
@@ -160,7 +156,7 @@
   <p>
     In the full-network drawing above, node size scales linearly with in-degree, which lets
     Spider-Man (106 in-links) dominate the canvas. Rescaling size to the square root of in-degree
-    keeps the hubs biggest while compressing the range — a character with in-degree 106 draws at
+    keeps the hubs biggest while compressing the range — the biggest hub draws at
     about 10&times; the radius of an in-degree-1 node rather than 106&times; — so the mid-tier
     structure becomes readable: the dense cores around the spider- and X-lineage characters, the
     amber island off to the side, and the 17 gray isolates, without one hub swallowing everything.
@@ -274,14 +270,10 @@
     still hide a disconnected 8.6% once you actually go looking for weakly connected components.
   </blockquote>
 
-  <h2>The island, up close</h2>
   <p>
-    The amber region in the network drawings is worth a closer look: nine characters — Vyking,
-    Backhand, Blackthorn, Radian, Scaredycat, Scatterbrain, Shear, Snapdragon, and Toxyn — who link
-    to each other and to nobody else. They are the cast of <em>Strikeforce: Morituri</em>
-    (1986–89), a short-lived series whose premise — heroes gain powers and die within a year —
-    apparently extended to their Wikipedia presence. Together with the 17 fully isolated
-    characters, they make up the 26 characters (about 8.6%) living outside the giant component.
+    The amber region in the network drawings is worth a closer look: those nine characters are the
+    cast of <em>Strikeforce: Morituri</em> (1986–89), a short-lived series whose premise — heroes
+    gain powers and die within a year — apparently extended to their Wikipedia presence.
   </p>
 
   <figure>
