@@ -1,0 +1,78 @@
+{
+  "node_count": 303,
+  "directed_edge_count": 1784,
+  "isolate_count": 17,
+  "weakly_connected_components": {
+    "count": 19,
+    "giant_component_size": 277,
+    "non_giant_component_sizes": [
+      9,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "degree": {
+    "in_degree": {
+      "min": 0,
+      "max": 106,
+      "mean": 5.887788778877888
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 28,
+      "mean": 5.887788778877888
+    },
+    "pearson_correlation_in_vs_out_degree": 0.49645334152326015
+  },
+  "top5_in_degree": [
+    {
+      "name": "Spider-Man",
+      "in_degree": 106
+    },
+    {
+      "name": "Hulk",
+      "in_degree": 64
+    },
+    {
+      "name": "Wolverine (character)",
+      "in_degree": 60
+    },
+    {
+      "name": "Doctor Strange",
+      "in_degree": 50
+    },
+    {
+      "name": "Deadpool",
+      "in_degree": 33
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 9,
+    "members": [
+      "Backhand (character)",
+      "Blackthorn (character)",
+      "Radian (Morituri)",
+      "Scaredycat",
+      "Scatterbrain (Morituri)",
+      "Shear (character)",
+      "Snapdragon (Morituri)",
+      "Toxyn",
+      "Vyking"
+    ]
+  }
+}

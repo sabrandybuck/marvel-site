@@ -1,0 +1,701 @@
+/* ---- Marvel Site — DTU 02805 Social Graphs & Interactions ----
+   Design system carried over from DTU02805 (the framework project);
+   extended just enough to host Week 1's network figures and the
+   in-browser interactive graph, without introducing a second style. */
+
+:root {
+  --bg: #0e0f13;
+  --bg-elevated: #16181f;
+  --line: #262932;
+  --text: #e9eaee;
+  --text-dim: #9a9daa;
+  --accent: #e6353a;      /* Marvel red — primary accent */
+  --accent-soft: rgba(230, 53, 58, 0.14);
+  --accent-2: #4d7cff;    /* link / secondary accent (also: giant component) */
+  --accent-3: #e0a020;    /* tertiary accent, used sparingly (islands) */
+  --radius: 10px;
+  --maxw: 880px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Striped background, copied verbatim (same colors, same opacities) from
+     website/style.css's body rule -- a diagonal repeating-linear-gradient
+     stripe plus a radial-gradient grain dot -- just layered over this
+     site's own dark var(--bg) instead of that theme's var(--ink). DTU02805
+     itself has no striped background to port (its body is a flat
+     var(--bg) fill; the only gradient anywhere in its CSS is a radial
+     glow behind the header) -- this pattern's origin is website/style.css.
+     Tiles indefinitely, so it still covers pages taller than the viewport. */
+  background:
+    repeating-linear-gradient(115deg, rgba(201, 162, 39, 0.05) 0px, rgba(201, 162, 39, 0.05) 2px, transparent 2px, transparent 26px),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1.4px, transparent 1.4px) 0 0 / 16px 16px,
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+header.site-header {
+  border-bottom: 1px solid var(--line);
+  padding: 28px 0;
+  background:
+    radial-gradient(1200px 300px at 15% -20%, var(--accent-soft), transparent 60%);
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand .mark {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 2px 9px;
+  letter-spacing: 0.02em;
+}
+
+.brand h1 {
+  font-size: 22px;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+nav.site-nav a {
+  color: var(--text-dim);
+  margin-left: 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+nav.site-nav a:hover { color: var(--text); text-decoration: none; }
+
+main { padding: 48px 0 80px; }
+
+.hero {
+  padding: 8px 0 40px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 40px;
+}
+
+.hero p.lede {
+  font-size: 19px;
+  color: var(--text-dim);
+  max-width: 60ch;
+}
+
+.hero .tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+h2.section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin: 0 0 18px;
+}
+
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.post-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.post-card:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.post-card .week {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.post-card h3 {
+  margin: 6px 0 6px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.post-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14.5px;
+}
+
+.post-card.empty {
+  border-style: dashed;
+  color: var(--text-dim);
+}
+.post-card.empty:hover { transform: none; border-color: var(--line); }
+
+.crew {
+  margin-top: 60px;
+}
+
+.crew ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.crew li {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 28px 0;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* ---- post pages ---- */
+
+article.post {
+  max-width: 68ch;
+}
+
+/* Week 1's page uses this to make its articles share the same content
+   width as its wide-figures (the network explorer, the static drawing)
+   instead of the narrower 68ch reading column -- see the two
+   <article class="post wide"> in week-1-marvel-network.html. Scoped to
+   .wide rather than changing article.post itself, so the still-narrow
+   week-2..week-8 placeholder pages are unaffected. */
+article.post.wide {
+  max-width: none;
+}
+
+article.post .post-meta {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+article.post h1 {
+  font-size: 32px;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+}
+
+article.post .subtitle {
+  color: var(--text-dim);
+  font-size: 17px;
+  margin-bottom: 32px;
+}
+
+article.post h2 {
+  font-size: 21px;
+  margin: 40px 0 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+article.post figure {
+  margin: 28px 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+article.post figure img,
+article.post figure svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+
+article.post figcaption {
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+
+article.post code, article.post pre {
+  font-family: var(--mono);
+  font-size: 13.5px;
+}
+
+article.post pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+article.post blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 24px 0;
+  padding: 4px 0 4px 18px;
+  color: var(--text-dim);
+}
+
+.callout {
+  background: var(--accent-soft);
+  border: 1px solid rgba(230, 53, 58, 0.35);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 28px 0;
+  font-size: 14.5px;
+}
+
+.back-link { display: inline-block; margin-top: 48px; }
+
+@media (max-width: 560px) {
+  .brand h1 { font-size: 19px; }
+  article.post h1 { font-size: 26px; }
+}
+
+/* ---- Week 1 extensions: kept inside the same design system ----
+   (dark surfaces, --line borders, --radius corners, mono labels) —
+   no new colors beyond --accent-3, no competing visual language. */
+
+/* Full-width figures: a shared card treatment for anything that should
+   break out of the 68ch article column and use the site's full .wrap
+   content width instead -- the static network drawing and the
+   interactive explorer both use it. See the <article class="post">
+   split around them in week-1-marvel-network.html. */
+.wide-figure {
+  margin: 28px 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.wide-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.wide-figure figcaption,
+.explorer-caption {
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+
+/* prose sitting between two wide-figures -- same width as everything
+   else on the page now that article.post.wide matches it too */
+.lede-connector {
+  color: var(--text);
+  margin: 28px 0;
+}
+
+.explorer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.hero-search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.hero-search-label,
+.network-toggles-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.hero-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.network-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.network-toggles-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* compact segmented control: which end of each directed edge gets an
+   arrowhead. Purely a display choice over the same edges/positions --
+   unrelated to the island/isolate show-hide toggles above, so it gets
+   its own small label rather than looking like a third layer toggle. */
+.arrow-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.arrow-mode-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.arrow-toggle {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.arrow-toggle-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+  border: none;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.arrow-toggle-btn + .arrow-toggle-btn { border-left: 1px solid var(--line); }
+
+.arrow-toggle-btn.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover { border-color: var(--accent); }
+
+.btn[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.search-input {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  min-width: 0;
+  flex: 1 1 170px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input:focus { outline: none; border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-dim); }
+
+.search-status {
+  font-size: 12px;
+  color: var(--accent);
+  min-height: 1.2em;
+  margin: 2px 2px 0;
+}
+
+.explorer-hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 16px 2px 18px;
+}
+
+.explorer-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* interactive network canvas -- generous height, full section width */
+.network-box {
+  height: 420px;
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+}
+
+@media (min-width: 640px) {
+  .network-box { height: 600px; }
+}
+
+.inspector {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.inspector-empty {
+  color: var(--text-dim);
+  font-size: 13.5px;
+  margin: 0;
+}
+
+.inspector-name {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.inspector-group {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.inspector-stats {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.inspector-stat {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.inspector-stat .stat-label { font-size: 10.5px; }
+.inspector-stat .stat-value { font-size: 18px; }
+
+.inspector-lists {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 560px) {
+  .inspector-lists { grid-template-columns: 1fr 1fr; }
+}
+
+.inspector-section h5 {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.neighbor-pill {
+  display: inline-block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0 4px 4px 0;
+}
+
+.neighbor-more {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 24px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.legend-swatch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.network-note {
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 8px 0 0;
+}
+
+/* stat cards, replacing a plain HTML table for the Week 1 metrics */
+.stats-grid {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stats-grid .stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.stats-grid .stat-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.stats-grid .stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ranked list, e.g. "top 5 by in-degree" */
+.rank-list {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.rank-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+.rank-list .rank {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  width: 1.5em;
+}
+
+.rank-list .name { flex: 1; color: var(--text); }
+.rank-list .metric { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+
+/* side-by-side figure pairs (linear vs. log-log, etc.) */
+.figure-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 720px) {
+  .figure-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+}
+
+.figure-grid figure { margin: 0; }

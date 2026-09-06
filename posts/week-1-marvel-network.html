@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1: Mapping the Marvel network — The Web of Heroes</title>
+<meta name="description" content="Exploring the Week 1 Marvel Comics character network: degree distributions, in- vs. out-degree, the giant component, and its islands.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 1 · Network fundamentals</div>
+  <h1>Mapping the Marvel network</h1>
+  <p class="subtitle">Degree distributions, in- vs. out-degree, and going looking for the giant component's islands in 303 Marvel characters.</p>
+
+  <h2>What we asked</h2>
+  <p>
+    How connected is the Marvel character network built from Wikipedia links? Is the network
+    dominated by a handful of hubs, or is degree spread fairly evenly across characters — and does
+    everyone actually belong to one connected story, or is anyone left out entirely?
+  </p>
+
+  <h2>What we did</h2>
+  <p>
+    We loaded the course's frozen Week 1 snapshot — 303 Marvel characters and the directed links
+    between their Wikipedia articles — using NetworkX, making sure to add every character as a
+    node <em>before</em> adding any edges. Skipping that step silently drops any character with no
+    link to or from another character in the dataset, understating the network's true size.
+  </p>
+  <p>
+    From the resulting directed graph we computed in-degree and out-degree per character, plotted
+    both distributions on linear and log-log axes, checked how in- and out-degree relate to each
+    other, found the weakly connected components, and drew the full network so the giant component
+    and any smaller islands are visible at a glance. All of the numbers and figures below come
+    straight out of that pipeline — nothing here is hand-typed separately from the code that
+    produced it.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Characters (nodes)</span><span class="stat-value">303</span></li>
+    <li class="stat-card"><span class="stat-label">Directed links (edges)</span><span class="stat-value">1,784</span></li>
+    <li class="stat-card"><span class="stat-label">Isolated characters</span><span class="stat-value">17</span></li>
+    <li class="stat-card"><span class="stat-label">Giant component size</span><span class="stat-value">277</span></li>
+    <li class="stat-card"><span class="stat-label">Weakly connected components</span><span class="stat-value">19</span></li>
+    <li class="stat-card"><span class="stat-label">Outside the giant component</span><span class="stat-value">26</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">106</span></li>
+    <li class="stat-card"><span class="stat-label">Max out-degree</span><span class="stat-value">28</span></li>
+  </ul>
+
+  <h2>Degree distributions</h2>
+  <p>
+    Both distributions are heavily right-skewed: most characters link to (or are linked from) only
+    a handful of others, while a small number of hub characters rack up dozens of connections.
+    Plotting in-degree and out-degree together, on the same axes, makes that skew easy to compare
+    directly rather than eyeballing two separate charts. The log-log view lines that skew up
+    against a straight-line (power-law-like) decay — both fall off fast at first and then trail
+    into a long, thin tail of hubs. We plot degree&nbsp;+&nbsp;1 (rather than 0) so the isolated
+    characters remain visible on the log axis instead of vanishing at zero.
+  </p>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week1/week1_degree_distribution_linear.png" alt="In-degree and out-degree distributions of the Week 1 Marvel character network, overlaid on the same linear axes">
+      <figcaption>In-degree and out-degree distributions — linear axes.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week1/week1_degree_distribution_loglog.png" alt="In-degree and out-degree distributions of the Week 1 Marvel character network, overlaid on the same log-log axes">
+      <figcaption>In-degree and out-degree distributions — log-log axes.</figcaption>
+    </figure>
+  </div>
+
+  <h2>In-degree vs. out-degree</h2>
+  <p>
+    In-degree and out-degree aren't the same thing here: in-degree counts how many other
+    characters' articles link <em>to</em> a character (roughly, how often they're referenced),
+    while out-degree counts how many characters that character's own article links <em>out to</em>.
+    Plotting one against the other for every character shows only a moderate positive relationship
+    (Pearson <em>r</em>&nbsp;&asymp;&nbsp;0.50) — being linked to often doesn't necessarily mean
+    linking out to many others in return, which is exactly what happens with the biggest hubs.
+  </p>
+
+  <figure>
+    <img src="../assets/week1/week1_in_vs_out_degree.png" alt="Scatter plot comparing in-degree and out-degree for every character in the Week 1 Marvel character network">
+    <figcaption>In-degree vs. out-degree, one point per character. Pearson <em>r</em> &asymp; 0.4965 — a moderate but far from tight relationship.</figcaption>
+  </figure>
+
+  <p><strong>Top 5 by in-degree:</strong></p>
+  <ol class="rank-list">
+    <li><span class="rank">1</span><span class="name">Spider-Man</span><span class="metric">106 in-links</span></li>
+    <li><span class="rank">2</span><span class="name">Hulk</span><span class="metric">64 in-links</span></li>
+    <li><span class="rank">3</span><span class="name">Wolverine (character)</span><span class="metric">60 in-links</span></li>
+    <li><span class="rank">4</span><span class="name">Doctor Strange</span><span class="metric">50 in-links</span></li>
+    <li><span class="rank">5</span><span class="name">Deadpool</span><span class="metric">33 in-links</span></li>
+  </ol>
+
+  <h2>Visualizing the network</h2>
+  <p>
+    The static drawing below lays out the giant component with a force-directed layout, and pulls
+    the smaller island and the 17 isolated characters into their own clearly-labeled regions so
+    they don't get lost inside — or randomly scattered on top of — the main component. Node size
+    scales with in-degree, so hubs like Spider-Man stand out immediately.
+  </p>
+
+</article>
+
+<figure class="wide-figure">
+  <img src="../assets/week1/week1_network.png" alt="Visualization of the full 303-node Week 1 Marvel character network, showing the giant component, a separate 9-node component, and 17 isolated characters">
+  <figcaption>The full network. Blue nodes belong to the 277-character giant component; amber nodes are a separate 9-character island; gray nodes are the 17 isolated characters. Node size scales with in-degree.</figcaption>
+</figure>
+
+<p class="lede-connector">
+  Every node below is one of the 303 Marvel characters; a directed edge means one character's
+  Wikipedia article links to another's. It's the same network, live and interactive: find a hero
+  below, or just drag, zoom, and click your own way through it.
+</p>
+
+<figure class="wide-figure explorer">
+
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a hero</span>
+      <form id="network-search-form" class="hero-search-row">
+        <input
+          id="network-search-input"
+          class="search-input"
+          type="search"
+          list="network-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a hero by name"
+        >
+        <datalist id="network-character-list"></datalist>
+        <button type="button" id="network-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="network-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+
+    <div class="network-toggles">
+      <span class="network-toggles-label">Network</span>
+      <div class="network-toggles-row">
+        <button type="button" id="network-island-btn" class="btn" aria-pressed="true">Morituri island</button>
+        <button type="button" id="network-isolate-btn" class="btn" aria-pressed="true">Isolated nodes</button>
+      </div>
+      <div class="arrow-mode-row">
+        <span class="arrow-mode-label">Arrows</span>
+        <div class="arrow-toggle" role="group" aria-label="Which direction the arrowheads show">
+          <button type="button" id="network-arrow-in-btn" class="arrow-toggle-btn is-active" aria-pressed="true">In-degree</button>
+          <button type="button" id="network-arrow-out-btn" class="arrow-toggle-btn" aria-pressed="false">Out-degree</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Drag a node to move it, scroll or pinch to zoom, drag empty space to pan, and hover a character
+    for a quick tooltip. Click a node — or find one above — to see its full profile below the graph.
+  </p>
+
+  <div class="explorer-stage">
+    <div id="network-interactive" class="network-box" aria-label="Interactive Marvel character network"></div>
+    <div id="network-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No hero selected yet — click a node or find one above.</p>
+    </div>
+  </div>
+
+  <div class="legend-grid">
+    <div class="legend-row">
+      <span class="legend-swatch">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(230,53,58,0.9);"></span>
+        <span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:rgba(230,53,58,0.9);"></span>
+      </span>
+      Size — bigger dots have higher in-degree
+    </div>
+    <div class="legend-row">
+      <span class="legend-swatch">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgba(230,53,58,0.35);"></span>
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgba(230,53,58,1);"></span>
+      </span>
+      Brightness — brighter dots have higher out-degree
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Week&nbsp;1 data files in your browser — no server-side rendering, no
+    Wikipedia API. Selecting a hero highlights its direct connections and dims the rest.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  🔎 Worth clicking on: Spider-Man's outsized in-degree, the tightly-knit Morituri island sitting
+  just off the giant component, and the quiet handful of isolated characters with no links at all.
+  Toggle the network controls above, find a name, or just start dragging — see what you find.
+</div>
+
+<article class="post wide">
+
+  <h2>The giant component and its islands</h2>
+  <p>
+    17 characters are fully isolated — no links in or out at all. Separately, nine more characters
+    — Backhand (character), Blackthorn (character), Radian (Morituri), Scaredycat, Scatterbrain
+    (Morituri), Shear (character), Snapdragon (Morituri), Toxyn, and Vyking — form their own small
+    component: linked to each other, but not connected to the giant component that holds the other
+    277 characters together. Altogether, 26 of the 303 characters (about 8.6%) sit outside the
+    giant component entirely.
+  </p>
+
+  <blockquote>
+    A network can look fully connected in a headline number — "303 characters, 1,784 links" — and
+    still hide a disconnected 8.6% once you actually go looking for weakly connected components.
+  </blockquote>
+
+  <h2>What surprised us</h2>
+  <p>
+    The in-degree distribution is heavily skewed: Spider-Man alone has nearly double the in-degree
+    of the next-closest character (Hulk, 64), consistent with the long-tailed shape in the log-log
+    plot above. And the network is less fully connected than it first looks — it isn't just the 17
+    isolated characters sitting outside the main story; the separate nine-character island means
+    26 characters in total (about 8.6% of the roster) never connect back to the giant component.
+    Skipping the "add nodes before edges" step would have hidden all 17 isolates and made the
+    network look artificially smaller and more connected than it really is.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the figures above are generated by
+    <code>analysis/build_week1.py</code> from the frozen data in <code>data/week1/</code> — see the
+    project's <code>README.md</code> for how to re-run it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data: frozen Week 1 snapshot
+    (Wikipedia, 2026-08-26) from the 02805 course data page · analysis: NetworkX + pandas, code in
+    <code>analysis/build_week1.py</code>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/vis-network@10.1.2/standalone/umd/vis-network.min.js"></script>
+<script>
+  (function () {
+    var container = document.getElementById("network-interactive");
+    var inspectorEl = document.getElementById("network-inspector");
+    var searchForm = document.getElementById("network-search-form");
+    var searchInput = document.getElementById("network-search-input");
+    var searchStatus = document.getElementById("network-search-status");
+    var searchDatalist = document.getElementById("network-character-list");
+    var clearBtn = document.getElementById("network-clear-btn");
+    var islandBtn = document.getElementById("network-island-btn");
+    var isolateBtn = document.getElementById("network-isolate-btn");
+    var arrowInBtn = document.getElementById("network-arrow-in-btn");
+    var arrowOutBtn = document.getElementById("network-arrow-out-btn");
+
+    function parseDataLines(text) {
+      return text.split(/\r?\n/).filter(function (line) {
+        return line.length > 0 && line.charAt(0) !== "#";
+      });
+    }
+
+    Promise.all([
+      fetch("../data/week1/week1_nodes.tsv").then(function (r) { return r.text(); }),
+      fetch("../data/week1/week1_edges.tsv").then(function (r) { return r.text(); }),
+    ])
+      .then(function (results) {
+        var nodesText = results[0];
+        var edgesText = results[1];
+
+        var nodeLines = parseDataLines(nodesText);
+        var header = nodeLines[0].split("\t");
+        var idCol = header.indexOf("node_id");
+        var nameCol = header.indexOf("name");
+        var nodeRows = nodeLines.slice(1).map(function (line) { return line.split("\t"); });
+        var nodeIds = nodeRows.map(function (cols) { return cols[idCol]; });
+        var nameById = new Map(nodeRows.map(function (cols) { return [cols[idCol], cols[nameCol]]; }));
+
+        var edgeRows = parseDataLines(edgesText).map(function (line) { return line.split("\t"); });
+
+        var inDeg = new Map(nodeIds.map(function (id) { return [id, 0]; }));
+        var outDeg = new Map(nodeIds.map(function (id) { return [id, 0]; }));
+        var undirectedAdjacency = new Map(nodeIds.map(function (id) { return [id, []]; }));
+        var outNeighbors = new Map(nodeIds.map(function (id) { return [id, []]; }));
+        var inNeighbors = new Map(nodeIds.map(function (id) { return [id, []]; }));
+
+        edgeRows.forEach(function (row) {
+          var source = row[0], target = row[1];
+          outDeg.set(source, (outDeg.get(source) || 0) + 1);
+          inDeg.set(target, (inDeg.get(target) || 0) + 1);
+          undirectedAdjacency.get(source).push(target);
+          undirectedAdjacency.get(target).push(source);
+          outNeighbors.get(source).push(target);
+          inNeighbors.get(target).push(source);
+        });
+
+        // Weakly connected components via BFS over the undirected adjacency,
+        // mirroring nx.weakly_connected_components() in analysis/build_week1.py.
+        var visited = new Set();
+        var components = [];
+        nodeIds.forEach(function (start) {
+          if (visited.has(start)) return;
+          var queue = [start];
+          var component = [];
+          visited.add(start);
+          while (queue.length) {
+            var current = queue.pop();
+            component.push(current);
+            (undirectedAdjacency.get(current) || []).forEach(function (neighbor) {
+              if (!visited.has(neighbor)) {
+                visited.add(neighbor);
+                queue.push(neighbor);
+              }
+            });
+          }
+          components.push(component);
+        });
+        components.sort(function (a, b) { return b.length - a.length; });
+
+        var giantIds = new Set(components[0]);
+        var islandIds = new Set();
+        components.slice(1).forEach(function (component) {
+          if (component.length > 1) component.forEach(function (id) { islandIds.add(id); });
+        });
+
+        function groupOf(id) {
+          if (giantIds.has(id)) return "giant";
+          if (islandIds.has(id)) return "island";
+          return "isolate";
+        }
+
+        var groupColors = { giant: "#4d7cff", island: "#e0a020", isolate: "#9a9daa" };
+        var groupLabels = { giant: "Giant component", island: "Morituri island", isolate: "Isolated character" };
+
+        var maxOutDeg = 0;
+        nodeIds.forEach(function (id) { maxOutDeg = Math.max(maxOutDeg, outDeg.get(id) || 0); });
+
+        function byName(a, b) {
+          return (nameById.get(a) || a).localeCompare(nameById.get(b) || b);
+        }
+
+        // fill brightness encodes OUT-degree (size already encodes in-degree,
+        // via vis-network's own `value` scaling below) -- log scale so the
+        // long tail of high-out-degree hubs doesn't wash out everyone else
+        function brightness(outdeg) {
+          var t = Math.log1p(outdeg) / Math.log1p(maxOutDeg || 1);
+          var alpha = 0.35 + 0.65 * t;
+          return "rgba(230, 53, 58, " + alpha.toFixed(3) + ")";
+        }
+
+        var top5Ids = nodeIds.slice().sort(function (a, b) {
+          return (inDeg.get(b) || 0) - (inDeg.get(a) || 0);
+        }).slice(0, 5);
+        var top5Set = new Set(top5Ids);
+
+        // ---- layer / selection state ----
+        var showIslands = true;
+        var showIsolates = true;
+        var selectedId = null;
+        // Which direction of edges to show relative to the selected hero:
+        // "in" = only edges pointing at them, "out" = only edges pointing
+        // away from them. Only affects edge visibility/arrows (see
+        // isEdgeDirectionVisible() and edgeStyle() below) -- it never
+        // touches nodeStyle()/brightness(), so node size (in-degree) and
+        // node brightness (out-degree) are completely unaffected.
+        var arrowMode = "in";
+
+        function isHiddenByLayer(id) {
+          var g = groupOf(id);
+          return (g === "island" && !showIslands) || (g === "isolate" && !showIsolates);
+        }
+
+        // Neighbors on the side that matters for the current mode -- reuses
+        // the same inNeighbors/outNeighbors maps built above for the
+        // inspector's "Linked from"/"Links to" lists, so a node only reads
+        // as "connected" here if an edge in that exact direction is what's
+        // currently being shown.
+        function directionalConnectedIds(id) {
+          var neighbors = arrowMode === "in" ? (inNeighbors.get(id) || []) : (outNeighbors.get(id) || []);
+          var set = new Set(neighbors);
+          set.add(id);
+          return set;
+        }
+
+        function nodeStyle(id, opts) {
+          opts = opts || {};
+          var dim = !!opts.dim;
+          var selected = !!opts.selected;
+          var bg = dim ? "rgba(180,182,190,0.12)" : brightness(outDeg.get(id) || 0);
+          var border = selected ? "#ffffff" : (dim ? "rgba(154,157,170,0.25)" : groupColors[groupOf(id)]);
+          var showLabel = selected || (!dim && top5Set.has(id));
+          return {
+            id: id,
+            hidden: isHiddenByLayer(id),
+            label: showLabel ? (nameById.get(id) || id) : "",
+            color: { background: bg, border: border },
+            borderWidth: selected ? 4 : 1.5,
+          };
+        }
+
+        // With a hero selected, only the edge matching the current
+        // in/out mode is ever shown -- this is a hard filter (the edge is
+        // marked `hidden`), not a style/opacity change. With no hero
+        // selected there is nothing to filter around, so every edge stays
+        // visible (the pre-existing, unselected-state appearance).
+        function isEdgeDirectionVisible(row) {
+          if (!selectedId) return true;
+          return arrowMode === "in" ? row[1] === selectedId : row[0] === selectedId;
+        }
+
+        function edgeStyle(row, i, opts) {
+          opts = opts || {};
+          var hidden = isHiddenByLayer(row[0]) || isHiddenByLayer(row[1]) || !isEdgeDirectionVisible(row);
+          var highlighted = !!opts.highlighted;
+          return {
+            id: i,
+            hidden: hidden,
+            color: { color: "#495057", opacity: highlighted ? 0.9 : 0.35 },
+            width: highlighted ? 1.6 : 0.5,
+          };
+        }
+
+        var nodesData = new vis.DataSet(nodeIds.map(function (id) {
+          var base = nodeStyle(id);
+          base.value = inDeg.get(id) || 0;
+          base.title = (nameById.get(id) || id) + "\nin-degree: " + inDeg.get(id) + "\nout-degree: " + outDeg.get(id);
+          return base;
+        }));
+
+        var edgesData = new vis.DataSet(edgeRows.map(function (row, i) {
+          var base = edgeStyle(row, i);
+          base.from = row[0];
+          base.to = row[1];
+          return base;
+        }));
+
+        var network = new vis.Network(
+          container,
+          { nodes: nodesData, edges: edgesData },
+          {
+            nodes: {
+              shape: "dot",
+              scaling: { min: 6, max: 40 },
+              font: { size: 12, color: "#141318" },
+            },
+            edges: {
+              // Always an arrowhead at the true target end -- this already
+              // points the right way in both modes once the edge SET below
+              // is filtered correctly: in "in" mode every remaining edge's
+              // target is the selected node (arrow points at it); in "out"
+              // mode every remaining edge's source is the selected node
+              // (arrow points away from it, at the other node).
+              arrows: { to: { enabled: true, scaleFactor: 0.4 } },
+              smooth: false,
+            },
+            physics: {
+              barnesHut: { gravitationalConstant: -6000, springLength: 120, springConstant: 0.02 },
+              stabilization: { iterations: 200 },
+            },
+            interaction: { hover: true, tooltipDelay: 100 },
+          }
+        );
+
+        // Default framing: zoom to the giant component (277 of 303 nodes --
+        // where the hubs and structure actually are) rather than vis-network's
+        // own fit(), which would zoom out to include the handful of isolated
+        // nodes and the Morituri island scattered far outside it, leaving the
+        // graph looking tiny. Nothing is hidden or removed -- islands/isolates
+        // are still there and reachable by zooming/panning, or via search.
+        var giantIdList = Array.from(giantIds);
+        function applyDefaultView(animated) {
+          network.fit({ nodes: giantIdList, animation: animated ? { duration: 400 } : false });
+        }
+
+        network.once("stabilizationIterationsDone", function () {
+          network.setOptions({ physics: false });
+          applyDefaultView(false);
+        });
+
+        // ---- search suggestions ----
+        nodeIds.slice().sort(byName).forEach(function (id) {
+          var opt = document.createElement("option");
+          opt.value = nameById.get(id) || id;
+          searchDatalist.appendChild(opt);
+        });
+
+        // ---- inspector panel ----
+        function neighborListHtml(ids) {
+          if (!ids.length) return '<p class="neighbor-more">None.</p>';
+          var CAP = 12;
+          var shown = ids.slice(0, CAP).map(function (nid) {
+            return '<span class="neighbor-pill">' + (nameById.get(nid) || nid) + '</span>';
+          }).join("");
+          var extra = ids.length > CAP ? '<span class="neighbor-more">+' + (ids.length - CAP) + ' more</span>' : "";
+          return shown + extra;
+        }
+
+        function renderInspector(id) {
+          var name = nameById.get(id) || id;
+          var group = groupOf(id);
+          var outIds = (outNeighbors.get(id) || []).slice().sort(byName);
+          var inIds = (inNeighbors.get(id) || []).slice().sort(byName);
+
+          inspectorEl.innerHTML =
+            '<h4 class="inspector-name">' + name + '</h4>' +
+            '<span class="inspector-group">' + groupLabels[group] + '</span>' +
+            '<div class="inspector-stats">' +
+              '<div class="inspector-stat"><span class="stat-label">In-degree</span><span class="stat-value">' + (inDeg.get(id) || 0) + '</span></div>' +
+              '<div class="inspector-stat"><span class="stat-label">Out-degree</span><span class="stat-value">' + (outDeg.get(id) || 0) + '</span></div>' +
+            '</div>' +
+            '<div class="inspector-lists">' +
+              '<div class="inspector-section"><h5>Linked from (' + inIds.length + ')</h5>' + neighborListHtml(inIds) + '</div>' +
+              '<div class="inspector-section"><h5>Links to (' + outIds.length + ')</h5>' + neighborListHtml(outIds) + '</div>' +
+            '</div>';
+        }
+
+        function clearInspector() {
+          inspectorEl.innerHTML = '<p class="inspector-empty">No hero selected yet — click a node or find one above.</p>';
+        }
+
+        function setSearchStatus(msg) {
+          searchStatus.textContent = msg || "";
+        }
+
+        // ---- selection ----
+        function applySelection(id) {
+          selectedId = id;
+          var connected = directionalConnectedIds(id);
+
+          nodesData.update(nodeIds.map(function (nid) {
+            return nodeStyle(nid, { selected: nid === id, dim: !connected.has(nid) });
+          }));
+
+          // edgeStyle() reads selectedId/arrowMode itself, so every edge
+          // not matching the current direction comes back `hidden: true`
+          // here -- the ones that survive are exactly what's shown, and
+          // all get the same "highlighted" treatment.
+          edgesData.update(edgeRows.map(function (row, i) {
+            return edgeStyle(row, i, { highlighted: true });
+          }));
+
+          renderInspector(id);
+        }
+
+        function clearSelection() {
+          selectedId = null;
+          nodesData.update(nodeIds.map(function (id) { return nodeStyle(id); }));
+          edgesData.update(edgeRows.map(function (row, i) { return edgeStyle(row, i); }));
+          clearInspector();
+        }
+
+        function focusAndSelect(id) {
+          applySelection(id);
+          network.focus(id, { scale: 1.8, animation: { duration: 450, easingFunction: "easeInOutQuad" } });
+        }
+
+        // Reapply the current selection/dimming and direction filter --
+        // used after toggling a layer (island/isolate) and after switching
+        // the in/out mode, so the same selected hero's view updates live.
+        function applyLayers() {
+          nodesData.update(nodeIds.map(function (id) {
+            if (selectedId) {
+              var connected = directionalConnectedIds(selectedId);
+              return nodeStyle(id, { selected: id === selectedId, dim: !connected.has(id) });
+            }
+            return nodeStyle(id);
+          }));
+          edgesData.update(edgeRows.map(function (row, i) {
+            return edgeStyle(row, i, { highlighted: !!selectedId });
+          }));
+        }
+
+        network.on("click", function (params) {
+          if (params.nodes.length > 0) {
+            focusAndSelect(params.nodes[0]);
+          } else {
+            clearSelection();
+          }
+        });
+
+        // ---- controls ----
+        searchForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var query = searchInput.value.trim().toLowerCase();
+          if (!query) return;
+          var match = nodeIds.find(function (id) { return (nameById.get(id) || "").toLowerCase() === query; });
+          if (!match) {
+            match = nodeIds.find(function (id) { return (nameById.get(id) || "").toLowerCase().indexOf(query) === 0; });
+          }
+          if (!match) {
+            setSearchStatus("No character found with that name — try one of the suggestions.");
+            return;
+          }
+          if (isHiddenByLayer(match)) {
+            setSearchStatus((nameById.get(match) || match) + " is currently hidden — turn it back on under Network above to view it.");
+            return;
+          }
+          setSearchStatus("");
+          focusAndSelect(match);
+        });
+
+        // selecting a suggestion from the autocomplete list finds the hero
+        // immediately, without waiting for Enter
+        searchInput.addEventListener("input", function () {
+          var value = searchInput.value.trim().toLowerCase();
+          if (!value) return;
+          var exact = nodeIds.find(function (id) { return (nameById.get(id) || "").toLowerCase() === value; });
+          if (exact && !isHiddenByLayer(exact)) {
+            setSearchStatus("");
+            focusAndSelect(exact);
+          }
+        });
+
+        clearBtn.addEventListener("click", function () {
+          searchInput.value = "";
+          setSearchStatus("");
+          clearSelection();
+          applyDefaultView(true);
+        });
+
+        islandBtn.addEventListener("click", function () {
+          showIslands = !showIslands;
+          islandBtn.setAttribute("aria-pressed", String(showIslands));
+          if (selectedId && isHiddenByLayer(selectedId)) clearSelection();
+          applyLayers();
+        });
+
+        isolateBtn.addEventListener("click", function () {
+          showIsolates = !showIsolates;
+          isolateBtn.setAttribute("aria-pressed", String(showIsolates));
+          if (selectedId && isHiddenByLayer(selectedId)) clearSelection();
+          applyLayers();
+        });
+
+        // In-degree/out-degree mode: which direction of edges is shown
+        // relative to the selected hero. Node size/brightness never enter
+        // into this -- nodeStyle()/brightness() are untouched here, and
+        // applyLayers() below only recomputes `hidden`/dim/highlight.
+        // With no hero selected there's nothing to filter, so this has no
+        // visible effect until a node is selected (see isEdgeDirectionVisible).
+        function applyArrowMode() {
+          arrowInBtn.classList.toggle("is-active", arrowMode === "in");
+          arrowInBtn.setAttribute("aria-pressed", String(arrowMode === "in"));
+          arrowOutBtn.classList.toggle("is-active", arrowMode === "out");
+          arrowOutBtn.setAttribute("aria-pressed", String(arrowMode === "out"));
+          applyLayers();
+        }
+
+        arrowInBtn.addEventListener("click", function () {
+          arrowMode = "in";
+          applyArrowMode();
+        });
+
+        arrowOutBtn.addEventListener("click", function () {
+          arrowMode = "out";
+          applyArrowMode();
+        });
+      })
+      .catch(function (err) {
+        container.textContent =
+          "Interactive network could not load (this view requires the page to be served over http://, " +
+          "e.g. via 'python -m http.server' locally -- it will not load if index.html is opened directly " +
+          "as a file). " + err;
+      });
+  })();
+</script>
+</body>
+</html>
