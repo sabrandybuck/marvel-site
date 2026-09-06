@@ -37,7 +37,7 @@
       "max": 28,
       "mean": 5.887788778877888
     },
-    "pearson_correlation_in_vs_out_degree": 0.49645334152326015
+    "pearson_correlation_in_vs_out_degree": 0.4964533415232602
   },
   "top5_in_degree": [
     {
