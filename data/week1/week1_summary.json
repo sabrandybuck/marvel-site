@@ -61,6 +61,28 @@
       "in_degree": 33
     }
   ],
+  "top5_out_degree": [
+    {
+      "name": "Betsy Braddock",
+      "out_degree": 28
+    },
+    {
+      "name": "Cloak and Dagger (characters)",
+      "out_degree": 24
+    },
+    {
+      "name": "Adam Warlock",
+      "out_degree": 22
+    },
+    {
+      "name": "Venom (character)",
+      "out_degree": 21
+    },
+    {
+      "name": "She-Hulk",
+      "out_degree": 20
+    }
+  ],
   "largest_non_giant_component": {
     "size": 9,
     "members": [

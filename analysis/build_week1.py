@@ -67,6 +67,13 @@ def top5_in_degree(graph, nodes):
     return [(name_by_id.get(node_id, node_id), degree) for node_id, degree in top5]
 
 
+def top5_out_degree(graph, nodes):
+    name_by_id = dict(zip(nodes["node_id"], nodes["name"]))
+    out_deg = dict(graph.out_degree())
+    top5 = sorted(out_deg.items(), key=lambda kv: kv[1], reverse=True)[:5]
+    return [(name_by_id.get(node_id, node_id), degree) for node_id, degree in top5]
+
+
 # Same colors used for both the linear and log-log combined figures, so
 # in-degree/out-degree are identifiable at a glance across either plot.
 IN_DEGREE_COLOR = "#4C6EF5"    # blue -- same hue as the old solo in-degree chart
@@ -552,7 +559,7 @@ def plot_island_closeup(graph, nodes, out_path):
     plt.close(fig)
 
 
-def build_summary(n_nodes, n_edges, isolates, components, in_arr, out_arr, correlation, top5):
+def build_summary(n_nodes, n_edges, isolates, components, in_arr, out_arr, correlation, top5, top5_out):
     """Assemble the machine-readable Week 1 summary from already-computed
     values only -- nothing here is a fresh hard-coded number."""
     non_giant_multi = components["multi_node_components"]
@@ -581,6 +588,7 @@ def build_summary(n_nodes, n_edges, isolates, components, in_arr, out_arr, corre
             "pearson_correlation_in_vs_out_degree": float(correlation),
         },
         "top5_in_degree": [{"name": name, "in_degree": int(degree)} for name, degree in top5],
+        "top5_out_degree": [{"name": name, "out_degree": int(degree)} for name, degree in top5_out],
         "largest_non_giant_component": {
             "size": len(largest_non_giant),
             "members": largest_non_giant,
@@ -600,6 +608,7 @@ def main():
     graph, nodes, edges = load_graph()
     n_nodes, n_edges, isolates = verify(graph)
     top5 = top5_in_degree(graph, nodes)
+    top5_out = top5_out_degree(graph, nodes)
 
     linear_fig_path = ASSETS_DIR / "week1_degree_distribution_linear.png"
     plot_degree_distribution_linear(graph, linear_fig_path)
@@ -620,6 +629,9 @@ def main():
     print(f"Isolates: {len(isolates)}")
     print("Top 5 by in-degree:")
     for name, degree in top5:
+        print(f"  {name}: {degree}")
+    print("Top 5 by out-degree:")
+    for name, degree in top5_out:
         print(f"  {name}: {degree}")
     print(f"Out-degree: min={out_arr.min()}, max={out_arr.max()}, mean={out_arr.mean():.4f}")
     print(f"In-degree:  min={in_arr.min()}, max={in_arr.max()}, mean={in_arr.mean():.4f}")
@@ -661,7 +673,7 @@ def main():
     plot_island_closeup(graph, nodes, island_path)
     print(f"Island close-up written to: {island_path}")
 
-    summary = build_summary(n_nodes, n_edges, isolates, components, in_arr, out_arr, correlation, top5)
+    summary = build_summary(n_nodes, n_edges, isolates, components, in_arr, out_arr, correlation, top5, top5_out)
     summary_path = DATA_DIR / "week1_summary.json"
     save_summary(summary, summary_path)
     print(f"Summary JSON written to: {summary_path}")
