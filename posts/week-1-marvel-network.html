@@ -85,6 +85,15 @@
     </figure>
   </div>
 
+  <p><strong>Top 5 by in-degree:</strong></p>
+  <ol class="rank-list">
+    <li><span class="rank">1</span><span class="name">Spider-Man</span><span class="metric">106 in-links</span></li>
+    <li><span class="rank">2</span><span class="name">Hulk</span><span class="metric">64 in-links</span></li>
+    <li><span class="rank">3</span><span class="name">Wolverine (character)</span><span class="metric">60 in-links</span></li>
+    <li><span class="rank">4</span><span class="name">Doctor Strange</span><span class="metric">50 in-links</span></li>
+    <li><span class="rank">5</span><span class="name">Deadpool</span><span class="metric">33 in-links</span></li>
+  </ol>
+
   <h2>In-degree vs. out-degree</h2>
   <p>
     In-degree and out-degree aren't the same thing here: in-degree counts how many other
@@ -100,14 +109,24 @@
     <figcaption>In-degree vs. out-degree, one point per character. Pearson <em>r</em> &asymp; 0.4965 — a moderate but far from tight relationship.</figcaption>
   </figure>
 
-  <p><strong>Top 5 by in-degree:</strong></p>
-  <ol class="rank-list">
-    <li><span class="rank">1</span><span class="name">Spider-Man</span><span class="metric">106 in-links</span></li>
-    <li><span class="rank">2</span><span class="name">Hulk</span><span class="metric">64 in-links</span></li>
-    <li><span class="rank">3</span><span class="name">Wolverine (character)</span><span class="metric">60 in-links</span></li>
-    <li><span class="rank">4</span><span class="name">Doctor Strange</span><span class="metric">50 in-links</span></li>
-    <li><span class="rank">5</span><span class="name">Deadpool</span><span class="metric">33 in-links</span></li>
-  </ol>
+  <h2>In- vs. out-degree, on log-log axes</h2>
+  <p>
+    The linear scatter above put the Pearson correlation between in- and out-degree at only
+    &asymp;&nbsp;0.50. Redrawing the same comparison on log-log axes — plotting degree&nbsp;+&nbsp;1
+    so the isolated characters stay on the chart — sharpens the picture. The dashed diagonal marks
+    in-degree&nbsp;=&nbsp;out-degree: characters above it are referenced by more articles than they
+    link out from (the celebrities), while characters below it point at more articles than point
+    back at them (the generous linkers). In rank terms the two are strongly related — Spearman
+    &rho;&nbsp;&asymp;&nbsp;0.70
+    (<em>p</em>&nbsp;&asymp;&nbsp;2.4&nbsp;&times;&nbsp;10<sup>&minus;46</sup>) — but the labelled
+    outliers show they are not interchangeable: Spider-Man and Hulk sit far above the diagonal,
+    while Betsy Braddock, Cloak and Dagger, and Adam Warlock sit far below it.
+  </p>
+
+  <figure>
+    <img src="../assets/week1/week1_in_vs_out_degree_loglog.png" alt="Log-log scatter of in-degree vs. out-degree for all 303 Marvel characters, with the in-degree = out-degree diagonal and the most extreme characters labelled">
+    <figcaption>In-degree vs. out-degree on log-log axes (degree&nbsp;+&nbsp;1). Spearman &rho; &asymp; 0.70 — a strong rank correlation, but the labelled outliers show the two leaderboards barely overlap.</figcaption>
+  </figure>
 
   <h2>Visualizing the network</h2>
   <p>
@@ -123,6 +142,26 @@
   <img src="../assets/week1/week1_network.png" alt="Visualization of the full 303-node Week 1 Marvel character network, showing the giant component, a separate 9-node component, and 17 isolated characters">
   <figcaption>The full network. Blue nodes belong to the 277-character giant component; amber nodes are a separate 9-character island; gray nodes are the 17 isolated characters. Node size scales with in-degree.</figcaption>
 </figure>
+
+<article class="post wide">
+
+  <h2>Rescaling the network</h2>
+  <p>
+    In the full-network drawing above, node size scales linearly with in-degree, which lets
+    Spider-Man (106 in-links) dominate the canvas. Rescaling size to the square root of in-degree
+    keeps the hubs biggest while compressing the range — a character with in-degree 106 draws at
+    about 10&times; the radius of an in-degree-1 node rather than 106&times; — so the mid-tier
+    structure becomes readable: the dense cores around the spider- and X-lineage characters, the
+    amber island off to the side, and the 17 gray isolates, without one hub swallowing everything.
+    The ten most-referenced characters are labelled directly.
+  </p>
+
+  <figure>
+    <img src="../assets/week1/week1_network_sqrt.png" alt="Full 303-node Week 1 Marvel network drawn with node size proportional to the square root of in-degree, top-10 characters labelled">
+    <figcaption>The same 303-node network, node size &prop; &radic;in-degree. Labels mark the top 10 by in-degree: Spider-Man (106), Hulk (64), Wolverine (60), Doctor Strange (50), Deadpool (33), She-Hulk (29), Scarlet Witch (28), Black Panther (27), Cyclops (26), and Luke Cage (25).</figcaption>
+  </figure>
+
+</article>
 
 <p class="lede-connector">
   Every node below is one of the 303 Marvel characters; a directed edge means one character's
@@ -224,56 +263,6 @@
     still hide a disconnected 8.6% once you actually go looking for weakly connected components.
   </blockquote>
 
-  <h2>What surprised us</h2>
-  <p>
-    The in-degree distribution is heavily skewed: Spider-Man alone has nearly double the in-degree
-    of the next-closest character (Hulk, 64), consistent with the long-tailed shape in the log-log
-    plot above. And the network is less fully connected than it first looks — it isn't just the 17
-    isolated characters sitting outside the main story; the separate nine-character island means
-    26 characters in total (about 8.6% of the roster) never connect back to the giant component.
-    Skipping the "add nodes before edges" step would have hidden all 17 isolates and made the
-    network look artificially smaller and more connected than it really is.
-  </p>
-
-</article>
-
-<article class="post wide">
-
-  <h2>In- vs. out-degree, on log-log axes</h2>
-  <p>
-    The linear scatter above put the Pearson correlation between in- and out-degree at only
-    &asymp;&nbsp;0.50. Redrawing the same comparison on log-log axes — plotting degree&nbsp;+&nbsp;1
-    so the isolated characters stay on the chart — sharpens the picture. The dashed diagonal marks
-    in-degree&nbsp;=&nbsp;out-degree: characters above it are referenced by more articles than they
-    link out from (the celebrities), while characters below it point at more articles than point
-    back at them (the generous linkers). In rank terms the two are strongly related — Spearman
-    &rho;&nbsp;&asymp;&nbsp;0.70
-    (<em>p</em>&nbsp;&asymp;&nbsp;2.4&nbsp;&times;&nbsp;10<sup>&minus;46</sup>) — but the labelled
-    outliers show they are not interchangeable: Spider-Man and Hulk sit far above the diagonal,
-    while Betsy Braddock, Cloak and Dagger, and Adam Warlock sit far below it.
-  </p>
-
-  <figure>
-    <img src="../assets/week1/week1_in_vs_out_degree_loglog.png" alt="Log-log scatter of in-degree vs. out-degree for all 303 Marvel characters, with the in-degree = out-degree diagonal and the most extreme characters labelled">
-    <figcaption>In-degree vs. out-degree on log-log axes (degree&nbsp;+&nbsp;1). Spearman &rho; &asymp; 0.70 — a strong rank correlation, but the labelled outliers show the two leaderboards barely overlap.</figcaption>
-  </figure>
-
-  <h2>Rescaling the network</h2>
-  <p>
-    In the full-network drawing above, node size scales linearly with in-degree, which lets
-    Spider-Man (106 in-links) dominate the canvas. Rescaling size to the square root of in-degree
-    keeps the hubs biggest while compressing the range — a character with in-degree 106 draws at
-    about 10&times; the radius of an in-degree-1 node rather than 106&times; — so the mid-tier
-    structure becomes readable: the dense cores around the spider- and X-lineage characters, the
-    amber island off to the side, and the 17 gray isolates, without one hub swallowing everything.
-    The ten most-referenced characters are labelled directly.
-  </p>
-
-  <figure>
-    <img src="../assets/week1/week1_network_sqrt.png" alt="Full 303-node Week 1 Marvel network drawn with node size proportional to the square root of in-degree, top-10 characters labelled">
-    <figcaption>The same 303-node network, node size &prop; &radic;in-degree. Labels mark the top 10 by in-degree: Spider-Man (106), Hulk (64), Wolverine (60), Doctor Strange (50), Deadpool (33), She-Hulk (29), Scarlet Witch (28), Black Panther (27), Cyclops (26), and Luke Cage (25).</figcaption>
-  </figure>
-
   <h2>The island, up close</h2>
   <p>
     The amber region in the network drawings is worth a closer look: nine characters — Vyking,
@@ -288,6 +277,21 @@
     <img src="../assets/week1/week1_island9.png" alt="Close-up of the 9-character Morituri island, drawn on its own with directed edges and labels">
     <figcaption>The 9-character island on its own, edges directed as everywhere else. Every link here stays inside the island — none reach to or from the giant component.</figcaption>
   </figure>
+
+</article>
+
+<article class="post wide">
+
+  <h2>What surprised us</h2>
+  <p>
+    The in-degree distribution is heavily skewed: Spider-Man alone has nearly double the in-degree
+    of the next-closest character (Hulk, 64), consistent with the long-tailed shape in the log-log
+    plot above. And the network is less fully connected than it first looks — it isn't just the 17
+    isolated characters sitting outside the main story; the separate nine-character island means
+    26 characters in total (about 8.6% of the roster) never connect back to the giant component.
+    Skipping the "add nodes before edges" step would have hidden all 17 isolates and made the
+    network look artificially smaller and more connected than it really is.
+  </p>
 
   <h2>The findings</h2>
   <p>
