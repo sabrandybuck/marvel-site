@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 2 — The Web of Heroes</title>
+<title>Week 2: Models &amp; null models — The Web of Heroes</title>
+<meta name="description" content="Testing the Week 1 Marvel network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls, and checking the friendship paradox hero by hero.">
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -22,16 +23,361 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 2</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 2 · Models &amp; null models</div>
+  <h1>Is Spider-Man an accident?</h1>
+  <p class="subtitle">Testing the Marvel network against three different kinds of "nothing special going on here," then growing a network that tries to build a Marvel of its own.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">Setting up the question</h2>
+  <p>
+    Week 1 found a heavily skewed network: 303 characters, mean in-degree 5.89, and one
+    character — Spider-Man — cited by 106 others, almost double the runner-up (Hulk, 64). That
+    kind of shape invites a specific question: is a hub that large just what happens when you
+    scatter 1,784 links across 303 nodes, or does it take something more deliberate — an actual
+    rich-get-richer mechanism — to produce it at all?
+  </p>
+  <p>
+    This week adds no new data. Everything below runs on the same 303 nodes and 1,784 directed
+    edges from <code>data/week1</code>, computed live in your browser. Four questions, in order:
+    could pure chance produce this? Once every character's exact number of links is frozen and
+    only <em>who</em> connects to whom is randomized, what changes and what doesn't? Can a growth
+    model that explicitly favors the well-connected reproduce it, and what does it get wrong? And
+    what does this shape mean for an individual hero looking at their own connections?
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    The simplest null model treats every possible directed pair of characters as equally,
+    independently likely to link: an Erdős–Rényi random graph with the same 303 nodes and 1,784
+    edges as the real network. If a hub like Spider-Man's 106 in-links is just what falls out of
+    scattering that many edges at random, an Erdős–Rényi (ER) draw should occasionally come close.
+  </p>
+  <p>
+    It doesn't. Offline, we ran 300 independent ER draws: across all of them, the biggest hub's
+    in-degree ranged from 11 to 18 (mean 13.9, standard deviation 1.2). Spider-Man's in-degree is
+    106 — about 6× larger than the largest of 300 random draws, and roughly 74 standard deviations
+    above the random mean. Draw your own random network below and see where its biggest hub lands.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 1,784 directed edges among 303 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Week&nbsp;1 data files in your browser. What this does and doesn't
+    show: ER only tests "edges placed with no preference at all" — it doesn't test whether the
+    real distribution is a power law (that needs proper maximum-likelihood fitting, which this
+    page doesn't attempt). All this can say is that whatever shape the real in-degree distribution
+    has, independent random linking doesn't produce it.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    ER is a strong null — it throws away how many links each character has, too. A tighter
+    question: if every character keeps <em>exactly</em> their real in-degree and out-degree, and
+    only the wiring — who links to whom — is scrambled, does the network still look distinctive?
+  </p>
+  <p>
+    We test this with a degree-preserving directed shuffle: repeatedly take a chain of edges
+    a→b, b→c, c→d and rewire it to a→c, c→b, b→d, which changes who's connected to whom but leaves
+    every node's in-degree and out-degree exactly as they were. Two statistics, defined precisely:
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — the average local clustering coefficient on the
+      <em>undirected projection</em> of the network (an edge exists between two characters if
+      either one's article links to the other's), averaged over all 303 nodes, with degree-&lt;2
+      nodes contributing 0. This is the same undirected projection used below in the friendship
+      paradox section. Real value: <strong>0.3075</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges = 700 ÷ 1,784 =
+      <strong>0.3924</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, we ran 300 shuffle realizations (3,000 swaps each) for both statistics at once.
+    Clustering's null mean was 0.180 (sd 0.009) — the real value sits about 14 standard deviations
+    above it, and not one of the 300 shuffles reached it (empirical p ≈ 0). Reciprocity's null mean
+    was 0.069 (sd 0.007) — the real value sits about 44 standard deviations above that, again
+    beyond all 300 shuffles. Both survive the shuffle: whatever produces this network's
+    triangle-heavy structure and its mutual-citation rate, it is not explained by degree alone.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Two things worth being precise about. <strong>First, the distinction:</strong> the ER test above
+  asks "what if edges were placed with no constraint at all?" — this shuffle asks the narrower
+  question, "what if the exact degree sequence stayed fixed, and only the wiring were
+  randomized?" <strong>Second, a caveat on the method:</strong> this swap preserves each node's
+  <em>directed</em> in-degree and out-degree exactly — that's what it's built to do. It does
+  <em>not</em> guarantee each node's <em>undirected-projection</em> degree stays fixed, because a
+  swap can turn a reciprocal pair into a one-way link (or the reverse), which changes how many
+  distinct undirected neighbors a node has. That's the right null for reciprocity and directed
+  structure; it's a slightly looser null for the undirected clustering number than a literal
+  undirected-degree-preserving shuffle would be, and we're flagging that rather than hiding it.
+</div>
+
+<p class="lede-connector">
+  One more thing we checked offline, but didn't turn into a control above: whether the 9-character
+  island Week 1 found ever reconnects to the giant component under this shuffle. Across all 300
+  offline realizations, the giant component's size never changed — it was exactly 277, every
+  single time (standard deviation 0). That isn't a close call decided by chance; it's guaranteed by
+  how the swap works. A swap only ever rewires edges along an existing directed walk (a→b→c→d),
+  and that walk can never cross between two weakly connected components, because there are no
+  edges between them to walk across. So this particular null model can't even ask "would the
+  island reconnect by chance" — the component partition is invariant under it by construction, not
+  by result. That's why it isn't offered as a third toggle above: a histogram with zero variance
+  wouldn't be testing anything.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Preferential attachment: start small and grow to 303 nodes one at a time; each newcomer sends
+    <var>m</var> outgoing links to existing characters, chosen with probability proportional to how
+    many in-links that character already has. This is the classic rich-get-richer growth
+    mechanism — specifically its directed, citation-network form (sometimes called the Price
+    model), which fits here since the real network is directed with clearly different in- and
+    out-degree roles, unlike the usual undirected Barabási–Albert setup. Out-degree is exactly
+    <var>m</var> for every non-seed node by construction — the growth ingredient; in-degree
+    accumulates by preference — the rich-get-richer ingredient.
+  </p>
+  <p>
+    This is a generative <em>hypothesis</em> being tested against the data, not a claim about how
+    the Wikipedia article network actually got written.
+  </p>
+  <p>
+    At m=6 (chosen to land close to the real edge count: 6×303 ≈ 1,818 vs. the real 1,784), we ran
+    50 trials offline. Every single one produced a bigger hub than Spider-Man: max in-degree ranged
+    from 116 to 166 (mean 141), against the real network's 106. Preferential attachment doesn't
+    just reproduce a big hub here — at this <var>m</var>, it reliably overshoots it. Lowering
+    <var>m</var> brings the model's hub size down (m=3: range 70–137, mean 99, much closer to 106;
+    m=2: range 44–125, mean 79) but moves the total edge count further from the real 1,784 — no
+    single <var>m</var> we tried matches both the network's density and its hub size at once. And
+    in every trial, at every <var>m</var>: one connected component, zero isolated characters —
+    versus the real network's 17 isolates and a separate 9-character island. A model where everyone
+    who ever joins immediately attaches to the network can't produce someone nobody ever mentions.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="12" step="1" value="6" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">6</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=303 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions: take the undirected projection (a link either way counts as one
+    connection — the same projection used for clustering above). A character's <strong>degree</strong>
+    is their number of distinct neighbors; their <strong>average neighbor degree</strong> is the
+    mean degree of those neighbors. Averaged over the whole network, ⟨k⟩ = 9.465, while the
+    edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 22.08 — more than double. That gap is the
+    friendship paradox, and it's worth stating plainly: ⟨k²⟩⁄⟨k⟩ is a pure function of the degree
+    sequence itself, so it's mathematically guaranteed to survive a degree-preserving shuffle —
+    it isn't something this page needs to test, and we haven't added a shuffle control here for
+    that reason.
+  </p>
+  <p>
+    What isn't guaranteed is what it looks like character by character. Of the 286 characters with
+    at least one connection, 250 (87.4%) have neighbors who are on average more connected than they
+    are; 36 (12.6%) are themselves more connected than their average neighbor. Only two characters
+    are never out-popularitied by any of their own neighbors — their degree is greater than or
+    equal to every one of their neighbors': <strong>Spider-Man</strong>, and, inside the isolated
+    Morituri island, <strong>Radian</strong>.
+  </p>
+  <p>Search for a hero below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a hero</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a hero by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No hero selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Week&nbsp;1 data files in your browser. The 17 fully isolated
+    characters have no neighbors to compare against and are excluded here.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Independent random edges (ER) are rejected outright.</strong> No realization comes
+      remotely close to the real hub structure — 300 draws topped out at max in-degree 18, against
+      the real 106.
+    </li>
+    <li>
+      <strong>Degree alone doesn't explain the clustering or the reciprocity either.</strong> Both
+      statistics sit far outside a degree-preserving shuffle's null distribution (z ≈ 14 and z ≈
+      44) — there is real relational structure here (character families, teams, mutual citations)
+      beyond what each character's link count would predict. The one property that turned out to
+      be invariant under this shuffle — the giant-component/island split — is invariant by
+      construction, a property of the method rather than a discovery about the Marvel network.
+    </li>
+    <li>
+      <strong>Preferential attachment gets the mechanism right and the calibration wrong.</strong>
+      A growth-plus-preference model does produce extreme hubs — at any tested <var>m</var>, every
+      trial's hub beat Spider-Man's real in-degree. But no single <var>m</var> matched both the
+      real edge count and the real hub size simultaneously, and the model structurally cannot
+      produce isolated characters or a disconnected island: everyone who joins, connects.
+    </li>
+    <li>
+      <strong>The friendship paradox holds, strongly, and for two different reasons.</strong> At
+      the network level, ⟨k²⟩⁄⟨k⟩ (22.08) more than doubles ⟨k⟩ (9.465) — guaranteed by the degree
+      sequence alone. At the individual level, 87.4% of connected characters personally experience
+      it — but exactly which characters serve as "the popular friend" for whom depends on the
+      network's actual wiring, not just on how many links everyone has.
+    </li>
+  </ul>
+  <p>
+    So: no, Spider-Man isn't an accident of scale or density. Something resembling
+    rich-get-richer growth is a much better fit for the real hub structure than any of the random
+    baselines — but it's a generative hypothesis this data is <em>consistent with</em>, not
+    something these four tests prove actually happened, and even the best-fitting version of it
+    still can't explain the 17 characters nobody bothered to link to at all.
+  </p>
 
   <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2.py</code>, run against the same frozen data in
+    <code>data/week1/</code> that Week 1 uses; it writes <code>data/week2/week2_summary.json</code>.
+    Every interactive figure on this page recomputes its own live version of the same algorithm
+    in your browser — nothing here is hand-typed separately from the code that produced it.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -41,10 +387,12 @@
 
 <footer>
   <div class="wrap">
-    Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    Built for DTU course 02805, Social Graphs and Interactions · data: frozen Week 1 snapshot
+    (Wikipedia, 2026-08-26) from the 02805 course data page · analysis: NetworkX + stdlib, code in
+    <code>analysis/build_week2.py</code>; all interactive figures recompute live in the browser
   </div>
 </footer>
 
+<script src="week2.js"></script>
 </body>
 </html>

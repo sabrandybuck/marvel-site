@@ -699,3 +699,153 @@ article.post blockquote {
 }
 
 .figure-grid figure { margin: 0; }
+
+/* ---- Week 2 extensions: kept inside the same design system ----
+   (dark surfaces, --line borders, --radius corners, mono labels) --
+   no new colors, no competing visual language. Hand-rolled SVG charts
+   (CCDF, histogram, scatter) live in posts/week2.js and are styled via
+   the .chart-* classes below rather than a charting library. */
+
+.week2-quicknav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 8px;
+  padding: 12px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.week2-quicknav a {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.week2-quicknav a:hover { color: var(--text); border-color: var(--accent); text-decoration: none; }
+
+/* SVG chart container -- dark, matching the rest of the page (unlike the
+   Week 1 vis-network box, which needs a white background because
+   vis-network doesn't theme; our hand-rolled SVG charts can just use the
+   site's own palette directly). */
+.chart-box {
+  width: 100%;
+  height: 300px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+@media (min-width: 640px) {
+  .chart-box { height: 360px; }
+}
+
+.chart-svg { width: 100%; height: 100%; display: block; }
+.chart-axis { stroke: var(--text-dim); stroke-width: 1; }
+.chart-gridline { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
+.chart-tick-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; }
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.chart-legend-item { display: flex; align-items: center; gap: 6px; }
+
+.chart-legend-swatch {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.slider-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 180px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  outline: none;
+}
+
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+.slider-row input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+.slider-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  min-width: 2ch;
+  text-align: right;
+}
+
+.draw-history {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.draw-chip {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.draw-chip.is-latest { color: #fff; background: var(--accent-soft); border-color: var(--accent); }
+
+.stat-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.test-readout {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.test-readout .stat-card { padding: 10px 12px; }
+.test-readout .stat-value { font-size: 17px; }
