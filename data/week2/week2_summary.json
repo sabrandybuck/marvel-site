@@ -1,0 +1,142 @@
+{
+  "seed": 20260909,
+  "baseline": {
+    "n": 303,
+    "m_directed": 1784,
+    "in_degree": {
+      "min": 0,
+      "max": 106,
+      "mean": 5.887788778877888
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 28,
+      "mean": 5.887788778877888
+    },
+    "undirected_projection": {
+      "edge_count": 1434,
+      "degree_min": 0,
+      "degree_max": 106,
+      "degree_mean": 9.465346534653465
+    },
+    "clustering": {
+      "definition": "average local clustering coefficient on the undirected projection (edge if source->target OR target->source), all 303 nodes, nodes with degree < 2 contribute 0",
+      "value": 0.3074542597648072
+    },
+    "reciprocity": {
+      "definition": "mutual directed edges / total directed edges",
+      "mutual_edge_fraction": 0.3923766816143498
+    },
+    "components": {
+      "weakly_connected_count": 19,
+      "giant_component_size": 277
+    },
+    "friendship_paradox": {
+      "definition": "undirected projection; degree = distinct neighbor count; avg_neighbor_degree = mean degree of a node's own neighbors",
+      "mean_k": 9.465346534653465,
+      "k2_over_k": 22.081589958158997,
+      "note": "k2_over_k is the edge-weighted mean neighbor degree <k^2>/<k>; it is a pure function of the degree sequence, so it is mathematically invariant under a degree-preserving shuffle -- not something that needs testing.",
+      "n_with_neighbors": 286,
+      "n_isolated": 17,
+      "n_paradox_holds": 250,
+      "n_paradox_fails": 36,
+      "n_paradox_tied": 0,
+      "local_degree_champions": [
+        "Radian_(Morituri)",
+        "Spider-Man"
+      ]
+    }
+  },
+  "er_null": {
+    "n_draws": 300,
+    "n": 303,
+    "m": 1784,
+    "max_in_degree": {
+      "min": 11,
+      "max": 18,
+      "mean": 13.863333333333333,
+      "stdev": 1.2428417258667959
+    }
+  },
+  "shuffle_null": {
+    "n_realizations_requested": 300,
+    "n_realizations_completed": 300,
+    "swaps_per_realization": 3000,
+    "clustering_test": {
+      "null_mean": 0.17991803481850357,
+      "null_stdev": 0.00903702828704995,
+      "z_score": 14.112628719892676,
+      "empirical_p": 0.0
+    },
+    "reciprocity_test": {
+      "null_mean": 0.06931614349775785,
+      "null_stdev": 0.007297718338111889,
+      "z_score": 44.26870470314372,
+      "empirical_p": 0.0
+    },
+    "giant_component_test": {
+      "null_mean": 277.0,
+      "null_stdev": 0.0,
+      "z_score": null,
+      "empirical_p": 1.0
+    }
+  },
+  "ba_reference_by_m": {
+    "2": {
+      "n": 303,
+      "m": 2,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 44,
+        "max": 125,
+        "mean": 79.34
+      },
+      "mean_in_degree_check": 1.99009900990099,
+      "n_weakly_connected_components_last_trial": 1,
+      "n_isolates_last_trial": 0,
+      "note": "By construction every non-seed node attaches on arrival, so BA/Price-model growth cannot produce isolated nodes or a disconnected island the way the real network does (Week 1: 17 isolates, a separate 9-node island)."
+    },
+    "3": {
+      "n": 303,
+      "m": 3,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 70,
+        "max": 137,
+        "mean": 98.88
+      },
+      "mean_in_degree_check": 2.9735973597359737,
+      "n_weakly_connected_components_last_trial": 1,
+      "n_isolates_last_trial": 0,
+      "note": "By construction every non-seed node attaches on arrival, so BA/Price-model growth cannot produce isolated nodes or a disconnected island the way the real network does (Week 1: 17 isolates, a separate 9-node island)."
+    },
+    "6": {
+      "n": 303,
+      "m": 6,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 116,
+        "max": 166,
+        "mean": 141.16
+      },
+      "mean_in_degree_check": 5.884488448844884,
+      "n_weakly_connected_components_last_trial": 1,
+      "n_isolates_last_trial": 0,
+      "note": "By construction every non-seed node attaches on arrival, so BA/Price-model growth cannot produce isolated nodes or a disconnected island the way the real network does (Week 1: 17 isolates, a separate 9-node island)."
+    },
+    "9": {
+      "n": 303,
+      "m": 9,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 151,
+        "max": 183,
+        "mean": 167.18
+      },
+      "mean_in_degree_check": 8.735973597359736,
+      "n_weakly_connected_components_last_trial": 1,
+      "n_isolates_last_trial": 0,
+      "note": "By construction every non-seed node attaches on arrival, so BA/Price-model growth cannot produce isolated nodes or a disconnected island the way the real network does (Week 1: 17 isolates, a separate 9-node island)."
+    }
+  }
+}
