@@ -35,6 +35,7 @@
     <a href="#shuffle">Shuffle test</a>
     <a href="#ba">Grow a network</a>
     <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
     <a href="#synthesis">Takeaways</a>
   </nav>
 
@@ -330,6 +331,76 @@
     characters have no neighbors to compare against and are excluded here.
   </figcaption>
 </figure>
+
+<article class="post wide">
+
+  <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+  <p>
+    We plotted the CCDF P(K&nbsp;&ge;&nbsp;k) of in-degree on the frozen Week 1 snapshot (303
+    characters, 1,784 directed links) and drew two nulls against it: the <strong>ER random
+    graph</strong>, whose in-degree is exactly Poisson with
+    λ&nbsp;=&nbsp;1,784/303&nbsp;&asymp;&nbsp;5.89, and an ensemble of 200 simulated
+    <strong>Barabási–Albert</strong> graphs (N&nbsp;=&nbsp;303, m&nbsp;=&nbsp;3 — mean degree
+    5.94, matching ours), averaged with a 5–95% band. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, <code>powerlaw</code> package) then summarizes the tail: the
+    exponent α&#770; with its standard error, and the cutoff k&#770;<sub>min</sub> the fit picks
+    itself.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">5.89</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">106 · Spider-Man</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.22 ± 0.12</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 5 · 112 of 245</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/week2_ccdf_models.png" alt="CCDF of Marvel in-degree on log-log axes against an exact Poisson ER null and a 200-seed Barabási–Albert ensemble with a 5–95% band">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the BA ensemble (orange,
+      5–95% band over 200 seeds). Poisson exits the chart by k&nbsp;&asymp;&nbsp;18, and Spider-Man's
+      106 nearly doubles the heaviest hub any BA seed produced (77).</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/week2_ccdf_fit.png" alt="CCDF of the Marvel in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.22&nbsp;±&nbsp;0.12 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;5. It tracks the mid-tail; past k&nbsp;&asymp;&nbsp;20 the
+      real curve bends below the line.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not random.</strong> Under the ER null, a character with in-degree 20 or more should
+    essentially never exist: the expected count is 0.0012, the real network has 21. And a degree of
+    106 is 3&nbsp;&times;&nbsp;10<sup>&minus;89</sup> off the Poisson scale — the gray curve leaves
+    the chart by k&nbsp;&asymp;&nbsp;18 while the real network still has 10 characters beyond it.
+  </p>
+  <p>
+    <strong>Heavier than BA.</strong> From k&nbsp;&asymp;&nbsp;7 onward the real CCDF runs above the
+    BA ensemble's 95% band and stays there; the fitted exponent (α&#770;&nbsp;=&nbsp;2.22) is well
+    below BA's theoretical 3.0 — a smaller exponent is a heavier tail — and Spider-Man's 106 clears
+    BA's ensemble maximum of 77. Forced to pick, random or BA: BA, easily. BA just
+    <em>understates</em> Marvel's skew.
+  </p>
+  <p>
+    <strong>Neither, strictly.</strong> The power law describes the tail, not the network: only 112
+    of the 245 cited characters sit in the fitted region, the bulk below it doesn't, and a network
+    this small carries wide uncertainty on α&#770;. "Scale-free-looking tail" is as far as this data
+    goes.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> A heavy tail doesn't show preferential attachment — many
+      processes produce one, and the frozen snapshot has no timestamps, so BA's growth story can't
+      be tested at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from just 112 tail points, and everything
+      below k&nbsp;=&nbsp;5 — including the 58 never-cited characters — is outside the fit.</li>
+    <li><strong>A like-for-like BA test.</strong> BA is undirected while our measure is directed
+      in-degree: a shape comparison, not a fitted model verdict.</li>
+  </ul>
+
+</article>
 
 <article class="post wide">
 
