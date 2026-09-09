@@ -699,3 +699,71 @@ article.post blockquote {
 }
 
 .figure-grid figure { margin: 0; }
+
+/* ---- Week 2 additions: collapsible sections ----
+   Week 2's post turns each <h2> section into a native <details>/<summary>
+   collapsible. Everything below is scoped under details.w2-section /
+   .w2-sections-controls, class names only the Week 2 post uses, so other
+   weeks' pages are unaffected. All sections ship open — collapsing is
+   opt-in per section, or via the post's "Collapse sections" control. */
+
+.w2-sections-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin: -14px 0 0;
+}
+
+details.w2-section {
+  /* smooth height animation where supported (Chromium 131+); the toggle
+     is simply instant wherever these two rules are ignored */
+  interpolate-size: allow-keywords;
+}
+
+details.w2-section::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition: block-size 0.25s ease, content-visibility 0.25s allow-discrete;
+}
+
+details.w2-section[open]::details-content {
+  block-size: auto;
+}
+
+details.w2-section > summary {
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  cursor: pointer;
+}
+
+details.w2-section > summary::-webkit-details-marker { display: none; }
+
+details.w2-section > summary:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 4px;
+}
+
+/* the h2 keeps its article.post styling (spacing + underline); the flex
+   row just lets the underline run up to the chevron */
+details.w2-section > summary h2 {
+  flex: 1;
+}
+
+details.w2-section > summary::after {
+  content: "▾";
+  flex: none;
+  align-self: center;
+  color: var(--text-dim);
+  font-size: 15px;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+details.w2-section[open] > summary::after {
+  transform: rotate(0deg);
+}
+
+details.w2-section > summary:hover h2 {
+  border-bottom-color: var(--text-dim);
+}
