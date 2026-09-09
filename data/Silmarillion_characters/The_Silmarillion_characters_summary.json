@@ -1,0 +1,71 @@
+{
+  "node_count": 21,
+  "directed_edge_count": 151,
+  "isolate_count": 0,
+  "weakly_connected_components": {
+    "count": 1,
+    "giant_component_size": 21,
+    "non_giant_component_sizes": []
+  },
+  "degree": {
+    "in_degree": {
+      "min": 1,
+      "max": 15,
+      "mean": 7.190476190476191
+    },
+    "out_degree": {
+      "min": 2,
+      "max": 12,
+      "mean": 7.190476190476191
+    },
+    "pearson_correlation_in_vs_out_degree": 0.6274980056244537
+  },
+  "top5_in_degree": [
+    {
+      "name": "Morgoth",
+      "in_degree": 15
+    },
+    {
+      "name": "Elrond",
+      "in_degree": 14
+    },
+    {
+      "name": "Eärendil and Elwing",
+      "in_degree": 12
+    },
+    {
+      "name": "Galadriel",
+      "in_degree": 12
+    },
+    {
+      "name": "Fëanor",
+      "in_degree": 10
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Morgoth",
+      "out_degree": 12
+    },
+    {
+      "name": "Galadriel",
+      "out_degree": 11
+    },
+    {
+      "name": "Thingol",
+      "out_degree": 11
+    },
+    {
+      "name": "Eärendil and Elwing",
+      "out_degree": 10
+    },
+    {
+      "name": "Fëanor",
+      "out_degree": 10
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 0,
+    "members": []
+  }
+}

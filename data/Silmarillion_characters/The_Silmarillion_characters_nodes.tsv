@@ -1,0 +1,25 @@
+# marvel-crawler — The_Silmarillion_characters crawl (2026-09-09)
+# All 21 pages reachable in Wikipedia's Category:The Silmarillion characters (category members with redirects resolved and deduplicated).
+# node_id matches <slug>_edges.tsv.
+node_id	name	wikidata_id	url	description
+Ancalagon_the_Black	Ancalagon the Black	Q1980565	https://en.wikipedia.org/wiki/Ancalagon_the_Black	Ancalagon, or Ancalagon the Black, is a dragon that appears in the legends of British writer J. R. R. Tolkien, and particularly in his novel The Silmarillion.
+Celebrimbor	Celebrimbor	Q833015	https://en.wikipedia.org/wiki/Celebrimbor	Celebrimbor (Sindarin pronunciation: [ˌkɛlɛˈbrimbɔr]) is a fictional character in J. R. R. Tolkien's legendarium.
+Elrond	Elrond	Q208426	https://en.wikipedia.org/wiki/Elrond	Elrond Half-elven is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Eärendil_and_Elwing	Eärendil and Elwing	Q593531	https://en.wikipedia.org/wiki/Eärendil_and_Elwing	Eärendil (Quenya pronunciation: [ɛ.aˈrɛn.dil]) the Mariner and his wife Elwing are characters in J. R. R. Tolkien's Middle-earth legendarium.
+Fingolfin	Fingolfin	Q217190	https://en.wikipedia.org/wiki/Fingolfin	Fingolfin (Sindarin: [fiŋˈɡolfin]) is a character in J. R. R. Tolkien's legendarium, appearing in The Silmarillion.
+Finwë_and_Míriel	Finwë and Míriel	Q1154861	https://en.wikipedia.org/wiki/Finwë_and_Míriel	Finwë (Quenya: [ˈfinwɛ]) and  Míriel  (Quenya: [ˈmiːriɛl]) are fictional characters from J. R. R. Tolkien's legendarium.
+Fëanor	Fëanor	Q716794	https://en.wikipedia.org/wiki/Fëanor	Fëanor (Quenya pronunciation: [ˈfɛ.anɔr]) is a fictional character in J. R. R. Tolkien's The Silmarillion.
+Galadriel	Galadriel	Q204274	https://en.wikipedia.org/wiki/Galadriel	Galadriel (IPA: [ɡaˈladri.ɛl]) is a character created by J. R. R. Tolkien in his Middle-earth writings.
+Gandalf	Gandalf	Q177499	https://en.wikipedia.org/wiki/Gandalf	Gandalf, in longer form Gandalf the Grey and later Gandalf the White, is a protagonist in J. R. R. Tolkien's novels The Hobbit and The Lord of the Rings.
+Gil-galad	Gil-galad	Q718383	https://en.wikipedia.org/wiki/Gil-galad	Gil-galad is a fictional character in J. R. R. Tolkien's Middle-earth legendarium, the last High King of the Noldor, one of the main divisions of Elves.
+Glorfindel	Glorfindel	Q753773	https://en.wikipedia.org/wiki/Glorfindel	Glorfindel (Sindarin pronunciation: [ɡlɔrˈfindɛl]) is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Húrin	Húrin	Q770363	https://en.wikipedia.org/wiki/Húrin	Húrin is a fictional character in the Middle-earth legendarium of J. R. R. Tolkien.
+Lúthien_and_Beren	Lúthien and Beren	Q115526988	https://en.wikipedia.org/wiki/Lúthien_and_Beren	Lúthien and Beren are characters in J. R. R. Tolkien's fantasy world Middle-earth.
+Melian_(Middle-earth)	Melian (Middle-earth)	Q753788	https://en.wikipedia.org/wiki/Melian_(Middle-earth)	Melian is a fictional character in J.R.R. Tolkien's Middle-earth legendarium.
+Morgoth	Morgoth	Q80453	https://en.wikipedia.org/wiki/Morgoth	Morgoth Bauglir ([ˈmɔrɡɔθ ˈbau̯ɡlir]; originally Melkor [ˈmɛlkor]) is the primary antagonist of Tolkien's legendarium, the mythic epic by the English author J. R. R. Tolkien and published in parts as The Silmarillion, The Children of Húrin, Beren and Lúthien, and The Fall of Gondolin.
+Saruman	Saruman	Q216489	https://en.wikipedia.org/wiki/Saruman	Saruman, also called Saruman the White, later Saruman of Many Colours, is a fictional character and an antagonist in J. R. R. Tolkien's fantasy novel The Lord of the Rings.
+Sauron	Sauron	Q2281	https://en.wikipedia.org/wiki/Sauron	Sauron () is the title character and the main antagonist of J. R. R. Tolkien's The Lord of the Rings, where he rules the land of Mordor.
+Thingol	Thingol	Q734128	https://en.wikipedia.org/wiki/Thingol	Elu Thingol or Elwë Singollo is a fictional character in J.R.R. Tolkien's Middle-earth legendarium.
+Tuor_and_Idril	Tuor and Idril	Q1806136	https://en.wikipedia.org/wiki/Tuor_and_Idril	Tuor Eladar and Idril Celebrindal are fictional characters from J. R. R. Tolkien's Middle-earth legendarium.
+Túrin_Turambar	Túrin Turambar	Q572434	https://en.wikipedia.org/wiki/Túrin_Turambar	Túrin Turambar (pronounced [ˈtuːrɪn tuˈrambar]) is a fictional character in J. R. R. Tolkien's legendarium.
+Ungoliant	Ungoliant	Q1227698	https://en.wikipedia.org/wiki/Ungoliant	Ungoliant (Sindarin pronunciation: [ʊŋˈɡɔljant]) is a fictional character in J. R. R. Tolkien's legendarium, described as an evil spirit in the form of a giant spider.
