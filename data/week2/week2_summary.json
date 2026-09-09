@@ -1,0 +1,84 @@
+{
+  "dataset": {
+    "source": "frozen Week 1 snapshot (data/week1), 2026-08-26",
+    "node_count": 303,
+    "directed_edge_count": 1784,
+    "mean_in_degree": 5.887788778877888,
+    "median_in_degree": 3.0,
+    "max_in_degree": 106,
+    "max_out_degree": 28,
+    "isolate_count": 17
+  },
+  "er_null": {
+    "lambda": 5.887788778877888,
+    "expected_characters_with_in_degree_ge_10": 23.15410339748905,
+    "observed_characters_with_in_degree_ge_10": 53,
+    "expected_characters_with_in_degree_ge_20": 0.0011952130930227868,
+    "observed_characters_with_in_degree_ge_20": 21,
+    "expected_characters_with_in_degree_ge_106": 3.196094194470187e-89,
+    "expected_characters_with_out_degree_ge_28": 1.2490520439282761e-08
+  },
+  "power_law_fit": {
+    "estimator": "Clauset-Shalizi-Newman (2009) discrete MLE, powerlaw package",
+    "xmin": 5.0,
+    "n_positive": 245,
+    "n_tail": 112,
+    "tail_fraction_of_positive": 0.45714285714285713,
+    "alpha": 2.2236585928435377,
+    "alpha_sigma": 0.11562486879683007,
+    "ks_distance_D": 0.07468170956237491,
+    "likelihood_ratio_tests": {
+      "power_law_vs_exponential": {
+        "R": 4.95342126179322,
+        "p": 0.530342293098372,
+        "favored": "indistinguishable"
+      },
+      "power_law_vs_lognormal": {
+        "R": -3.5724538141489965,
+        "p": 0.12230607595780212,
+        "favored": "indistinguishable"
+      },
+      "power_law_vs_truncated_power_law": {
+        "R": -3.6842039509604767,
+        "p": 0.00663796783285453,
+        "favored": "truncated_power_law"
+      }
+    },
+    "exponential_lambda": 0.11382639355271992
+  },
+  "ba_null": {
+    "n": 303,
+    "m": 3,
+    "n_seeds": 200,
+    "mean_degree": 5.94059405940594,
+    "kmax_mean": 53.165,
+    "kmax_min": 36,
+    "kmax_max": 77
+  },
+  "ccdf_reference_points": {
+    "k": [
+      1,
+      2,
+      5,
+      10,
+      20,
+      50
+    ],
+    "real": [
+      0.8085808580858086,
+      0.6732673267326733,
+      0.3696369636963696,
+      0.17491749174917492,
+      0.06930693069306931,
+      0.013201320132013201
+    ],
+    "poisson": [
+      0.9972268981362151,
+      0.9808994600999371,
+      0.6996429364018184,
+      0.07641618282999686,
+      3.9445976667418705e-06,
+      3.2406886819421473e-29
+    ]
+  }
+}

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 2 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 2: Random, scale-free, or neither? — The Web of Heroes</title>
+  <meta name="description" content="Testing the Marvel network's in-degree distribution against Erdős–Rényi and Barabási–Albert nulls with a CCDF, a Clauset–Shalizi–Newman power-law fit, and an honest list of what the data can't conclude.">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
@@ -22,16 +23,162 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 2</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 2 · Network models &amp; null models</div>
+  <h1>Random, scale-free, or neither?</h1>
+  <p class="subtitle">We put the Marvel in-degree distribution on trial against Erdős–Rényi and
+  Barabási–Albert — with a CCDF, a Clauset–Shalizi–Newman fit, and a frank list of what the data
+  can't decide.</p>
+
+  <h2>What we asked</h2>
+  <p>
+    Week 1 established that fame in the Marvel network is lopsided: the median character is cited
+    3 times, Spider-Man 106. But <em>skewed</em> isn't a model. This week's question is whether the
+    degree distribution actually looks like one of the two canonical suspects — a
+    <strong>random graph</strong> (Erdős–Rényi, where degrees pile up in a Poisson bell around the
+    mean) or a <strong>scale-free network</strong> (Barabási–Albert, where degrees follow a power
+    law and hubs dominate) — or neither.
+  </p>
+
+  <h2>What we did</h2>
+  <p>
+    We reused the frozen Week 1 snapshot — 303 characters, 1,784 directed links — and took
+    <strong>in-degree</strong> as the measure of interest: how many other characters' articles link
+    to yours. To compare shapes fairly we plotted the <strong>CCDF</strong>,
+    P(K&nbsp;&ge;&nbsp;k): the fraction of characters with in-degree <em>at least</em> k. CCDFs
+    don't need binning, so nothing about the tail gets hidden or smeared by bin-width choices.
+  </p>
+  <p>
+    Against the real curve we drew two nulls. The <strong>ER null</strong> is exact: a random graph
+    with the same 303 nodes and 1,784 edges has in-degree
+    ~&nbsp;Poisson(λ&nbsp;=&nbsp;1,784/303&nbsp;&asymp;&nbsp;5.89), so we plotted that CCDF
+    analytically. The <strong>BA null</strong> is simulated: 200 Barabási–Albert graphs with
+    N&nbsp;=&nbsp;303 and m&nbsp;=&nbsp;3 (mean degree 5.94, matching ours), averaged with a
+    5–95% band so the models' own wobble is visible instead of hidden. Then we fitted the real
+    tail with the <strong>Clauset–Shalizi–Newman discrete maximum-likelihood estimator</strong>
+    (the <code>powerlaw</code> package), which also picks the fit's lower cutoff
+    k&#770;<sub>min</sub> by itself, and ran Vuong likelihood-ratio tests of the power law against
+    exponential, lognormal, and truncated-power-law alternatives. The fit runs on the 245
+    characters with in-degree &ge;&nbsp;1 — the 58 never-cited characters have k&nbsp;=&nbsp;0 and
+    can't belong to any tail anchored at k&nbsp;&ge;&nbsp;5.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">5.89</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">106 · Spider-Man</span></li>
+    <li class="stat-card"><span class="stat-label">ER expects at k ≥ 106</span><span class="stat-value">3 &times; 10<sup>&minus;89</sup> characters</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.22 ± 0.12</span></li>
+    <li class="stat-card"><span class="stat-label">Tail fitted (k ≥ 5)</span><span class="stat-value">112 of 245</span></li>
+    <li class="stat-card"><span class="stat-label">BA's biggest hub, 200 seeds</span><span class="stat-value">53 avg (36–77)</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/week2_ccdf_models.png" alt="CCDF of Marvel in-degree on log-log axes against an exact Poisson ER null and a 200-seed Barabási–Albert ensemble with a 5–95% band">
+      <figcaption>The in-degree CCDF (blue) against the ER Poisson null (gray) and the BA ensemble
+      (orange, band = 5–95% across 200 seeds). The Poisson curve exits the bottom of the chart by
+      k&nbsp;&asymp;&nbsp;18 — the real network still has 10 characters beyond that point — and
+      Spider-Man's 106 is nearly double the heaviest hub any BA seed produced (77).</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/week2_ccdf_fit.png" alt="CCDF of the Marvel in-degree tail with the Clauset–Shalizi–Newman discrete power-law fit and a discrete exponential alternative">
+      <figcaption>The fit: power law α&#770;&nbsp;=&nbsp;2.22&nbsp;±&nbsp;0.12 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;5 (KS distance D&nbsp;=&nbsp;0.075, n&nbsp;=&nbsp;112). The
+      power law tracks the mid-tail but overshoots past k&nbsp;&asymp;&nbsp;20 — the real tail bends
+      down — while the exponential alternative falls off the chart by k&nbsp;&asymp;&nbsp;58.</figcaption>
+    </figure>
+  </div>
+
+  <h2>The case against random</h2>
+  <p>
+    Under the ER null, a character with in-degree 20 or more should essentially never exist:
+    the expected count across all 303 characters is <strong>0.0012</strong>. The real network has
+    <strong>21</strong>. At k&nbsp;&ge;&nbsp;50 the real roster still has four characters
+    (Spider-Man 106, Hulk 64, Wolverine 60, Doctor Strange 50), where the Poisson per-character
+    probability is ~&nbsp;3&nbsp;&times;&nbsp;10<sup>&minus;29</sup>. Under ER, the expected number
+    of characters with Betsy Braddock's 28 out-links is 1.3&nbsp;&times;&nbsp;10<sup>&minus;8</sup>
+    — you'd need tens of millions of Marvel universes to meet one. This isn't a
+    "hmm, the tail looks long" result — it's an astronomical rejection. The random-graph bell
+    simply cannot produce this network.
+  </p>
+
+  <h2>More BA than random — but heavier than BA</h2>
+  <p>
+    The BA comparison is closer and more interesting. Through the low tail the real CCDF runs
+    alongside the ensemble band, exactly what "qualitatively scale-free" should look like. But from
+    k&nbsp;&asymp;&nbsp;7 onward the blue curve climbs above the ensemble's 95% band and never
+    comes back — at every one of those degrees the real network is heavier than what 200 BA
+    universes produce — and the fitted exponent (α&#770;&nbsp;=&nbsp;2.22) is well below BA's
+    theoretical 3.0. A smaller exponent is a heavier tail. The hubs agree: BA's largest degree in
+    200 seeds averaged 53 and never exceeded 77; Spider-Man has 106. So if the choice is forced —
+    random or BA — it's BA, easily. BA just <em>understates</em> Marvel's skew.
+  </p>
+
+  <h2>But not a textbook scale-free network either</h2>
+  <p>
+    The fit's own diagnostics crack the pure power-law story in two places. First, the fitted line
+    visibly overshoots the real CCDF beyond k&nbsp;&asymp;&nbsp;20 — the actual tail bends down,
+    which is why the Vuong test <strong>significantly prefers a truncated power law</strong>
+    (R&nbsp;=&nbsp;&minus;3.68, p&nbsp;=&nbsp;0.007). Second, the test cannot distinguish the power
+    law from a <strong>lognormal</strong> (R&nbsp;=&nbsp;&minus;3.57, p&nbsp;=&nbsp;0.12), a
+    distribution that looks power-law-ish for a while and is notorious for impersonating scale-free
+    networks in small samples. The honest summary of the fit: heavy-tailed and power-law-like
+    between k&nbsp;=&nbsp;5 and the low tens, with no evidence for the infinite, unbroken power
+    law that "scale-free" strictly claims.
+  </p>
+
+  <blockquote>
+    The tail is far too fat for randomness, fatter than BA can explain — and a little too broken
+    for a textbook power law.
+  </blockquote>
+
+  <h2>What we can't conclude</h2>
+  <ul>
+    <li><strong>A mechanism.</strong> A degree distribution is a single static snapshot, and
+      Barabási–Albert is only one of many processes that generate heavy tails (copying models,
+      fitness models, constrained optimization, and plain heterogeneity in what a Wikipedia article
+      is for). Even a perfect power-law fit would not establish preferential attachment — and our
+      frozen data has no timestamps, so the growth dynamics that define BA can't be tested at all.</li>
+    <li><strong>That it is scale-free, certified.</strong> The tail holds 112 points, and at that
+      size the tests are underpowered: lognormal is indistinguishable (p&nbsp;=&nbsp;0.12), and we
+      can't even statistically reject a <em>plain exponential</em> on the fitted tail
+      (p&nbsp;=&nbsp;0.53) — the likelihood is dominated by the crowded k&nbsp;=&nbsp;5–10 stretch
+      where all three curves still agree, while only four characters live at k&nbsp;&ge;&nbsp;50
+      where the alternatives visibly fail. Small samples forgive a lot.</li>
+    <li><strong>Anything about the bulk.</strong> The power law owns k&nbsp;&ge;&nbsp;5 only. The
+      133 positive-degree characters below that cutoff plus the 58 never-cited — 63% of the roster —
+      sit outside the model entirely. And k&#770;<sub>min</sub>&nbsp;=&nbsp;5 is itself an estimate
+      with uncertainty; D&nbsp;=&nbsp;0.075 is reported without a bootstrap goodness-of-fit
+      p-value.</li>
+    <li><strong>That the network is "non-random" in any deeper sense.</strong> We rejected one
+      specific null's degree marginal — the Poisson. A configuration model that rewires edges at
+      random while nailing every character's observed degree would reproduce this distribution
+      <em>by construction</em>, and could still be random in every other respect. Erasing the ER
+      null doesn't crown BA; it just clears the field.</li>
+    <li><strong>That α&#770;&nbsp;=&nbsp;2.22 means much in absolute terms.</strong> The
+      ±&nbsp;0.12 is sampling noise only. BA is undirected while our measure is directed in-degree,
+      so the comparison is a shape analogy, not a like-for-like model fit — the right conclusion is
+      "heavier-tailed than BA's shape," not "BA with a different exponent."</li>
+  </ul>
+
+  <h2>What surprised us</h2>
+  <p>
+    Two things. First, how statistically alive the exponential alternative is: the Vuong test
+    can't separate it from the power law (p&nbsp;=&nbsp;0.53) even though the figure makes it look
+    absurd past k&nbsp;&asymp;&nbsp;40 — a concrete lesson that a fit's verdict lives and dies with
+    where its data points sit, not with how the far tail looks to the eye. Second, the scale of
+    Spider-Man's outlier status: his 106 in-links go 29 beyond the heaviest hub produced in 200
+    simulated BA universes — the one point on the plot that even the scale-free null can't reach.
+  </p>
 
   <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+    📎 Reproducing this: the figures and every number above are generated by
+    <code>analysis/build_week2.py</code> from the same frozen data in <code>data/week1/</code>
+    (no new crawl). It writes the figures to <code>assets/week2/</code> and the full fit — α&#770;,
+    k&#770;<sub>min</sub>, KS distance, Vuong tests, BA ensemble spread — to
+    <code>data/week2/week2_summary.json</code>. New dependency this week:
+    <code>powerlaw</code>.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -41,8 +188,9 @@
 
 <footer>
   <div class="wrap">
-    Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    Built for DTU course 02805, Social Graphs and Interactions · data: frozen Week 1 snapshot
+    (Wikipedia, 2026-08-26) from the 02805 course data page · analysis: NetworkX + powerlaw
+    (Clauset–Shalizi–Newman), code in <code>analysis/build_week2.py</code>
   </div>
 </footer>
 
