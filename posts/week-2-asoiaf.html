@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · A Song of Ice and Fire — The Web of Heroes</title>
+<meta name="description" content="Testing the A Song of Ice and Fire character network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls, and checking the friendship paradox lord by lord.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · A Song of Ice and Fire dataset · Models &amp; null models</div>
+  <h1>Is Tyrion an accident?</h1>
+  <p class="subtitle">The same four tests on 50 A Song of Ice and Fire characters — where the hub survives the random draws, the shuffle explains the clustering away, and almost every citation runs both ways.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">Westeros on 50 pages</h2>
+  <p>
+    Third dataset, same four tests. This one is the 50 pages reachable in Wikipedia's
+    Category: A Song of Ice and Fire characters (redirects resolved; crawled 2026-09-10), with 720
+    directed edges between them — an edge A→B when B's article appears on A's. Structurally it
+    sits between the Silmarillion's 21 nodes and the Marvel snapshot's 303: no isolates, a single
+    weakly connected component of all 50 nodes, and balanced degree roles with a twist (mean
+    in-degree = mean out-degree = 14.4, but the ranges differ: 1–33 in, 0–27 out — someone cites
+    widely without being cited at all).
+  </p>
+  <p>
+    The hub race looks nothing like Marvel's one-character blowout. Tyrion Lannister tops the
+    count with 33 citations, but Daenerys is right behind at 32, and Cersei, Joffrey and Robert
+    Baratheon all sit at 29. Five characters within four in-links of each other — that's not a
+    dynasty, that's a tournament. Is 33 distinctive at all? Same order as always: chance,
+    degree-preserving chance, growth, and the individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    Erdős–Rényi again: the same 50 nodes and 720 edges, placed by independent coin-flips. Across
+    300 offline draws, the biggest hub's in-degree ranged 19–27 (mean 21.8, sd 1.6). Tyrion's 33
+    is above <em>every single draw</em> — about 7 standard deviations above the random mean —
+    and roughly 23% higher than the most extreme draw of 300.
+  </p>
+  <p>
+    Interesting subtlety: Daenerys's 32 would also top any draw, and even Cersei's/Joffrey's/Robert's
+    29 clears the ceiling by 2. So the chance question doesn't single out one leading suspect here
+    the way the Silmarillion's single-hub race did — it indicts a whole leading tier. Draw your own
+    below and judge.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 720 directed edges among 50 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw ASOIAF data files in your browser. ER only tests "edges placed with
+    no preference at all" — with this edge count, its draws are far more evenly spread than the
+    real network's, which the mixture of blown-out hubs and wallflowers shows immediately.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    Same degree-preserving directed shuffle as everywhere else: chains a→b, b→c, c→d rewired to
+    a→c, c→b, b→d, so every character keeps exactly their real in- and out-degree. Same two
+    statistics, on the undirected projection (an edge if either article links to the other;
+    454 undirected edges here):
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — average local clustering on that projection, all
+      50 nodes, degree-&lt;2 contributing 0. Real value: <strong>0.6453</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges ≈ 532 ÷ 720 =
+      <strong>0.7389</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, 300 shuffle realizations (3,000 swaps each). Clustering's null mean was 0.6711
+    (sd 0.0153); the real value sits at z ≈ −1.68, p ≈ 0.95 — like every other dataset so far,
+    the degree sequence alone carries the triangles, and here there's even a margin of slack.
+    Whatever produces Westeros's dense click-conflict clusters (the Baratheons and Lannisters all
+    link each other; the Martells barely cite the North), holding link counts fixed and re-dealing
+    them reproduces it entirely.
+  </p>
+  <p>
+    Reciprocity is where this dataset's character actually lives, and it's the strongest
+    whole-network signature we've measured: null mean 0.4442 (sd 0.0176) against real 0.7389 —
+    z ≈ 16.7, beyond every one of the 300 shuffles (p ≈ 0, like the Silmarillion's and
+    Marvel's shuffle result). Three quarters of all ASOIAF citations run both ways. A shuffle
+    that keeps every character's link count but knows nothing of alliances or grudges produces
+    barely half that much two-way traffic. Some of that reciprocity is undirected projection
+    anyway — but whatever the definition, the mutual-citation rate on this dataset is the real
+    structural bond.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Same distinction, third time around. <strong>The ER test</strong> randomizes who links to whom
+  <em>and</em> who has how many links; <strong>this shuffle</strong> preserves each node's exact
+  in- and out-degree and randomizes only the wiring. One caveat worth carrying from the
+  Silmarillion page: 50 nodes is still a small sample for a null distribution, and the
+  clustering non-result (real 0.65, null 0.67) is the kind of flat statement that could hide a
+  real effect the test can't resolve — but here the numbers also make the opposite direction
+  (real <em>above</em> null) look unreachable, which is what a claim of extra structure would
+  need. The reciprocity gap is big enough to not need that qualifier.
+</div>
+
+<p class="lede-connector">
+  And as with every dataset so far, one property this shuffle can't probe at all: the component
+  partition. In every one of the 300 realizations the giant component stayed exactly 50 nodes —
+  sd 0 — because a swap rewires only along an existing chain a→b→c→d and such a chain can never
+  cross between weakly connected components. With exactly one component in the real network,
+  that invariance carries no information here; it's a property of the method, not a discovery
+  about Westeros. Hence no histogram above for it.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Directed preferential attachment, Price model, same as ever: each new node joins with
+    <var>m</var> outgoing links, target picked with probability proportional to current in-degree;
+    out-degree is exactly <var>m</var>; in-degree accumulates by preference. With a mean out-degree
+    of 14.4, we ran trials at <var>m</var> = 13, 14 and 15 (50 each).
+  </p>
+  <p>
+    Where Marvel's matching model reliably overshot Spider-Man and the Silmarillion's m choices
+    barely bracketed Morgoth, Westeros is the Goldilocks case: Price(m=13) trials reached max
+    in-degree 29–36 (mean 32.5), Price(m=14) 30–36 (mean 32.4), Price(m=15) 29–35 (mean 31.6) —
+    the real Tyrion hub of 33 sits dead-center in the model's spread at every <var>m</var> tried.
+    Unlike Marvel's overshoot, the growth-plus-preference mechanism here matches both the network's
+    density and its hub size without tuning — a generative <em>hypothesis this data is consistent
+    with</em>, not proof that Wikipedia growth actually behaves this way (we still have no
+    timestamps, so no growth test is possible).
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="20" step="1" value="14" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">14</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=50 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 100 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions, same as always: take the undirected projection (a link either way counts
+    one connection). A character's <strong>degree</strong> is their number of distinct neighbors;
+    their <strong>average neighbor degree</strong> is the mean degree of those neighbors. Network
+    average ⟨k⟩ = 18.16 against the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 22.72 — 25%
+    higher. Marvel's same gap was 133%; the Silmarillion's was 15%; Westeros's sits near the mild
+    end, which is what you'd expect for a dense, closed world where no one is yet a hub of hubs
+    (Tyrion, at 33 in-links, tops out 7.5× higher than Marvel's Spider-Man's 106).
+  </p>
+  <p>
+    Individually: 34 of 50 (68%) have neighbors on average better connected than they are; 16
+    (32%) hold their own; zero ties. Exactly one character's degree is greater than or equal to
+    every neighbor's — and again it's the one you'd guess: <strong>Tyrion Lannister</strong>, as
+    champion with undirected degree 34. (Marvel's version had two champions, the Silmarillion's
+    one — Morgoth.)
+  </p>
+  <p>Search for a character below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw ASOIAF data files in your browser. All 50 characters appear —
+    none are isolated in this network.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Chance is rejected for the hub.</strong> 300 ER draws topped out at 27; Tyrion (and
+      Daenerys, and the Baratheons) clear it. A hub this big on 50 nodes needs a mechanism behind
+      it — unlike Morgoth's Silmarillion or Sisko's DS9, Westeros's hub is real structure, and
+      the whole leading tier cleared the ceiling at once, not one node of it.
+    </li>
+    <li>
+      <strong>Degree explains the triangles; mutual citation is the real structure.</strong> The
+      shuffle reproduces the clustering completely (z ≈ −1.7) but the reciprocity z ≈ 16.7 is
+      beyond everything: 74% of ASOIAF citations are mutual, against a degree-preserving null of
+      44%. Where Marvel kept two distinctive structural signals, this dataset keeps the same one
+      the Silmarillion and DS9 keep — but stronger.
+    </li>
+    <li>
+      <strong>Preferential attachment exactly matches the hub.</strong> Price-model trials at
+      every plausible <var>m</var> bracket Tyrion's 33 without overshooting — the one hub where
+      growth-plus-preference needs no excusing. And the model's structure problem (Marvel) —
+      "everyone joins attached" — doesn't bite here, since the real network genuinely has no
+      isolates.
+    </li>
+    <li>
+      <strong>The friendship paradox holds, mildly.</strong> ⟨k²⟩⁄⟨k⟩ (22.72) still exceeds ⟨k⟩
+      (18.16) — but only by 25%, versus a 133% gap for Marvel on the same test. 68% of
+      characters live it; Tyrion is its only never-out-ranked member.
+    </li>
+  </ul>
+  <p>
+    So: the five hubs of the tournament are not one statistic dressed as five. Tyrion is a
+    mechanism-influenced hub (the growth story fits without tuning), while the mutual-citation
+    rate is the only real relational structure left after the degree sequence accounts for the
+    triangles. Week 2's lesson generalizes: null models don't just answer — they tell you
+    <em>which</em> corner of a dataset's shape is worth looking at.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2_reference.py asoiaf</code>, run against the crawled data in
+    <code>data/A_Song_of_Ice_and_Fire_characters/</code>; it writes
+    <code>data/A_Song_of_Ice_and_Fire_characters/asoiaf_week2_summary.json</code>. Every
+    interactive figure on this page recomputes its own live version of the same algorithm in
+    your browser — nothing here is hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
+    A Song of Ice and Fire characters (crawled 2026-09-10), 50 nodes / 720 directed links ·
+    analysis: stdlib + random-shuffle defaults, code in
+    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in the
+    browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="asoiaf"></script>
+</body>
+</html>

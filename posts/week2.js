@@ -1,9 +1,10 @@
 /*
  * Week 2 interactive explorables: ER random baseline, degree-preserving
  * directed shuffle, directed preferential attachment (Price/BA-style),
- * and the friendship paradox. Reads only the frozen Week 1 data files
- * (nodes/edges) plus data/week2/week2_summary.json (offline reference
- * numbers computed by analysis/build_week2.py). Everything drawn on this
+ * and the friendship paradox. Reads a dataset's nodes/edges TSVs (selected
+ * via <script src="week2.js" data-dataset="...">) plus, when available, its
+ * summary JSON (offline reference numbers computed by analysis/build_week2.py;
+ * when absent, real values are recomputed live). Everything drawn on this
  * page is computed live, in the browser -- no chart library, hand-rolled
  * SVG, matching Week 1's zero-extra-dependency approach.
  */
@@ -25,6 +26,45 @@
       return line.length > 0 && line.charAt(0) !== "#";
     });
   }
+
+  // =========================================================================
+  // Datasets: this script is reusable across posts. A post selects a dataset
+  // via <script src="week2.js" data-dataset="NAME"> (defaults to "marvel").
+  // The optional summary JSON holds offline reference numbers produced by
+  // analysis/build_week2.py; when absent, real values are recomputed live.
+  // =========================================================================
+  var DATASETS = {
+    marvel: {
+      nodes: "../data/week1/week1_nodes.tsv",
+      edges: "../data/week1/week1_edges.tsv",
+      summary: "../data/week2/week2_summary.json",
+    },
+    silmarillion: {
+      nodes: "../data/Silmarillion_characters/The_Silmarillion_characters_nodes.tsv",
+      edges: "../data/Silmarillion_characters/The_Silmarillion_characters_edges.tsv",
+      summary: "../data/Silmarillion_characters/silmarillion_week2_summary.json",
+    },
+    asoiaf: {
+      nodes: "../data/A_Song_of_Ice_and_Fire_characters/A_Song_of_Ice_and_Fire_characters_nodes.tsv",
+      edges: "../data/A_Song_of_Ice_and_Fire_characters/A_Song_of_Ice_and_Fire_characters_edges.tsv",
+      summary: "../data/A_Song_of_Ice_and_Fire_characters/asoiaf_week2_summary.json",
+    },
+    "middle-earth": {
+      nodes: "../data/List_of_Middle-earth_characters/List_of_Middle-earth_characters_nodes.tsv",
+      edges: "../data/List_of_Middle-earth_characters/List_of_Middle-earth_characters_edges.tsv",
+      summary: "../data/List_of_Middle-earth_characters/middle_earth_week2_summary.json",
+    },
+    ds9: {
+      nodes: "../data/Star_Trek:_Deep_Space_Nine_characters/Star_Trek:_Deep_Space_Nine_characters_nodes.tsv",
+      edges: "../data/Star_Trek:_Deep_Space_Nine_characters/Star_Trek:_Deep_Space_Nine_characters_edges.tsv",
+      summary: "../data/Star_Trek:_Deep_Space_Nine_characters/ds9_week2_summary.json",
+    },
+    "street-fighter": {
+      nodes: "../data/Street_Fighter_characters/Street_Fighter_characters_nodes.tsv",
+      edges: "../data/Street_Fighter_characters/Street_Fighter_characters_edges.tsv",
+      summary: "../data/Street_Fighter_characters/street_fighter_week2_summary.json",
+    },
+  };
 
   // ---- shared RNG (mulberry32) so "regenerate" behavior is reproducible
   // within a session if ever needed, and so we're not relying on Math.random
@@ -450,11 +490,36 @@
   // =========================================================================
   // Load shared data, then wire up each section
   // =========================================================================
-  Promise.all([
-    fetch("../data/week1/week1_nodes.tsv").then(function (r) { return r.text(); }),
-    fetch("../data/week1/week1_edges.tsv").then(function (r) { return r.text(); }),
-    fetch("../data/week2/week2_summary.json").then(function (r) { return r.json(); }),
-  ])
+  // NOTE: every failure below must end in the shared .catch, which writes a
+  // visible message into the chart boxes. Nothing may throw from the sync
+  // body -- that produces silently empty figures with no diagnostics.
+  function fetchText(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status + " fetching " + url);
+      return r.text();
+    });
+  }
+  function fetchJson(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status + " fetching " + url);
+      return r.json();
+    });
+  }
+
+  var datasetName = (document.currentScript && document.currentScript.getAttribute("data-dataset")) || "marvel";
+  var paths = DATASETS[datasetName];
+  var datasetsReady = paths
+    ? Promise.all([
+        fetchText(paths.nodes),
+        fetchText(paths.edges),
+        paths.summary ? fetchJson(paths.summary) : Promise.resolve(null),
+      ])
+    : Promise.reject(new Error(
+        "unknown dataset '" + datasetName + "' -- no DATASETS entry for it. " +
+        "This usually means a cached older week2.js; hard-refresh (Ctrl+Shift+R) or redeploy."
+      ));
+
+  datasetsReady
     .then(function (results) {
       var nodesText = results[0], edgesText = results[1], summary = results[2];
 
@@ -469,13 +534,24 @@
       var n = nodeIds.length;
       var idToIndex = new Map(nodeIds.map(function (id, i) { return [id, i]; }));
 
-      var edgeRows = parseDataLines(edgesText).map(function (line) { return line.split("\t"); });
+      // Some datasets ship an inline header ("source\ttarget") after the
+      // #-comment lines; drop any first row that isn't a real edge.
+      var edgeRows = parseDataLines(edgesText)
+        .filter(function (line) { return line !== "source\ttarget"; })
+        .map(function (line) { return line.split("\t"); });
       var m = edgeRows.length;
 
       var outAdjOriginal = [];
       for (var i = 0; i < n; i++) outAdjOriginal.push([]);
-      edgeRows.forEach(function (row) {
-        outAdjOriginal[idToIndex.get(row[0])].push(idToIndex.get(row[1]));
+      edgeRows.forEach(function (row, rowIdx) {
+        var si = idToIndex.get(row[0]), ti = idToIndex.get(row[1]);
+        if (si === undefined || ti === undefined) {
+          throw new Error(
+            "week2.js: data row " + rowIdx + " (" + row[0] + " -> " + row[1] +
+            ") references a node id missing from the nodes file"
+          );
+        }
+        outAdjOriginal[si].push(ti);
       });
 
       var realInDeg = new Array(n).fill(0);
@@ -485,6 +561,36 @@
       var realUndirDeg = realUndirAdj.map(function (s) { return s.size; });
 
       var realCCDF = ccdfPoints(realInDeg.map(function (d) { return d + 1; }));
+
+      // Real values the summary JSON would have carried, recomputed live so
+      // every dataset (including ones without a summary file) gets them.
+      var realIsolates = realUndirDeg.filter(function (d) { return d === 0; }).length;
+      var realReciprocity = m
+        ? edgeRows.filter(function (row) {
+            return outAdjOriginal[idToIndex.get(row[1])].indexOf(idToIndex.get(row[0])) !== -1;
+          }).length / m
+        : 0;
+      var realClustering = (function () {
+        var total = 0;
+        for (var i = 0; i < n; i++) {
+          var deg = realUndirDeg[i];
+          if (deg < 2) continue;
+          var neighbors = Array.from(realUndirAdj[i]);
+          var links = 0;
+          for (var a = 0; a < neighbors.length; a++) {
+            for (var b = a + 1; b < neighbors.length; b++) {
+              if (realUndirAdj[neighbors[a]].has(neighbors[b])) links++;
+            }
+          }
+          total += (2 * links) / (deg * (deg - 1));
+        }
+        return total / n;
+      })();
+      if (summary) {
+        realClustering = summary.baseline.clustering.value;
+        realReciprocity = summary.baseline.reciprocity.mutual_edge_fraction;
+      }
+
       var COLOR_REAL = "#4C6EF5";
       var COLOR_ER = "#e6353a";
       var COLOR_BA = "#e0a020";
@@ -558,9 +664,6 @@
         var chart = document.getElementById("shuffle-chart");
         var readout = document.getElementById("shuffle-readout");
         var rng = makeRng(20260909 ^ 0x2545F491);
-
-        var realClustering = summary.baseline.clustering.value;
-        var realReciprocity = summary.baseline.reciprocity.mutual_edge_fraction;
 
         var clusteringSamples = [];
         var reciprocitySamples = [];
@@ -677,7 +780,7 @@
           stat("This draw's max in-degree", maxDeg);
           stat("This draw's mean in-degree", meanDeg.toFixed(2));
           stat("Real max / mean in-degree", Math.max.apply(null, realInDeg) + " / " + (realInDeg.reduce(function (a, b) { return a + b; }, 0) / n).toFixed(2));
-          stat("Isolated characters in this draw", isolatesThisDraw + " (real: 17)");
+          stat("Isolated characters in this draw", isolatesThisDraw + " (real: " + realIsolates + ")");
         }
 
         slider.addEventListener("input", draw);
@@ -697,7 +800,22 @@
         var chart = document.getElementById("paradox-chart");
         var inspector = document.getElementById("paradox-inspector");
 
-        var championIds = summary.baseline.friendship_paradox.local_degree_champions.slice();
+        // Champions: characters whose undirected degree is >= every neighbor's
+        // (matches the friendship-paradox definition used offline). Computed
+        // live so it works for any dataset; the summary version is identical.
+        var championIds = summary && summary.baseline.friendship_paradox
+          ? summary.baseline.friendship_paradox.local_degree_champions.slice()
+          : (function () {
+              var champs = [];
+              for (var i = 0; i < n; i++) {
+                if (realUndirDeg[i] === 0) continue;
+                var neighbors = Array.from(realUndirAdj[i]);
+                var maxNb = 0;
+                for (var j = 0; j < neighbors.length; j++) maxNb = Math.max(maxNb, realUndirDeg[neighbors[j]]);
+                if (realUndirDeg[i] >= maxNb) champs.push(nodeIds[i]);
+              }
+              return champs;
+            })();
         var points = [];
         var knnById = new Map();
         for (var i = 0; i < n; i++) {

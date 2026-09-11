@@ -1,0 +1,114 @@
+{
+  "seed": 20260909,
+  "baseline": {
+    "n": 50,
+    "m_directed": 720,
+    "in_degree": {
+      "min": 1,
+      "max": 33,
+      "mean": 14.4
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 27,
+      "mean": 14.4
+    },
+    "undirected_projection": {
+      "edge_count": 454,
+      "degree_min": 3,
+      "degree_max": 34,
+      "degree_mean": 18.16
+    },
+    "clustering": {
+      "definition": "average local clustering coefficient on the undirected projection (edge if source->target OR target->source), all nodes counted, nodes with degree < 2 contribute 0",
+      "value": 0.6453232313972095
+    },
+    "reciprocity": {
+      "definition": "mutual directed edges / total directed edges",
+      "mutual_edge_fraction": 0.7388888888888889
+    },
+    "components": {
+      "weakly_connected_count": 1,
+      "giant_component_size": 50
+    },
+    "friendship_paradox": {
+      "definition": "undirected projection; degree = distinct neighbor count; avg_neighbor_degree = mean degree of a node's own neighbors",
+      "mean_k": 18.16,
+      "k2_over_k": 22.72246696035242,
+      "n_with_neighbors": 50,
+      "n_isolated": 0,
+      "n_paradox_holds": 34,
+      "n_paradox_fails": 16,
+      "n_paradox_tied": 0,
+      "local_degree_champions": [
+        "Tyrion_Lannister"
+      ]
+    }
+  },
+  "er_null": {
+    "n_draws": 300,
+    "n": 50,
+    "m": 720,
+    "max_in_degree": {
+      "min": 19,
+      "max": 27,
+      "mean": 21.76,
+      "stdev": 1.6069847541280533
+    }
+  },
+  "shuffle_null": {
+    "n_realizations_requested": 300,
+    "n_realizations_completed": 300,
+    "swaps_per_realization": 3000,
+    "clustering_test": {
+      "null_mean": 0.6710671924383234,
+      "null_stdev": 0.015325495444825301,
+      "z_score": -1.6798126451309212,
+      "empirical_p": 0.95
+    },
+    "reciprocity_test": {
+      "null_mean": 0.44425,
+      "null_stdev": 0.017630706763702195,
+      "z_score": 16.711689034241473,
+      "empirical_p": 0.0
+    },
+    "giant_component_test": {
+      "null_mean": 50.0,
+      "null_stdev": 0.0,
+      "z_score": null,
+      "empirical_p": 1.0
+    }
+  },
+  "price_reference_by_m": {
+    "13": {
+      "n": 50,
+      "m": 13,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 29,
+        "max": 36,
+        "mean": 32.48
+      }
+    },
+    "14": {
+      "n": 50,
+      "m": 14,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 30,
+        "max": 36,
+        "mean": 32.4
+      }
+    },
+    "15": {
+      "n": 50,
+      "m": 15,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 29,
+        "max": 35,
+        "mean": 31.62
+      }
+    }
+  }
+}

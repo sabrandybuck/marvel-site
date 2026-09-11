@@ -1,0 +1,75 @@
+{
+  "node_count": 22,
+  "directed_edge_count": 135,
+  "isolate_count": 1,
+  "weakly_connected_components": {
+    "count": 2,
+    "giant_component_size": 21,
+    "non_giant_component_sizes": [
+      1
+    ]
+  },
+  "degree": {
+    "in_degree": {
+      "min": 0,
+      "max": 14,
+      "mean": 6.136363636363637
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 12,
+      "mean": 6.136363636363637
+    },
+    "pearson_correlation_in_vs_out_degree": 0.3181425111763536
+  },
+  "top5_in_degree": [
+    {
+      "name": "Benjamin Sisko",
+      "in_degree": 14
+    },
+    {
+      "name": "Worf",
+      "in_degree": 12
+    },
+    {
+      "name": "Julian Bashir",
+      "in_degree": 11
+    },
+    {
+      "name": "Kira Nerys",
+      "in_degree": 11
+    },
+    {
+      "name": "Odo (Star Trek)",
+      "in_degree": 10
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Ezri Dax",
+      "out_degree": 12
+    },
+    {
+      "name": "Worf",
+      "out_degree": 11
+    },
+    {
+      "name": "Vic Fontaine",
+      "out_degree": 10
+    },
+    {
+      "name": "Martok",
+      "out_degree": 9
+    },
+    {
+      "name": "Dukat (Star Trek)",
+      "out_degree": 8
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 1,
+    "members": [
+      "Tuvok"
+    ]
+  }
+}

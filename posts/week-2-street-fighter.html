@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · Street Fighter — The Web of Heroes</title>
+<meta name="description" content="Testing the Street Fighter character network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls — the one dataset where chance is as decisively eliminated as on Marvel.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · Street Fighter dataset · Models &amp; null models</div>
+  <h1>Is Ryu an accident?</h1>
+  <p class="subtitle">Running the Week 2 test suite on 53 Street Fighter character pages — the only dataset so far (besides Marvel) where chance is decisively eliminated, plus one Final Fantasy character on the wrong stage.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">A fighting game's wiki shape</h2>
+  <p>
+    Last of the five, same four tests: the 53 pages reachable in Wikipedia's Category:
+    Street Fighter characters (redirects resolved; crawled 2026-09-10), with 299 directed edges
+    between them. Density-wise it's the sparsest of the series (mean in- and out-degree 5.64;
+    ranges 0–34 in, 2–12 out), and like Deep Space Nine it comes with one isolate — this time
+    <strong>Tifa Lockhart</strong>, in category by mistake from the Final Fantasy side of a
+    crossover, with no links in either direction.
+  </p>
+  <p>
+    The hub question here is way sharper than the small casts: Ryu is cited on 34 of the other
+    52 pages — more than twice runner-up M. Bison's 26, and well ahead of Chun-Li's 22. Is
+    Ryu-as-accident a joke about Marvel's Spider-Man? Same order as ever: chance,
+    degree-preserving chance, growth, and the individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    Erdős–Rényi with the same 53 nodes and 299 edges. Across 300 offline draws, the biggest hub's
+    in-degree ranged 9–17 (mean 11.4, sd 1.3). Ryu's 34 clears the largest random draw by
+    seventeen links — roughly 18 standard deviations above the random mean — and no draw on
+    53 nodes ever comes close.
+  </p>
+  <p>
+    This is the first dataset since Marvel where the ER window closes completely: a hub of Ryu's
+    size cannot be an accident of edge placement. Worf's 12 on Deep Space Nine — a node count in
+    the same league — was rivaled by chance; here the ceiling of 300 draws is 17, and Ryu more
+    than doubles it. Draw your own network below — its biggest hub will top out around half
+    Ryu's size.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 299 directed edges among 53 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Street Fighter data files in your browser. Same ER caveat as every
+    dataset: it tests "edges placed with no preference at all" — and at this density none of its
+    draws has come within order of the real network's hub.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    Same degree-preserving directed shuffle — chains a→b, b→c, c→d rewired to a→c, c→b, b→d —
+    preserving every character's exact in- and out-degree. Same two statistics on the undirected
+    projection (an edge if either article links to the other; 244 undirected edges):
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — average local clustering on that projection, all
+      53 nodes, degree-&lt;2 contributing 0. Real value: <strong>0.4081</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges ≈ 110 ÷ 299 =
+      <strong>0.3679</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, 300 shuffle realizations (3,000 swaps each). Clustering: null mean 0.4204
+    (sd 0.0239) vs. real 0.4081 — z ≈ −0.5, p ≈ 0.68: the degree sequence fully explains the
+    triangle density, the fourth consecutive dataset where that's true (and here the real value
+    is the <em>lowest</em> absolute clustering we have measured — a roster of fighters' articles
+    that mostly just link Ryu and M. Bison rather than making dense squads).
+  </p>
+  <p>
+    Reciprocity stays the universal winner: null mean 0.1930 (sd 0.0227) vs. real 0.3679 —
+    z ≈ 7.7, beyond all 300 shuffles (p ≈ 0). Only about 37% of Street Fighter citations run both
+    ways — the least chatty of our five datasets for raw rate — but relative to what a
+    degree-preserving wiring explains (19%), it's nearly double, and a bigger sd-relative gap
+    than anything except Marvel's 44 shuffle standard deviations. Whatever mechanism makes a
+    fighter pair mutually reference each other — sequels, matchups, rematches — wiring that
+    two-way rate is real structure the null can't produce.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Same distinction, same isolate cameo as DS9. <strong>ER</strong> randomizes links without any
+  constraint; <strong>this shuffle</strong> preserves each node's exact in- and out-degree and
+  randomizes only the wiring — so Tifa Lockhart, with no edges in or out, is untouchable in
+  every shuffle: she'll be isolated no matter what the network does. Elsewhere, a note parallel
+  with the other pages: n=53 isn't huge, but the reciprocity gap (~7.7 sd) is far beyond what a
+  null of this width can put down to noise, while the clustering non-result carries the small-n
+  caveat like everywhere else.
+</div>
+
+<p class="lede-connector">
+  As on every dataset so far: the component partition is invariant under the chain-rewire by
+  construction (a rewiring walk a→b→c→d can never cross between weakly connected components), so
+  all 300 offline realizations return the same 52-node giant plus Tifa, sd 0 — a fact about the
+  method, not a discovery about Street Fighter. Same reasoning as the Marvel post, and so no
+  histogram above.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Directed preferential attachment, Price model, same growth rule as every page: each new node
+    joins with <var>m</var> outgoing links weighted by target's current in-degree. Mean out-degree
+    5.64 → trials at <var>m</var> = 5, 6, 7 (50 each).
+  </p>
+  <p>
+    Here preferential attachment sits on a hinge — between Marvel's overshoot and the
+    Silmarillion's undershoot, with Marvel's zero-isolate blind spot attached. Price(m=5) trials
+    reached max in-degree 26–39 (mean 32.3), Price(m=6) 30–40 (mean 34.4), Price(m=7) 29–43
+    (mean 34.7): the real Ryu hub of 34 is inside the model's spread rather than past it, but the
+    fit is tight rather than clean — at the density-matching <var>m</var> = 6, most trials land
+    right around Ryu's size rather than clearly below it. Unlike the Silmarillion's Morgoth
+    (comfortably inside the spread) and Marvel's Spider-Man (beyond it), Ryu lives right on the
+    edge of the trials — growth-plus-preference describes this network believably, but with very
+    little head room.
+  </p>
+  <p>
+    On isolates, the Marvel analysis repeats exactly: the model, by construction, cannot produce
+    Tifa — no one in a Price network ever joins with zero links. Real Street Fighter contains a
+    Tifa with none at all.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="12" step="1" value="6" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">6</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=53 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions, same as everywhere: undirected projection (a link either way counts one
+    connection). A character's <strong>degree</strong> is their number of distinct neighbors;
+    their <strong>average neighbor degree</strong> is the mean degree of those neighbors.
+    Excluding the isolate Tifa, 52 roster members are connected. Network average ⟨k⟩ = 9.21
+    against the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 14.14 — 53% higher. Among our five
+    datasets that's the largest gap outside Marvel's 133% (ASOIAF's is 25%, and the Silmarillion's
+    15%).
+  </p>
+  <p>
+    Individually: 44 of 52 (84.6%) have neighbors on average better connected than they are; 8
+    (15.4%) hold their own; zero ties. A single character never gets out-ranked —
+    <strong>Ryu</strong> — which makes this the first dataset since Marvel (Spider-Man and Radian)
+    with a champion whose name is also the network's one untoppled symbol.
+  </p>
+  <p>Search for a character below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Street Fighter data files in your browser. Tifa (isolated, degree
+    0) has no neighbors to compare against and is excluded — everything else is all 52 connected
+    roster members.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Chance is eliminated — no hedge this time.</strong> Ryu's 34 is ~18 standard
+      deviations above the ER draw mean and 2× the largest of 300 draws. On hubs, Street Fighter
+      is the closest our five datasets come to Marvel's original verdict: there is no
+      "accidental Ryu" story left to tell.
+    </li>
+    <li>
+      <strong>Degree explains the (thin) triangles; reciprocity is real structure.</strong> The
+      shuffle reproduces the clustering exactly (z ≈ −0.5) — the dataset with the sparsest local
+      structure isn't more clustered than its link counts. But reciprocity (real 0.368 vs null
+      0.193, z ≈ 7.7, p ≈ 0) is beyond every shuffle in absolute two-way citation terms — the
+      smallest rate of our five datasets, but still far above what degree sequence alone
+      produces. Every dataset in the collection passes this one test; every other structural
+      claim always came down to the degree sequence instead.
+    </li>
+    <li>
+      <strong>Preferential attachment fits with a caveat and one blind spot.</strong> Price trials
+      at m=5–7 put the model's hub at or slightly above Ryu's; growth-plus-preference describes
+      the roster better than chance, without the clean fit the ASOIAF or Middle-earth hubs got.
+      And as with the Marvel page's 17 isolates — the model cannot produce Tifa Lockhart's
+      zero edges at all.
+    </li>
+    <li>
+      <strong>The friendship paradox is the most Marvel-like of the five.</strong> ⟨k²⟩⁄⟨k⟩
+      (14.14) versus ⟨k⟩ (9.21) — 53% — against Marvel's 133% but far ahead of the
+      Silmarillion's 15% and DS9's 21%. 84.6% of connected roster members live it; Ryu is the
+      only never-out-ranked node.
+    </li>
+  </ul>
+  <p>
+    So: for the first time since the Marvel page, a hub's size has no viable chance story — the
+    random draws never reach Ryu's magnitude. But the rest of the analysis softens the parallel:
+    the triangles remain what degree sequence predicts, the mutual citations still aren't, and
+    the growth model fits the hub without overshooting the way it didn't fit his Marvel
+    counterpart. Week 2's homogenous result set leaves one pattern that never breaks: the
+    two-way citation rate is real structural signal everywhere, and the hub question is
+    dataset-specific — sometimes yes (Marvel, ASOIAF, Street Fighter), sometimes maybe
+    (Silmarillion, DS9).
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2_reference.py street-fighter</code>, run against the crawled data in
+    <code>data/Street_Fighter_characters/</code>; it writes
+    <code>data/Street_Fighter_characters/street_fighter_week2_summary.json</code>. Every
+    interactive figure on this page recomputes its own live version of the same algorithm in
+    your browser — nothing here is hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
+    Street Fighter characters (crawled 2026-09-10), 53 nodes / 299 directed links · analysis:
+    stdlib + random-shuffle defaults, code in <code>analysis/build_week2_reference.py</code>;
+    all interactive figures recompute live in the browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="street-fighter"></script>
+</body>
+</html>

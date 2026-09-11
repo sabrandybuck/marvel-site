@@ -1,0 +1,124 @@
+{
+  "seed": 20260909,
+  "baseline": {
+    "n": 21,
+    "m_directed": 151,
+    "in_degree": {
+      "min": 1,
+      "max": 15,
+      "mean": 7.190476190476191
+    },
+    "out_degree": {
+      "min": 2,
+      "max": 12,
+      "mean": 7.190476190476191
+    },
+    "undirected_projection": {
+      "edge_count": 99,
+      "degree_min": 4,
+      "degree_max": 17,
+      "degree_mean": 9.428571428571429
+    },
+    "clustering": {
+      "definition": "average local clustering coefficient on the undirected projection (edge if source->target OR target->source), all nodes counted, nodes with degree < 2 contribute 0",
+      "value": 0.6572227958782579
+    },
+    "reciprocity": {
+      "definition": "mutual directed edges / total directed edges",
+      "mutual_edge_fraction": 0.6887417218543046
+    },
+    "components": {
+      "weakly_connected_count": 1,
+      "giant_component_size": 21
+    },
+    "friendship_paradox": {
+      "definition": "undirected projection; degree = distinct neighbor count; avg_neighbor_degree = mean degree of a node's own neighbors",
+      "mean_k": 9.428571428571429,
+      "k2_over_k": 10.797979797979798,
+      "n_with_neighbors": 21,
+      "n_isolated": 0,
+      "n_paradox_holds": 14,
+      "n_paradox_fails": 6,
+      "n_paradox_tied": 1,
+      "local_degree_champions": [
+        "Morgoth"
+      ]
+    }
+  },
+  "er_null": {
+    "n_draws": 300,
+    "n": 21,
+    "m": 151,
+    "max_in_degree": {
+      "min": 9,
+      "max": 16,
+      "mean": 11.38,
+      "stdev": 1.108572655865791
+    }
+  },
+  "shuffle_null": {
+    "n_realizations_requested": 300,
+    "n_realizations_completed": 300,
+    "swaps_per_realization": 3000,
+    "clustering_test": {
+      "null_mean": 0.6716777375681252,
+      "null_stdev": 0.02670644238530879,
+      "z_score": -0.5412529861266334,
+      "empirical_p": 0.6933333333333334
+    },
+    "reciprocity_test": {
+      "null_mean": 0.45717439293598233,
+      "null_stdev": 0.034916987830568604,
+      "z_score": 6.631938872905674,
+      "empirical_p": 0.0
+    },
+    "giant_component_test": {
+      "null_mean": 21.0,
+      "null_stdev": 0.0,
+      "z_score": null,
+      "empirical_p": 1.0
+    }
+  },
+  "price_reference_by_m": {
+    "3": {
+      "n": 21,
+      "m": 3,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 10,
+        "max": 17,
+        "mean": 13.12
+      }
+    },
+    "5": {
+      "n": 21,
+      "m": 5,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 11,
+        "max": 16,
+        "mean": 13.86
+      }
+    },
+    "7": {
+      "n": 21,
+      "m": 7,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 11,
+        "max": 14,
+        "mean": 12.92
+      }
+    },
+    "9": {
+      "n": 21,
+      "m": 9,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 10,
+        "max": 12,
+        "mean": 11.7
+      }
+    }
+  }
+}
