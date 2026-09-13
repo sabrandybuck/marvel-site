@@ -51,7 +51,7 @@
     Fifth dataset, same four tests: the 22 pages reachable in Wikipedia's Category:
     Star Trek: Deep Space Nine characters (redirects resolved; crawled 2026-09-10), with 135
     directed edges between them. Nearly the Silmarillion's size (21 nodes), and like it this
-    network is dense by cast standards: mean in- and out-degree 6.14, ranges 0–14 in and 2–12 out,
+    network is dense by cast standards: mean in- and out-degree 6.14, ranges 0–14 in and 0–12 out,
     one weakly connected component of 21 nodes — plus exactly one isolate.
   </p>
   <p>
@@ -82,7 +82,7 @@
     hub's in-degree ranged 8–15 (mean 10.2, sd 1.1).
   </p>
   <p>
-    Sisko's 14 is inside that spread — one lucky draw would beat him, and the mean is six pages
+    Sisko's 14 is inside that spread — one lucky draw would beat him, and the mean is four pages
     below. His 14 is about 3.4 standard deviations above the random mean, which on 300 draws isn't
     far off the possibility of seeing it. Verdict here: <em>yet another hub that chance alone
     can be the best explanation of</em>. Draw your own random network and watch it happily
@@ -464,13 +464,13 @@
 
   <p>
     <strong>Not demonstrably non-random — the sharpest contrast with Marvel.</strong> Under the
-    Poisson null, a Sisko-sized hub isn't a freak: the expected number of characters with
-    in-degree ≥ 14 is about 0.097, so a cast of 22 has roughly a 9% chance of producing at least
-    one such hub under pure chance. (Marvel's equivalent: a degree-106 character was
-    <span class="formula">3&nbsp;&times;&nbsp;10<sup>&minus;89</sup></span> off the Poisson scale,
-    and 21 characters cleared in-degree 20 where 0.0012 were expected.) Here even in-degree ≥ 12 —
-    Worf's 12 — is expected 0.51 times per draw and seen twice. The ER verdict from the first
-    section survives the fancier look: at this size, chance is <em>not</em> rejected.
+    Poisson null, a Sisko-sized hub isn't a freak: a given character's probability of reaching
+    in-degree ≥ 14 is about 0.0044, which across a cast of 22 works out to roughly a 9% chance of
+    <em>someone</em> producing such a hub under pure chance. (Marvel's equivalent: a degree-106
+    character was <span class="formula">1&nbsp;&times;&nbsp;10<sup>&minus;91</sup></span> off the
+    Poisson scale, and 21 characters cleared in-degree 20 where 0.0012 were expected.) Here even
+    in-degree ≥ 12 — Worf's 12 — is expected 0.51 times per draw and seen twice. The ER verdict
+    from the first section survives the fancier look: at this size, chance is <em>not</em> rejected.
   </p>
   <p>
     <strong>Not heavier than Price, either.</strong> The 200-seed ensemble at m&nbsp;=&nbsp;6
@@ -549,8 +549,8 @@
   <div class="callout">
     📎 Reproducing this: the offline reference numbers quoted above come from
     <code>analysis/build_week2_reference.py ds9</code>, run against the crawled data in
-    <code>data/Star_Trek:_Deep_Space_Nine_characters/</code>; it writes
-    <code>data/Star_Trek:_Deep_Space_Nine_characters/ds9_week2_summary.json</code>. The fit
+    <code>data/Star_Trek_Deep_Space_Nine_characters/</code>; it writes
+    <code>data/Star_Trek_Deep_Space_Nine_characters/ds9_week2_summary.json</code>. The fit
     section's figures and numbers come from <code>analysis/build_week2_fit_reference.py ds9</code>
     (networkx + powerlaw + matplotlib in <code>analysis/.venv</code>), which appends the
     <code>fit</code> key to the same JSON. Every interactive figure on this page recomputes its

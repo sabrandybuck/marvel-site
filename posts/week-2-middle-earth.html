@@ -35,6 +35,7 @@
     <a href="#shuffle">Shuffle test</a>
     <a href="#ba">Grow a network</a>
     <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
     <a href="#synthesis">Takeaways</a>
   </nav>
 
@@ -210,7 +211,6 @@
   <p>
     Price(m=13) trials reached max in-degree 35–43 (mean 38.2), Price(m=14) 35–41 (mean 37.6),
     Price(m=15) 33–40 (mean 37.3) — the real top of 41 fits inside that spread without tuning at
-    Price(m=15) 33–40 (mean 37.3) — the real top of 41 fits inside that spread without tuning at
     <var>m</var> = 13–14. This is the hub closest to a comfortable Price-model fit we've measured
     on the smaller datasets: the growth model neither overshoots (Marvel, Street Fighter) nor
     scrapes under (Silmarillion, DS9). But remember the artifact: a hub of 41 in a 57-node
@@ -252,6 +252,94 @@
     within those ranges rather than exactly on the reported mean.
   </figcaption>
 </figure>
+
+<article class="post wide">
+
+  <h3>A Middle-earth born all at once</h3>
+  <p>
+    Preferential attachment depends on history: characters arrive one at a time, and each newcomer
+    is more likely to connect to whoever's already popular, so an early lead can snowball into a
+    hub like "Elves in Middle-earth." But what if this corner of Middle-earth was born all at
+    once?
+  </p>
+  <p>
+    If all 57 pages existed simultaneously, there'd be no established popularity for a newcomer
+    to follow — everyone would start with the same shot at new connections. That's the
+    counterfactual below: a second model, the same 57 pages and roughly the same edge budget
+    (<var>m</var>&nbsp;=&nbsp;14 wires about 798 edges against the real 790), that links nodes
+    uniformly at random instead of preferring the well-connected. It's <strong>not</strong> a
+    claim about how the Middle-earth article network actually came to exist — it's a way of
+    asking how much of the list page's 41-link hub could come from history alone.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="bigbang-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Model</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which generative model to draw">
+          <button type="button" id="bigbang-sequential-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Sequential growth</button>
+          <button type="button" id="bigbang-bang-btn" class="arrow-toggle-btn" aria-pressed="false">Big Bang</button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="bigbang-m-slider" min="1" max="20" step="1" value="14" aria-label="m: connections per character">
+        <span class="slider-value" id="bigbang-m-value">14</span>
+        <button type="button" id="bigbang-run-btn" class="btn">New universe</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    <strong>Sequential growth</strong> adds one page at a time, wiring each newcomer's
+    <var>m</var> links proportional to how connected existing pages already are (the same rule as
+    above). <strong>Big Bang</strong> creates all 57 at once and wires the same <var>m</var> links
+    per page uniformly at random — no regard for who's already connected. Switch models or click
+    "New universe" for a fresh run; node size shows degree, and the largest hub is highlighted in
+    gold. Hover a node (mouse only) for its name and degree.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="bigbang-chart" role="img" aria-label="Node-link diagram of the simulated network; node size encodes degree and the largest hub is highlighted"></div>
+    <div id="bigbang-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Hover a node to see who occupies it and how connected it is in this run.</p>
+    </div>
+  </div>
+
+  <ul class="test-readout" id="bigbang-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser, positions included: a small force-directed layout (nodes repel,
+    edges pull connected pages together) settles fresh each run, so a hub shows up both as a
+    bigger node and as something others cluster around. Positions aren't comparable run-to-run or
+    model-to-model — only the overall pattern is. Page names are borrowed from the real dataset
+    just so hovering means something; the degree shown is this simulation's, not that page's real
+    Wikipedia in-degree. This is a counterfactual model for illustration, not a reconstruction of
+    how the article network was actually written.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+  <p>
+    Run each model a few times at the same <var>m</var>. Big Bang spreads connections fairly
+    evenly — across 200 offline runs its biggest hub ranged 19–26 (mean 21.8), right where the ER
+    draws land and nowhere near the real 41. Sequential growth at the same <var>m</var> lands
+    higher and tighter (35–41, mean 37.6), bracketing the list page's real hub. The gap between
+    the two models is the point: the same link budget, spent without preference, produces a hub
+    barely half the real one — so whatever built "Elves in Middle-earth," it behaved like a node
+    that other pages kept preferring, not like a lucky draw.
+  </p>
+  <p>
+    Which is the uncomfortable part: the mechanism that reproduces the artifact hub best is
+    precisely rich-get-richer growth acting on Wikipedia's structure (every elf's article links
+    the list page), not on any character's fame. The model doesn't know the hub is metadata —
+    it just sees popularity and feeds it. That's the node-level caution from the growth section,
+    rendered visible.
+  </p>
+</article>
 
 <article class="post wide">
 
@@ -318,6 +406,81 @@
 
 <article class="post wide">
 
+  <div class="section-head">
+    <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+  </div>
+  <p>
+    The same closing protocol the Marvel page used, run on the Middle-earth crawl: the in-degree
+    CCDF P(K&nbsp;&ge;&nbsp;k) against two nulls — an <strong>ER random graph</strong>, whose
+    in-degree is exactly Poisson with
+    <span class="formula">λ&nbsp;=&nbsp;790/57&nbsp;&asymp;&nbsp;13.86</span>, and a 200-seed
+    ensemble of directed <strong>Price</strong> graphs (N&nbsp;=&nbsp;57, m&nbsp;=&nbsp;14 —
+    edge-matched), with the ensemble maximum marked. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, via the <code>powerlaw</code> package) then summarizes the tail:
+    exponent α&#770; with its standard error, and a self-selected cutoff k&#770;<sub>min</sub>.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">13.86</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">41 · Elves in Middle-earth</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.58 ± 0.25</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 9 · 40 of 56</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/middle-earth_ccdf_models.png" alt="CCDF of Middle-earth in-degree on log-log axes against an exact Poisson ER null and a 200-seed Price ensemble with its maximum marked">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the Price ensemble
+      (orange, 200 seeds at m&nbsp;=&nbsp;14; dotted line marks the ensemble's largest hub, 41).
+      The Price ceiling and the real hub coincide — at 41 — because the artifact page out-pulled
+      every simulated node too.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/middle-earth_ccdf_fit.png" alt="CCDF of the Middle-earth in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.58&nbsp;±&nbsp;0.25 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;9, from 40 of the 56 cited pages. The real curve tracks
+      the line through the mid-tail, with the top two hubs sitting just past it.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not demonstrably non-random at the top.</strong> At λ&nbsp;=&nbsp;13.86 on 57 pages,
+    the Poisson null stays broad deep into the tail: in-degree ≥ 41 is expected about 0.02 times
+    per draw — rare, but a far cry from Marvel's
+    <span class="formula">10<sup>&minus;89</sup></span> scale — and 13 pages clear in-degree 20
+    where 4.0 were expected. Like ASOIAF, this is a dense dataset, and density keeps the Poisson
+    null alive into the region where the real hubs live.
+  </p>
+  <p>
+    <strong>Right on the Price ensemble — at an uncomfortably exact ceiling.</strong> The
+    200-seed ensemble at m&nbsp;=&nbsp;14 produced max in-degrees of 34–41 (mean 37.6): the real
+    hub's 41 is the ensemble's own maximum, matched to the digit. After the artifact caution
+    above, the coincidence reads two ways: the growth story fits the hub perfectly, and it fits
+    a list page's Wikipedia wiring just as well as any character's fame.
+  </p>
+  <p>
+    <strong>Neither, strictly.</strong> The fit rests on 40 tail points (k&nbsp;≥&nbsp;9), the
+    standard error is ±&nbsp;0.25, and the same density that keeps the Poisson null alive caps how
+    far any tail can extend — nobody can be cited by more than 56 of 57. "Scale-free-looking
+    tail" is as far as this data goes.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> The Price ensemble matches the hub exactly, but the hub is
+      a list page — the fit may be absorbing Wikipedia's category structure, not a fame
+      mechanism, and the frozen crawl has no timestamps to test Price's growth story at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from 40 tail points; everything below
+      k&nbsp;=&nbsp;9 is outside the fit. Treat it as a descriptive summary, never a model
+      verdict.</li>
+    <li><strong>A like-for-like Price test.</strong> The comparison is a shape comparison against
+      in-degree, not a fitted-model likelihood verdict.</li>
+  </ul>
+
+</article>
+
+<article class="post wide">
+
   <h2 id="synthesis">What the models get right, and what they miss</h2>
   <p>Pulling the four sections together:</p>
   <ul>
@@ -360,9 +523,13 @@
     📎 Reproducing this: the offline reference numbers quoted above come from
     <code>analysis/build_week2_reference.py middle-earth</code>, run against the crawled data in
     <code>data/List_of_Middle-earth_characters/</code>; it writes
-    <code>data/List_of_Middle-earth_characters/middle_earth_week2_summary.json</code>. Every
-    interactive figure on this page recomputes its own live version of the same algorithm in
-    your browser — nothing here is hand-typed separately from the code that produced it.
+    <code>data/List_of_Middle-earth_characters/middle_earth_week2_summary.json</code>. The fit
+    section's figures and numbers come from
+    <code>analysis/build_week2_fit_reference.py middle-earth</code> (networkx + powerlaw +
+    matplotlib in <code>analysis/.venv</code>), which appends the <code>fit</code> key to the same
+    JSON. Every interactive figure on this page recomputes its own live version of the same
+    algorithm in your browser — nothing here is hand-typed separately from the code that produced
+    it.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -374,9 +541,9 @@
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia list page
     List of Middle-earth characters (crawled 2026-09-10), 57 nodes / 790 directed links ·
-    analysis: stdlib + random-shuffle defaults, code in
-    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in the
-    browser
+    analysis: stdlib + random-shuffle defaults (<code>analysis/build_week2_reference.py</code>),
+    fit figures via networkx/powerlaw/matplotlib (<code>analysis/build_week2_fit_reference.py</code>);
+    all interactive figures recompute live in the browser
   </div>
 </footer>
 

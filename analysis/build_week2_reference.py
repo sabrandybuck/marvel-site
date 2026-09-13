@@ -46,8 +46,8 @@ DATASETS = {
         "out": "middle_earth_week2_summary.json",
     },
     "ds9": {
-        "dir": "Star_Trek:_Deep_Space_Nine_characters",
-        "prefix": "Star_Trek:_Deep_Space_Nine_characters",
+        "dir": "Star_Trek_Deep_Space_Nine_characters",
+        "prefix": "Star_Trek_Deep_Space_Nine_characters",
         "out": "ds9_week2_summary.json",
     },
     "street-fighter": {

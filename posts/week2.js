@@ -55,9 +55,9 @@
       summary: "../data/List_of_Middle-earth_characters/middle_earth_week2_summary.json",
     },
     ds9: {
-      nodes: "../data/Star_Trek:_Deep_Space_Nine_characters/Star_Trek:_Deep_Space_Nine_characters_nodes.tsv",
-      edges: "../data/Star_Trek:_Deep_Space_Nine_characters/Star_Trek:_Deep_Space_Nine_characters_edges.tsv",
-      summary: "../data/Star_Trek:_Deep_Space_Nine_characters/ds9_week2_summary.json",
+      nodes: "../data/Star_Trek_Deep_Space_Nine_characters/Star_Trek_Deep_Space_Nine_characters_nodes.tsv",
+      edges: "../data/Star_Trek_Deep_Space_Nine_characters/Star_Trek_Deep_Space_Nine_characters_edges.tsv",
+      summary: "../data/Star_Trek_Deep_Space_Nine_characters/ds9_week2_summary.json",
     },
     "street-fighter": {
       nodes: "../data/Street_Fighter_characters/Street_Fighter_characters_nodes.tsv",
@@ -782,6 +782,13 @@
       return r.json();
     });
   }
+  // The summary JSON is optional reference data (offline-computed numbers);
+  // when it's missing or 404s, real values are recomputed live below, so a
+  // failed fetch must degrade to null, not reject the whole dataset load.
+  function fetchJsonOptional(url) {
+    if (!url) return Promise.resolve(null);
+    return fetchJson(url).catch(function () { return null; });
+  }
 
   var datasetName = (document.currentScript && document.currentScript.getAttribute("data-dataset")) || "marvel";
   var paths = DATASETS[datasetName];
@@ -789,7 +796,7 @@
     ? Promise.all([
         fetchText(paths.nodes),
         fetchText(paths.edges),
-        paths.summary ? fetchJson(paths.summary) : Promise.resolve(null),
+        paths.summary ? fetchJsonOptional(paths.summary) : Promise.resolve(null),
       ])
     : Promise.reject(new Error(
         "unknown dataset '" + datasetName + "' -- no DATASETS entry for it. " +
@@ -1131,6 +1138,13 @@
         var chart = document.getElementById("bigbang-chart");
         var readout = document.getElementById("bigbang-readout");
         var inspector = document.getElementById("bigbang-inspector");
+        // Posts without the Big Bang section simply skip this explorer --
+        // bail cleanly instead of throwing inside the shared .then, where
+        // one TypeError would blank every explorer's chart box.
+        if (!seqBtn || !bangBtn || !slider || !mValueEl || !runBtn ||
+            !chart || !readout || !inspector) {
+          return;
+        }
         var rng = makeRng(20260909 ^ 0x27220a95);
         var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 

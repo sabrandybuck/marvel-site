@@ -111,5 +111,26 @@
         "mean": 37.32
       }
     }
+  },
+  "fit": {
+    "n_seeds_price": 200,
+    "price_m": 14,
+    "price_max_in_degree": {
+      "min": 34,
+      "max": 41,
+      "mean": 37.605
+    },
+    "power_law": {
+      "alpha": 2.584827976029948,
+      "sigma": 0.2505833051904686,
+      "k_min": 9,
+      "n_tail_points": 40,
+      "n_positive_degree": 56
+    },
+    "figures": [
+      "middle-earth_ccdf_models.png",
+      "middle-earth_ccdf_fit.png"
+    ],
+    "note": "Small-n caveat: with few nodes the CSN fit rests on very few tail points; treat alpha as descriptive, not a model verdict."
   }
 }
