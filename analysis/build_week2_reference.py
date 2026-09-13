@@ -17,7 +17,7 @@ produces (the subset posts/week2.js reads).
 
 Usage (from inside marvel-site/analysis/):
     python build_week2_reference.py <key> [<key> ...]
-Keys: silmarillion, asoiaf, middle-earth, ds9, street-fighter
+Keys: silmarillion, asoiaf, middle-earth, ds9, street-fighter, villains
 """
 
 import json
@@ -54,6 +54,11 @@ DATASETS = {
         "dir": "Street_Fighter_characters",
         "prefix": "Street_Fighter_characters",
         "out": "street_fighter_week2_summary.json",
+    },
+    "villains": {
+        "dir": "Marvel_Comics_supervillains",
+        "prefix": "Marvel_Comics_supervillains",
+        "out": "villains_week2_summary.json",
     },
 }
 

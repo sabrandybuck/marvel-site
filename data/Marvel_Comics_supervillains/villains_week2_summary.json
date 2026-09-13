@@ -1,0 +1,149 @@
+{
+  "seed": 20260909,
+  "baseline": {
+    "n": 370,
+    "m_directed": 1136,
+    "in_degree": {
+      "min": 0,
+      "max": 58,
+      "mean": 3.0702702702702704
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 24,
+      "mean": 3.0702702702702704
+    },
+    "undirected_projection": {
+      "edge_count": 910,
+      "degree_min": 0,
+      "degree_max": 59,
+      "degree_mean": 4.918918918918919
+    },
+    "clustering": {
+      "definition": "average local clustering coefficient on the undirected projection (edge if source->target OR target->source), all nodes counted, nodes with degree < 2 contribute 0",
+      "value": 0.2063991070594655
+    },
+    "reciprocity": {
+      "definition": "mutual directed edges / total directed edges",
+      "mutual_edge_fraction": 0.397887323943662
+    },
+    "components": {
+      "weakly_connected_count": 46,
+      "giant_component_size": 323
+    },
+    "friendship_paradox": {
+      "definition": "undirected projection; degree = distinct neighbor count; avg_neighbor_degree = mean degree of a node's own neighbors",
+      "mean_k": 4.918918918918919,
+      "k2_over_k": 13.175824175824173,
+      "n_with_neighbors": 327,
+      "n_isolated": 43,
+      "n_paradox_holds": 274,
+      "n_paradox_fails": 44,
+      "n_paradox_tied": 9,
+      "local_degree_champions": [
+        "Condor_(comics)",
+        "Desak",
+        "Devos_the_Devastator",
+        "Hulk",
+        "Humus_Sapien",
+        "Iron_Monger",
+        "Kristoff_Vernard",
+        "Locksmith_(comics)",
+        "Master_Menace",
+        "Nth_Man",
+        "Ogre_(Marvel_Comics)",
+        "Power_Broker_(character)",
+        "Tetu_(comics)",
+        "Zarrko",
+        "Zenzi_(comics)"
+      ]
+    }
+  },
+  "er_null": {
+    "n_draws": 300,
+    "n": 370,
+    "m": 1136,
+    "max_in_degree": {
+      "min": 7,
+      "max": 15,
+      "mean": 9.36,
+      "stdev": 1.0474095028529513
+    }
+  },
+  "shuffle_null": {
+    "n_realizations_requested": 300,
+    "n_realizations_completed": 300,
+    "swaps_per_realization": 3000,
+    "clustering_test": {
+      "null_mean": 0.07626480597854475,
+      "null_stdev": 0.006890086519701204,
+      "z_score": 18.88717953088405,
+      "empirical_p": 0.0
+    },
+    "reciprocity_test": {
+      "null_mean": 0.04805164319248826,
+      "null_stdev": 0.007890641768080586,
+      "z_score": 44.335516810094894,
+      "empirical_p": 0.0
+    },
+    "giant_component_test": {
+      "null_mean": 323.0,
+      "null_stdev": 0.0,
+      "z_score": null,
+      "empirical_p": 1.0
+    }
+  },
+  "price_reference_by_m": {
+    "2": {
+      "n": 370,
+      "m": 2,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 55,
+        "max": 113,
+        "mean": 87.52
+      }
+    },
+    "3": {
+      "n": 370,
+      "m": 3,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 86,
+        "max": 175,
+        "mean": 120.42
+      }
+    },
+    "4": {
+      "n": 370,
+      "m": 4,
+      "n_trials": 50,
+      "max_in_degree": {
+        "min": 115,
+        "max": 195,
+        "mean": 137.46
+      }
+    }
+  },
+  "fit": {
+    "n_seeds_price": 200,
+    "price_m": 3,
+    "price_max_in_degree": {
+      "min": 70,
+      "max": 164,
+      "mean": 117.7
+    },
+    "power_law": {
+      "alpha": 2.428627429539513,
+      "sigma": 0.1473516683815141,
+      "k_min": 4,
+      "n_tail_points": 94,
+      "n_positive_degree": 267
+    },
+    "figures": [
+      "villains_ccdf_models.png",
+      "villains_ccdf_fit.png"
+    ],
+    "note": "Small-n caveat: with few nodes the CSN fit rests on very few tail points; treat alpha as descriptive, not a model verdict."
+  }
+}
