@@ -64,6 +64,11 @@
       edges: "../data/Street_Fighter_characters/Street_Fighter_characters_edges.tsv",
       summary: "../data/Street_Fighter_characters/street_fighter_week2_summary.json",
     },
+    villains: {
+      nodes: "../data/Marvel_Comics_supervillains/Marvel_Comics_supervillains_nodes.tsv",
+      edges: "../data/Marvel_Comics_supervillains/Marvel_Comics_supervillains_edges.tsv",
+      summary: "../data/Marvel_Comics_supervillains/villains_week2_summary.json",
+    },
   };
 
   // ---- shared RNG (mulberry32) so "regenerate" behavior is reproducible
