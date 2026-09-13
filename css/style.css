@@ -254,6 +254,15 @@ article.post h2 {
   padding-bottom: 8px;
 }
 
+/* subheading one level below h2 -- e.g. the "Big Bang" counterfactual
+   sitting inside the preferential-attachment section -- no border, so it
+   doesn't read as a new top-level (nav-anchored) section. */
+article.post h3 {
+  font-size: 17px;
+  margin: 30px 0 12px;
+  color: var(--text);
+}
+
 article.post figure {
   margin: 28px 0;
   background: var(--bg-elevated);
@@ -744,6 +753,14 @@ article.post blockquote {
   .chart-box { height: 360px; }
 }
 
+/* taller variant for the Big Bang / sequential-growth node-link diagram --
+   a network needs more vertical room than a curve or histogram to read. */
+.chart-box.chart-box-tall { height: 420px; }
+
+@media (min-width: 640px) {
+  .chart-box.chart-box-tall { height: 520px; }
+}
+
 .chart-svg { width: 100%; height: 100%; display: block; }
 .chart-axis { stroke: var(--text-dim); stroke-width: 1; }
 .chart-gridline { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
@@ -849,3 +866,54 @@ article.post blockquote {
 
 .test-readout .stat-card { padding: 10px 12px; }
 .test-readout .stat-value { font-size: 17px; }
+
+/* section heading + "back to top" arrow, scoped to this wrapper so the
+   shared article.post h2 rule (used by every other page) is untouched --
+   the wrapper takes over the margin/border-bottom that h2 normally owns,
+   so heading and arrow sit on one baseline with one rule under both. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 40px 0 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+.section-head h2 {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.back-to-top {
+  flex: none;
+  align-self: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.back-to-top:hover { color: var(--text); border-color: var(--accent); text-decoration: none; }
+
+/* inline math / key-result styling -- a reusable pill for equations sitting
+   in ordinary prose (e.g. "⟨k⟩ = 9.465"), distinct from .stat-card (which is
+   for whole standalone metrics) and .callout (a full block, not inline). */
+.formula {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.95em;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 8px;
+  margin: 0 1px;
+  white-space: nowrap;
+}
