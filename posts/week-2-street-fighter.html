@@ -35,6 +35,7 @@
     <a href="#shuffle">Shuffle test</a>
     <a href="#ba">Grow a network</a>
     <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
     <a href="#synthesis">Takeaways</a>
   </nav>
 
@@ -47,7 +48,7 @@
     Last of the five, same four tests: the 53 pages reachable in Wikipedia's Category:
     Street Fighter characters (redirects resolved; crawled 2026-09-10), with 299 directed edges
     between them. Density-wise it's the sparsest of the series (mean in- and out-degree 5.64;
-    ranges 0–34 in, 2–12 out), and like Deep Space Nine it comes with one isolate — this time
+    ranges 0–34 in, 0–12 out), and like Deep Space Nine it comes with one isolate — this time
     <strong>Tifa Lockhart</strong>, in category by mistake from the Final Fantasy side of a
     crossover, with no links in either direction.
   </p>
@@ -253,6 +254,91 @@
 
 <article class="post wide">
 
+  <h3>A roster born all at once</h3>
+  <p>
+    Preferential attachment depends on history: characters arrive one at a time, and each newcomer
+    is more likely to connect to whoever's already popular, so an early lead can snowball into a
+    hub like Ryu. But what if the roster was born all at once?
+  </p>
+  <p>
+    If all 53 characters existed simultaneously, there'd be no established popularity for a
+    newcomer to follow — everyone would start with the same shot at new connections. That's the
+    counterfactual below: a second model, the same 53 characters and roughly the same edge budget
+    (<var>m</var>&nbsp;=&nbsp;6 wires about 318 edges against the real 299), that links nodes
+    uniformly at random instead of preferring the well-connected. It's <strong>not</strong> a
+    claim about how the Street Fighter article network actually came to exist — it's a way of
+    asking how much of Ryu's hub could come from history alone.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="bigbang-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Model</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which generative model to draw">
+          <button type="button" id="bigbang-sequential-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Sequential growth</button>
+          <button type="button" id="bigbang-bang-btn" class="arrow-toggle-btn" aria-pressed="false">Big Bang</button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="bigbang-m-slider" min="1" max="12" step="1" value="6" aria-label="m: connections per character">
+        <span class="slider-value" id="bigbang-m-value">6</span>
+        <button type="button" id="bigbang-run-btn" class="btn">New universe</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    <strong>Sequential growth</strong> adds one character at a time, wiring each newcomer's
+    <var>m</var> links proportional to how connected existing characters already are (the same
+    rule as above). <strong>Big Bang</strong> creates all 53 at once and wires the same
+    <var>m</var> links per character uniformly at random — no regard for who's already connected.
+    Switch models or click "New universe" for a fresh run; node size shows degree, and the largest
+    hub is highlighted in gold. Hover a node (mouse only) for its name and degree.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="bigbang-chart" role="img" aria-label="Node-link diagram of the simulated network; node size encodes degree and the largest hub is highlighted"></div>
+    <div id="bigbang-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Hover a node to see who occupies it and how connected it is in this run.</p>
+    </div>
+  </div>
+
+  <ul class="test-readout" id="bigbang-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser, positions included: a small force-directed layout (nodes repel,
+    edges pull connected characters together) settles fresh each run, so a hub shows up both as a
+    bigger node and as something others cluster around. Positions aren't comparable run-to-run or
+    model-to-model — only the overall pattern is. Character names are borrowed from the real
+    dataset just so hovering means something; the degree shown is this simulation's, not that
+    character's real Wikipedia in-degree. This is a counterfactual model for illustration, not a
+    reconstruction of how the roster's article network was actually written.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+  <p>
+    Run each model a few times at the same <var>m</var>. Big Bang spreads connections fairly
+    evenly — across 200 offline runs its biggest hub ranged 9–16 (mean 11.9), exactly the ER
+    draw's league and barely half Ryu's 34. Sequential growth at the same <var>m</var> lands
+    higher (30–40, mean 34.4), right on top of the real hub. Of the six datasets, this is the
+    cleanest visual demonstration of what preferential attachment contributes: same nodes, same
+    link budget, and the "born all at once" universe never produces anything like Ryu, while the
+    grown one reliably does.
+  </p>
+  <p>
+    That's the strongest supporting evidence the growth hypothesis gets on this page — and it
+    still can't produce Tifa. Both models wire every character on arrival or at birth; the
+    isolate with zero edges stays structurally impossible in either.
+  </p>
+</article>
+
+<article class="post wide">
+
   <h2 id="paradox">Are your friends more popular than you?</h2>
   <p>
     Exact definitions, same as everywhere: undirected projection (a link either way counts one
@@ -315,6 +401,80 @@
 
 <article class="post wide">
 
+  <div class="section-head">
+    <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+  </div>
+  <p>
+    The same closing protocol the Marvel page used, run on the Street Fighter crawl: the in-degree
+    CCDF P(K&nbsp;&ge;&nbsp;k) against two nulls — an <strong>ER random graph</strong>, whose
+    in-degree is exactly Poisson with
+    <span class="formula">λ&nbsp;=&nbsp;299/53&nbsp;&asymp;&nbsp;5.64</span>, and a 200-seed
+    ensemble of directed <strong>Price</strong> graphs (N&nbsp;=&nbsp;53, m&nbsp;=&nbsp;6 —
+    edge-matched), with the ensemble maximum marked. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, via the <code>powerlaw</code> package) then summarizes the tail:
+    exponent α&#770; with its standard error, and a self-selected cutoff k&#770;<sub>min</sub>.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">5.64</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">34 · Ryu</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.95 ± 0.50</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 8 · 15 of 46</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/street-fighter_ccdf_models.png" alt="CCDF of Street Fighter in-degree on log-log axes against an exact Poisson ER null and a 200-seed Price ensemble with its maximum marked">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the Price ensemble
+      (orange, 200 seeds at m&nbsp;=&nbsp;6; dotted line marks the ensemble's largest hub, 43).
+      The gray curve exits the chart around k&nbsp;&asymp;&nbsp;14 while the real network still
+      has 4 characters beyond it.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/street-fighter_ccdf_fit.png" alt="CCDF of the Street Fighter in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.95&nbsp;±&nbsp;0.50 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;8, from just 15 of the 46 cited characters. The exponent
+      sits almost exactly at the Price/BA theoretical 3.0 — with a standard error half as wide as
+      itself.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not random.</strong> Under the Poisson null with λ&nbsp;=&nbsp;5.64, in-degree ≥ 18
+    is expected 0.0014 times across the whole roster — the real network has 4 such characters, and
+    Ryu's 34 is beyond anything the gray curve can express. The ER verdict from the first section
+    survives the fancier look unchanged: chance is rejected, hard.
+  </p>
+  <p>
+    <strong>Price overshoots at the ceiling, fits at the exponent.</strong> The 200-seed ensemble
+    at m&nbsp;=&nbsp;6 produced max in-degrees of 28–43 (mean 34.1): Ryu's 34 sits dead-center at
+    the mean, though 7 seeds cleared him. And the fitted exponent
+    (<span class="formula">α&#770;&nbsp;=&nbsp;2.95</span>) lands almost exactly on Price's
+    theoretical 3.0 — the closest any of our six datasets comes to the textbook value. Growth-
+    plus-preference describes this roster as believably as any story we have.
+  </p>
+  <p>
+    <strong>Neither, strictly.</strong> The fit rests on just 15 tail points (k&nbsp;≥&nbsp;8 of
+    46 cited characters) with a ±&nbsp;0.50 standard error — half the exponent's own value. The
+    agreement with the theoretical 3.0 is pleasing but weakly identified; a network of 53 pages
+    cannot extend its tail past 52 citations. Treat α&#770; as descriptive.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> The Price story fits the exponent, the ensemble mean, and
+      the Big Bang contrast — but consistency isn't proof, and the frozen crawl has no timestamps
+      to test Price's growth story at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from 15 tail points; everything below
+      k&nbsp;=&nbsp;8, including Tifa's zero, is outside the fit.</li>
+    <li><strong>A like-for-like Price test.</strong> The comparison is a shape comparison against
+      in-degree, not a fitted-model likelihood verdict.</li>
+  </ul>
+
+</article>
+
+<article class="post wide">
+
   <h2 id="synthesis">What the models get right, and what they miss</h2>
   <p>Pulling the four sections together:</p>
   <ul>
@@ -362,9 +522,13 @@
     📎 Reproducing this: the offline reference numbers quoted above come from
     <code>analysis/build_week2_reference.py street-fighter</code>, run against the crawled data in
     <code>data/Street_Fighter_characters/</code>; it writes
-    <code>data/Street_Fighter_characters/street_fighter_week2_summary.json</code>. Every
-    interactive figure on this page recomputes its own live version of the same algorithm in
-    your browser — nothing here is hand-typed separately from the code that produced it.
+    <code>data/Street_Fighter_characters/street_fighter_week2_summary.json</code>. The fit
+    section's figures and numbers come from
+    <code>analysis/build_week2_fit_reference.py street-fighter</code> (networkx + powerlaw +
+    matplotlib in <code>analysis/.venv</code>), which appends the <code>fit</code> key to the same
+    JSON. Every interactive figure on this page recomputes its own live version of the same
+    algorithm in your browser — nothing here is hand-typed separately from the code that produced
+    it.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -376,8 +540,9 @@
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
     Street Fighter characters (crawled 2026-09-10), 53 nodes / 299 directed links · analysis:
-    stdlib + random-shuffle defaults, code in <code>analysis/build_week2_reference.py</code>;
-    all interactive figures recompute live in the browser
+    stdlib + random-shuffle defaults (<code>analysis/build_week2_reference.py</code>), fit figures
+    via networkx/powerlaw/matplotlib (<code>analysis/build_week2_fit_reference.py</code>); all
+    interactive figures recompute live in the browser
   </div>
 </footer>
 

@@ -35,6 +35,7 @@
     <a href="#shuffle">Shuffle test</a>
     <a href="#ba">Grow a network</a>
     <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
     <a href="#synthesis">Takeaways</a>
   </nav>
 
@@ -246,11 +247,98 @@
   <ul class="test-readout" id="ba-readout"></ul>
 
   <figcaption class="explorer-caption">
-    Computed live in your browser. Reference numbers in the prose above come from 100 offline
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
     trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
     within those ranges rather than exactly on the reported mean.
   </figcaption>
 </figure>
+
+<article class="post wide">
+
+  <h3>A Westeros born all at once</h3>
+  <p>
+    Preferential attachment depends on history: characters arrive one at a time, and each newcomer
+    is more likely to connect to whoever's already popular, so an early lead can snowball into a
+    hub like Tyrion. But what if Westeros was born all at once?
+  </p>
+  <p>
+    If all 50 characters existed simultaneously, there'd be no established popularity for a
+    newcomer to follow — everyone would start with the same shot at new connections. That's the
+    counterfactual below: a second model, the same 50 characters and roughly the same edge budget
+    (<var>m</var>&nbsp;=&nbsp;14 wires about 700 edges against the real 720), that links nodes
+    uniformly at random instead of preferring the well-connected. It's <strong>not</strong> a
+    claim about how the ASOIAF article network actually came to exist — it's a way of asking how
+    much of Tyrion's hub could come from history alone.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="bigbang-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Model</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which generative model to draw">
+          <button type="button" id="bigbang-sequential-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Sequential growth</button>
+          <button type="button" id="bigbang-bang-btn" class="arrow-toggle-btn" aria-pressed="false">Big Bang</button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="bigbang-m-slider" min="1" max="20" step="1" value="14" aria-label="m: connections per character">
+        <span class="slider-value" id="bigbang-m-value">14</span>
+        <button type="button" id="bigbang-run-btn" class="btn">New universe</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    <strong>Sequential growth</strong> adds one character at a time, wiring each newcomer's
+    <var>m</var> links proportional to how connected existing characters already are (the same
+    rule as above). <strong>Big Bang</strong> creates all 50 at once and wires the same
+    <var>m</var> links per character uniformly at random — no regard for who's already connected.
+    Switch models or click "New universe" for a fresh run; node size shows degree, and the largest
+    hub is highlighted in gold. Hover a node (mouse only) for its name and degree.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="bigbang-chart" role="img" aria-label="Node-link diagram of the simulated network; node size encodes degree and the largest hub is highlighted"></div>
+    <div id="bigbang-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Hover a node to see who occupies it and how connected it is in this run.</p>
+    </div>
+  </div>
+
+  <ul class="test-readout" id="bigbang-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser, positions included: a small force-directed layout (nodes repel,
+    edges pull connected characters together) settles fresh each run, so a hub shows up both as a
+    bigger node and as something others cluster around. Positions aren't comparable run-to-run or
+    model-to-model — only the overall pattern is. Character names are borrowed from the real
+    dataset just so hovering means something; the degree shown is this simulation's, not that
+    character's real Wikipedia in-degree. This is a counterfactual model for illustration, not a
+    reconstruction of how Westeros's article network was actually written.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+  <p>
+    Run each model a few times at the same <var>m</var>. Big Bang spreads connections fairly
+    evenly — across 200 offline runs its biggest hub ranged 18–27 (mean 21.5), right where the ER
+    draws land, and most nodes end up a similar, modest size. Sequential growth at the same
+    <var>m</var> lands higher and tighter (30–36, mean 32.4), exactly bracketing Tyrion's real 33.
+    That's the mechanism in miniature: in a growing network, being popular <em>early</em> is itself
+    an advantage that compounds — and in Westeros's dense, everyone-joins-connected world, that
+    advantage compounds fast. In a universe born all at once, there's no "early" for it to attach
+    to.
+  </p>
+  <p>
+    So the two stories — "Tyrion is what growth produces" and "Tyrion is an artifact of how the
+    category is wired" — can't be fully separated here either, since the growth model fits without
+    tuning. What this explorer isolates is what history specifically contributes: the same link
+    budget, spent without preference, produces a hub barely two-thirds Tyrion's size.
+  </p>
+</article>
 
 <article class="post wide">
 
@@ -262,7 +350,7 @@
     average ⟨k⟩ = 18.16 against the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 22.72 — 25%
     higher. Marvel's same gap was 133%; the Silmarillion's was 15%; Westeros's sits near the mild
     end, which is what you'd expect for a dense, closed world where no one is yet a hub of hubs
-    (Tyrion, at 33 in-links, tops out 7.5× higher than Marvel's Spider-Man's 106).
+    (Tyrion, at 33 in-links, is only a third of Spider-Man's Marvel-leading 106).
   </p>
   <p>
     Individually: 34 of 50 (68%) have neighbors on average better connected than they are; 16
@@ -316,6 +404,81 @@
 
 <article class="post wide">
 
+  <div class="section-head">
+    <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+  </div>
+  <p>
+    The same closing protocol the Marvel page used, run on the ASOIAF crawl: the in-degree CCDF
+    P(K&nbsp;&ge;&nbsp;k) against two nulls — an <strong>ER random graph</strong>, whose in-degree
+    is exactly Poisson with <span class="formula">λ&nbsp;=&nbsp;720/50&nbsp;=&nbsp;14.4</span>, and
+    a 200-seed ensemble of directed <strong>Price</strong> graphs (N&nbsp;=&nbsp;50,
+    m&nbsp;=&nbsp;14 — edge-matched), with the ensemble maximum marked. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, via the <code>powerlaw</code> package) then summarizes the tail:
+    exponent α&#770; with its standard error, and a self-selected cutoff k&#770;<sub>min</sub>.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">14.4</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">33 · Tyrion Lannister</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.61 ± 0.28</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 10 · 34 of 50</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/asoiaf_ccdf_models.png" alt="CCDF of ASOIAF in-degree on log-log axes against an exact Poisson ER null and a 200-seed Price ensemble with its maximum marked">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the Price ensemble
+      (orange, 200 seeds at m&nbsp;=&nbsp;14; dotted line marks the ensemble's largest hub, 36).
+      At this density the Poisson null stays in the game deep into the tail — and Tyrion's 33
+      lands right beside the Price ensemble's ceiling.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/asoiaf_ccdf_fit.png" alt="CCDF of the ASOIAF in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.61&nbsp;±&nbsp;0.28 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;10, from 34 of the 50 cited characters. The real curve
+      tracks the line through the mid-tail; past k&nbsp;&asymp;&nbsp;25 the two top hubs sit
+      slightly above it.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not demonstrably non-random at the top.</strong> At λ&nbsp;=&nbsp;14.4 on 50 nodes,
+    the Poisson null is broad enough that a Tyrion-sized hub is no freak: in-degree ≥ 33 is
+    expected about 0.35 times per draw, and 15 characters clear in-degree 20 where 4.7 were
+    expected. This is the densest dataset we've fitted, and density is exactly what keeps the
+    Poisson null alive — the ER verdict from the first section (the leading tier above every
+    draw's ceiling) reflects the joint extreme of five characters, not one lonely tail point.
+  </p>
+  <p>
+    <strong>Right on the Price ensemble.</strong> The 200-seed ensemble at m&nbsp;=&nbsp;14
+    produced max in-degrees of 28–36 (mean 32.5): Tyrion's 33 sits dead-center, and the ensemble
+    max (36) clears him by only three. On Marvel the real hub nearly doubled the ensemble max;
+    here the model and the data are the same size — the cleanest hub-level agreement of the six
+    datasets, matching the growth section's Goldilocks verdict.
+  </p>
+  <p>
+    <strong>Neither, strictly.</strong> The fit rests on 34 tail points (k&nbsp;≥&nbsp;10), the
+    standard error alone is ±&nbsp;0.28, and a network this dense runs out of citers fast — nobody
+    can be cited by more than 49 of 50. "Scale-free-looking tail" is as far as this data goes, and
+    the tail it describes is short.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> The Price fit is good exactly where the ER joint-extreme
+      story is also good; nothing above arbitrates between them, and the frozen crawl has no
+      timestamps to test Price's growth story at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from 34 tail points; everything below
+      k&nbsp;=&nbsp;10 is outside the fit. Treat it as a descriptive summary, never a model
+      verdict.</li>
+    <li><strong>A like-for-like Price test.</strong> The comparison is a shape comparison against
+      in-degree, not a fitted-model likelihood verdict.</li>
+  </ul>
+
+</article>
+
+<article class="post wide">
+
   <h2 id="synthesis">What the models get right, and what they miss</h2>
   <p>Pulling the four sections together:</p>
   <ul>
@@ -357,9 +520,12 @@
     📎 Reproducing this: the offline reference numbers quoted above come from
     <code>analysis/build_week2_reference.py asoiaf</code>, run against the crawled data in
     <code>data/A_Song_of_Ice_and_Fire_characters/</code>; it writes
-    <code>data/A_Song_of_Ice_and_Fire_characters/asoiaf_week2_summary.json</code>. Every
-    interactive figure on this page recomputes its own live version of the same algorithm in
-    your browser — nothing here is hand-typed separately from the code that produced it.
+    <code>data/A_Song_of_Ice_and_Fire_characters/asoiaf_week2_summary.json</code>. The fit
+    section's figures and numbers come from <code>analysis/build_week2_fit_reference.py asoiaf</code>
+    (networkx + powerlaw + matplotlib in <code>analysis/.venv</code>), which appends the
+    <code>fit</code> key to the same JSON. Every interactive figure on this page recomputes its
+    own live version of the same algorithm in your browser — nothing here is hand-typed separately
+    from the code that produced it.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -371,9 +537,9 @@
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
     A Song of Ice and Fire characters (crawled 2026-09-10), 50 nodes / 720 directed links ·
-    analysis: stdlib + random-shuffle defaults, code in
-    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in the
-    browser
+    analysis: stdlib + random-shuffle defaults (<code>analysis/build_week2_reference.py</code>),
+    fit figures via networkx/powerlaw/matplotlib (<code>analysis/build_week2_fit_reference.py</code>);
+    all interactive figures recompute live in the browser
   </div>
 </footer>
 

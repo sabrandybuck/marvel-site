@@ -35,6 +35,7 @@
     <a href="#shuffle">Shuffle test</a>
     <a href="#ba">Grow a network</a>
     <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
     <a href="#synthesis">Takeaways</a>
   </nav>
 
@@ -140,7 +141,7 @@
   <p>
     Reciprocity is the flip side — and the one thing this network genuinely wins:
     null mean 0.4572 (sd 0.0349) vs. real 0.6887, about <strong>z ≈ 6.6, beyond every one of
-    the 300 shuffles     (p ≈ 0)</strong>. Two-thirds of the Silmarillion's citations are mutual — you link me and I
+    the 300 shuffles (p ≈ 0)</strong>. Two-thirds of the Silmarillion's citations are mutual — you link me and I
     link you — at a rate no degree sequence alone explains. On Marvel, degree sequence explained
     almost nothing of the network's actual wiring; here, it explains the clustering completely and
     only fails on this mutual-citation rate.
@@ -259,13 +260,99 @@
 
 <article class="post wide">
 
+  <h3>A Silmarillion born all at once</h3>
+  <p>
+    Preferential attachment depends on history: characters arrive one at a time, and each newcomer
+    is more likely to connect to whoever's already popular, so an early lead can snowball into a
+    hub like Morgoth. But what if the Silmarillion's cast was born all at once?
+  </p>
+  <p>
+    If all 21 characters existed simultaneously, there'd be no established popularity for a
+    newcomer to follow — everyone would start with the same shot at new connections. That's the
+    counterfactual below: a second model, the same 21 characters and roughly the same edge budget
+    (<var>m</var>&nbsp;=&nbsp;7 wires about 147 edges against the real 151), that links nodes
+    uniformly at random instead of preferring the well-connected. It's <strong>not</strong> a
+    claim about how the Silmarillion article network actually came to exist — it's a way of
+    asking how much of Morgoth's hub could come from history alone.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="bigbang-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Model</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which generative model to draw">
+          <button type="button" id="bigbang-sequential-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Sequential growth</button>
+          <button type="button" id="bigbang-bang-btn" class="arrow-toggle-btn" aria-pressed="false">Big Bang</button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="bigbang-m-slider" min="1" max="12" step="1" value="7" aria-label="m: connections per character">
+        <span class="slider-value" id="bigbang-m-value">7</span>
+        <button type="button" id="bigbang-run-btn" class="btn">New universe</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    <strong>Sequential growth</strong> adds one character at a time, wiring each newcomer's
+    <var>m</var> links proportional to how connected existing characters already are (the same
+    rule as above). <strong>Big Bang</strong> creates all 21 at once and wires the same
+    <var>m</var> links per character uniformly at random — no regard for who's already connected.
+    Switch models or click "New universe" for a fresh run; node size shows degree, and the largest
+    hub is highlighted in gold. Hover a node (mouse only) for its name and degree.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="bigbang-chart" role="img" aria-label="Node-link diagram of the simulated network; node size encodes degree and the largest hub is highlighted"></div>
+    <div id="bigbang-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Hover a node to see who occupies it and how connected it is in this run.</p>
+    </div>
+  </div>
+
+  <ul class="test-readout" id="bigbang-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser, positions included: a small force-directed layout (nodes repel,
+    edges pull connected characters together) settles fresh each run, so a hub shows up both as a
+    bigger node and as something others cluster around. Positions aren't comparable run-to-run or
+    model-to-model — only the overall pattern is. Character names are borrowed from the real
+    dataset just so hovering means something; the degree shown is this simulation's, not that
+    character's real Wikipedia in-degree. This is a counterfactual model for illustration, not a
+    reconstruction of how the Silmarillion's article network was actually written.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+  <p>
+    Run each model a few times at the same <var>m</var>. On 21 nodes the contrast between the two
+    models is the narrowest of our six datasets: across 200 offline runs the Big Bang's biggest
+    hub ranged 9–15 (mean 11.1) — and its top of 15 is exactly Morgoth's real in-degree, which is
+    the chance story in miniature. Sequential growth at the same <var>m</var> lands higher (around
+    12–14, mean 12.9): close to Morgoth, but with barely any head room above him. On a stage this
+    small, "history favored Morgoth early" and "the dice landed on Morgoth" produce nearly
+    indistinguishable universes.
+  </p>
+  <p>
+    That's the deep reason this page's hub question stays genuinely open: at n=21, both generative
+    stories and plain chance all reach Morgoth's size. What no model here can produce, though, is
+    a character below its floor — both wire every character on arrival or at birth, and the real
+    network indeed has no isolates to embarrass them.
+  </p>
+</article>
+
+<article class="post wide">
+
   <h2 id="paradox">Are your friends more popular than you?</h2>
   <p>
     Exact definitions, same as the Marvel page: take the undirected projection (a link either way
     counts as one connection). A character's <strong>degree</strong> is their number of distinct
     neighbors; their <strong>average neighbor degree</strong> is the mean degree of those neighbors.
     Here every one of the 21 characters has neighbors — no isolates. Averaged over the network,
-    ⟨k⟩ = 9.43, while the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 10.80 — only 14% higher.
+    ⟨k⟩ = 9.43, while the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 10.80 — only 15% higher.
     Marvel's version of this gap was more than 2× (9.465 vs 22.08). The Silmarillion's is barely
     a paradox at all: skip the Elves and the Men and there was never anyone unlinked to gawk at —
     a dense closed world has a flatness everyone shares.
@@ -321,6 +408,83 @@
 
 <article class="post wide">
 
+  <div class="section-head">
+    <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+  </div>
+  <p>
+    The same closing protocol the Marvel page used, run on the Silmarillion crawl: the in-degree
+    CCDF P(K&nbsp;&ge;&nbsp;k) against two nulls — an <strong>ER random graph</strong>, whose
+    in-degree is exactly Poisson with
+    <span class="formula">λ&nbsp;=&nbsp;151/21&nbsp;&asymp;&nbsp;7.19</span>, and a 200-seed
+    ensemble of directed <strong>Price</strong> graphs (N&nbsp;=&nbsp;21, m&nbsp;=&nbsp;7 —
+    edge-matched), with the ensemble maximum marked. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, via the <code>powerlaw</code> package) then summarizes the tail:
+    exponent α&#770; with its standard error, and a self-selected cutoff k&#770;<sub>min</sub>.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">7.19</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">15 · Morgoth</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.53 ± 0.41</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 5 · 14 of 21</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/silmarillion_ccdf_models.png" alt="CCDF of Silmarillion in-degree on log-log axes against an exact Poisson ER null and a 200-seed Price ensemble with its maximum marked">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the Price ensemble
+      (orange, 200 seeds at m&nbsp;=&nbsp;7; dotted line marks the ensemble's largest hub, 14).
+      The gray curve never exits the chart before the real data does — Morgoth's 15 sits just past
+      the Price ensemble's own ceiling.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/silmarillion_ccdf_fit.png" alt="CCDF of the Silmarillion in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.53&nbsp;±&nbsp;0.41 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;5, from just 14 of the 21 cited characters. The standard
+      error is 16% of α&#770; — the widest of any dataset we've fitted.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not demonstrably non-random.</strong> Under the Poisson null, a Morgoth-sized hub
+    isn't a freak: in-degree ≥ 15 is expected about 0.13 times per cast, and in-degree ≥ 10 is
+    expected 3.98 times with 7 characters really there. The ER verdict from the first section
+    survives the fancier look: at 21 nodes, chance is <em>not</em> rejected — and the Big Bang
+    explorer above put a finger on it, topping out at exactly 15 in 200 runs.
+  </p>
+  <p>
+    <strong>Right on the Price ensemble — and the ensemble never quite reaches him.</strong> The
+    200-seed ensemble at m&nbsp;=&nbsp;7 produced max in-degrees of 10–14 (mean 13.0): Morgoth's
+    15 sits <em>above</em> every one of the 200 seeds. It's a hair above — the ensemble's best is
+    one link short — but it's the only dataset of the six where the real hub edges past the model's
+    ceiling, which keeps "growth favored Morgoth" honest without letting it claim him.
+  </p>
+  <p>
+    <strong>Neither, strictly — the hardest hedge we've issued.</strong> The fit rests on just 14
+    tail points (k&nbsp;≥&nbsp;5 of 21 cited characters), and the standard error (±&nbsp;0.41) is
+    ~16% of α&#770;. A network of 21 nodes structurally cannot extend its tail past 20 citations,
+    and this one runs out of citers well before that. Whatever α&#750; says about the mid-tail's
+    shape, "scale-free" language cannot be earned from this distribution — the fit describes this
+    crawl, not a mechanism.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> Chance, growth, and degree-sequence arithmetic all reach
+      Morgoth's size at this scale; nothing above distinguishes them, and the frozen crawl has no
+      timestamps to test Price's growth story at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from 14 tail points on a 21-node
+      network — the fewest of any dataset we've fitted. Treat it as a descriptive summary of this
+      crawl's shape, never a model verdict.</li>
+    <li><strong>A like-for-like Price test.</strong> The comparison is a shape comparison against
+      in-degree, not a fitted-model likelihood verdict — and with the whole distribution inside
+      Poisson's reach, "scale-free-looking tail" is out of reach entirely.</li>
+  </ul>
+
+</article>
+
+<article class="post wide">
+
   <h2 id="synthesis">What the models get right, and what they miss</h2>
   <p>Pulling the four sections together — and the through-line is <em>how differently the same test suite reports on a small network</em>:</p>
   <ul>
@@ -344,7 +508,7 @@
     </li>
     <li>
       <strong>The friendship paradox holds, but weakly.</strong> ⟨k²⟩⁄⟨k⟩ (10.80) exceeds ⟨k⟩
-      (9.43) by 14% — a much flatter gap than Marvel's (>2× on the same test suite). 66.7% of
+      (9.43) by 15% — a much flatter gap than Marvel's (>2× on the same test suite). 66.7% of
       characters live it. Morgoth stands alone as the only never-out-ranked node.
     </li>
   </ul>
@@ -360,9 +524,12 @@
     📎 Reproducing this: the offline reference numbers quoted above come from
     <code>analysis/build_week2_reference.py</code>, run against the crawled data in
     <code>data/Silmarillion_characters/</code>; it writes
-    <code>data/Silmarillion_characters/silmarillion_week2_summary.json</code>. Every interactive
-    figure on this page recomputes its own live version of the same algorithm in your browser —
-    nothing here is hand-typed separately from the code that produced it.
+    <code>data/Silmarillion_characters/silmarillion_week2_summary.json</code>. The fit section's
+    figures and numbers come from <code>analysis/build_week2_fit_reference.py silmarillion</code>
+    (networkx + powerlaw + matplotlib in <code>analysis/.venv</code>), which appends the
+    <code>fit</code> key to the same JSON. Every interactive figure on this page recomputes its
+    own live version of the same algorithm in your browser — nothing here is hand-typed separately
+    from the code that produced it.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -374,9 +541,9 @@
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
     The Silmarillion characters (crawled 2026-09-09), 21 nodes / 151 directed links ·
-    analysis: stdlib + random-shuffle defaults, code in
-    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in
-    the browser
+    analysis: stdlib + random-shuffle defaults (<code>analysis/build_week2_reference.py</code>),
+    fit figures via networkx/powerlaw/matplotlib (<code>analysis/build_week2_fit_reference.py</code>);
+    all interactive figures recompute live in the browser
   </div>
 </footer>
 
