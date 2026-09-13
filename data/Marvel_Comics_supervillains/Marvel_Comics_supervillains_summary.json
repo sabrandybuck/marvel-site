@@ -1,0 +1,120 @@
+{
+  "node_count": 370,
+  "directed_edge_count": 1136,
+  "isolate_count": 43,
+  "weakly_connected_components": {
+    "count": 46,
+    "giant_component_size": 323,
+    "non_giant_component_sizes": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "degree": {
+    "in_degree": {
+      "min": 0,
+      "max": 58,
+      "mean": 3.0702702702702704
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 24,
+      "mean": 3.0702702702702704
+    },
+    "pearson_correlation_in_vs_out_degree": 0.6785313784957919
+  },
+  "top5_in_degree": [
+    {
+      "name": "Hulk",
+      "in_degree": 58
+    },
+    {
+      "name": "Norman Osborn",
+      "in_degree": 50
+    },
+    {
+      "name": "Deadpool",
+      "in_degree": 25
+    },
+    {
+      "name": "Thanos",
+      "in_degree": 23
+    },
+    {
+      "name": "Black Cat (Marvel Comics)",
+      "in_degree": 22
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Norman Osborn",
+      "out_degree": 24
+    },
+    {
+      "name": "Venom (character)",
+      "out_degree": 24
+    },
+    {
+      "name": "Deadpool",
+      "out_degree": 14
+    },
+    {
+      "name": "Eddie Brock",
+      "out_degree": 14
+    },
+    {
+      "name": "Lizard (character)",
+      "out_degree": 14
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 2,
+    "members": [
+      "Humus Sapien",
+      "Ogre (Marvel Comics)"
+    ]
+  }
+}
