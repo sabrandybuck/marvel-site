@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · Marvel supervillains — The Web of Heroes</title>
+<meta name="description" content="Testing the Marvel supervillain network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls, and checking the friendship paradox villain by villain.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · Marvel supervillains dataset · Models &amp; null models</div>
+  <h1>Is Hulk an accident?</h1>
+  <p class="subtitle">The same four tests on Wikipedia's Category: Marvel Comics supervillains — 370 nodes where the heroes Hulk, Deadpool and Doctor Doom loom largest, nearly 40% of citations run both ways, and 43 villains nobody links to at all.</p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#fit">Power-law fit</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="intro">Setting up the question</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    This is the network behind the crawl in <code>data/Marvel_Comics_supervillains</code>: the 370
+    pages reachable in Wikipedia's Category: Marvel Comics supervillains (redirects resolved;
+    crawled 2026-09-13), with 1,136 directed edges between them — an edge A→B when B's article
+    appears on A's. Mean in-degree is 3.07, barely half the hero network's 5.89, and the structure
+    is frayed at the edges: 46 weakly connected components, 43 characters nobody links to in
+    either direction, a giant component of 323, and two genuine two-villain islands —
+    Humus Sapien with Ogre, and Tetu with Zenzi.
+  </p>
+  <p>
+    The hub race has a plot twist: the most-cited "supervillains" are mostly heroes. Hulk tops the
+    count at 58 in-links, Norman Osborn follows at 50, then Deadpool (25), Thanos (23), and Black
+    Cat and Venom tied at 22 — category leakage, not a labeling error, since villains' articles
+    genuinely cite their heroic nemeses. One genuine stowaway does hide in the node list though:
+    <strong>David 8</strong>, the android from the <em>Alien</em> franchise, present and fully
+    isolated — the same kind of crawl artifact as Street Fighter's Tifa Lockhart. Is a hub of 58
+    just what scattering 1,136 links across 370 nodes produces, or does it take something more
+    deliberate? Same order as always: chance, degree-preserving chance, growth, and the
+    individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="er">Could chance alone produce this?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    Erdős–Rényi first: the same 370 nodes and 1,136 directed edges, placed by independent
+    coin-flips. Across 300 offline draws, the biggest hub's in-degree ranged from 7 to 15
+    (mean 9.36, standard deviation 1.05). Hulk's 58 is above <em>every single draw</em> — about
+    46 standard deviations above the random mean, and nearly 4× the most extreme draw of 300.
+    Norman Osborn's 50 clears the same ceiling just as decisively. No ambiguity here: chance
+    doesn't build hubs like these. Draw your own random network below and watch its biggest hub
+    land.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 1,136 directed edges among 370 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw supervillains data in your browser. ER only tests "edges placed
+    with no preference at all" — it says nothing about whether the real distribution is a power
+    law (that needs proper maximum-likelihood fitting, done separately below). It just shows that
+    independent random linking doesn't produce whatever shape the real in-degree distribution has.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="shuffle">What survives once degree is held fixed?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    The tighter null: keep everyone's exact in- and out-degree fixed, scramble only who links to
+    whom — repeatedly take a chain a→b, b→c, c→d and rewire it to a→c, c→b, b→d. Two statistics:
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — the average local clustering coefficient on the
+      <em>undirected projection</em> (an edge exists between two characters if either one's
+      article links to the other's), averaged over all 370 nodes; degree-&lt;2 nodes contribute 0.
+      Real value: <strong>0.2064</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — <span class="formula">mutual directed edges ÷ total directed edges = 452 ÷ 1,136 = 0.3979</span>.
+    </li>
+  </ul>
+  <p>
+    Across 300 offline shuffles (3,000 swaps each): clustering's null mean was 0.0763
+    (sd 0.0069) — the real value sits about 19 standard deviations above it, beyond all 300
+    shuffles (empirical p ≈ 0). Reciprocity's null mean was 0.0481 (sd 0.0079) — the real value
+    sits about 44 standard deviations above that, again beyond every shuffle. Degree alone
+    doesn't explain this network's triangle-heavy structure or its unusually mutual citation
+    habits — villain articles name each other back at a rate random wiring can't touch.
+  </p>
+  <p>
+    The chart below starts pre-populated with shuffles, so the null distribution is visible
+    immediately — pick a statistic, or run more yourself.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <p style="margin:0 0 10px;font-weight:600;color:var(--text);">How unusual is the real network?</p>
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, swapped from scratch (not a running chain),
+    matching the offline method above but with fewer swaps per realization for responsiveness. 40
+    run automatically on load; use the button for more.
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked as a labelled vertical line"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <div style="margin-top:16px;">
+    <button type="button" id="shuffle-run-btn" class="btn">Run 50 more shuffles</button>
+  </div>
+
+  <figcaption class="explorer-caption">
+    <strong>Same degree sequence. Different connections.</strong> The shuffle test asks whether the
+    observed structure is unusual once degree is controlled for. Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Two things worth flagging. <strong>The distinction:</strong> ER above asks "what if edges had no
+  constraint at all?" — this shuffle asks the narrower "what if the exact degree sequence stayed
+  fixed, and only the wiring changed?" <strong>The caveat:</strong> this swap preserves each node's
+  <em>directed</em> in-degree and out-degree exactly — that's what it's built to do. It does
+  <em>not</em> guarantee the <em>undirected-projection</em> degree stays fixed, since a swap can
+  turn a reciprocal pair into a one-way link (or back), changing how many distinct neighbors a node
+  has. That makes it the right null for reciprocity and directed structure, but a slightly looser
+  one for the clustering number than a true undirected-degree-preserving shuffle would be — we're
+  flagging that, not hiding it.
+</div>
+
+<p class="lede-connector">
+  One more thing we checked offline but didn't add as a control: do the two villain islands —
+  Humus Sapien with Ogre, Tetu with Zenzi — ever reconnect to the giant component under this
+  shuffle? Across all 300 realizations, the giant component stayed exactly 323 nodes, every time
+  (standard deviation 0) — not by chance, but by construction: a swap only ever rewires edges
+  along an existing directed walk (a→b→c→d), which can never cross between two components with no
+  edges between them. This null can't even ask whether the islands would reconnect — the component
+  split is invariant by construction, not by result. That's why it isn't offered as a third toggle
+  above: a histogram with zero variance wouldn't be testing anything.
+</p>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="ba">Growing a network that favors the popular</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    Preferential attachment: grow to 370 nodes one at a time, and give each newcomer <var>m</var>
+    outgoing links to existing characters — chosen with probability proportional to how many
+    in-links they already have. The classic rich-get-richer mechanism, in its directed
+    citation-network form (the Price model), which fits our directed network better than the usual
+    undirected Barabási–Albert setup. Out-degree is exactly <var>m</var> for every non-seed node by
+    construction; in-degree accumulates by preference.
+  </p>
+  <p>
+    This is a generative <em>hypothesis</em> tested against the data — not a claim about how the
+    Wikipedia article network actually got written.
+  </p>
+  <p>
+    At m=3 (3×370 = 1,110 edges, close to the real 1,136), 50 offline trials all produced a bigger
+    hub than Hulk: max in-degree 86–175 (mean 120) against the real 58 — preferential attachment
+    doesn't just reproduce a big hub here, it more than doubles it. Even at m=2 (mean 88, range
+    55–113) every trial overshoots; at m=4 the gap widens further (mean 137). Lowering <var>m</var>
+    brings the hub down but pulls the edge count further from 1,136 — no single <var>m</var>
+    matches both density and hub size. And at every <var>m</var>, every trial: one connected
+    component, zero isolates — versus the real network's 43 isolates and two two-villain islands.
+    A model where everyone who joins immediately attaches can't produce a villain nobody ever
+    mentions.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="12" step="1" value="3" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">3</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=370 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. The prose above quotes 50 offline trials per <var>m</var>; this
+    is a single live sample, so expect it near those ranges rather than exactly on the mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h3>A villain universe born all at once</h3>
+  <p>
+    Preferential attachment depends on history: characters arrive one at a time, and each newcomer
+    is more likely to connect to whoever's already popular, so an early lead can snowball into a
+    hub like Hulk. But what if the villain universe was born all at once?
+  </p>
+  <p>
+    If all 370 characters existed simultaneously, there'd be no established popularity for a
+    newcomer to follow — everyone would start with the same shot at new connections. That's the
+    counterfactual below: a second model, same 370 characters and roughly the same edge budget,
+    that links nodes uniformly at random instead of preferring the well-connected. It's
+    <strong>not</strong> a claim about how Marvel's Wikipedia network actually came to exist — it's
+    a way of asking how much of the hub structure could come from history alone.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="bigbang-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Model</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which generative model to draw">
+          <button type="button" id="bigbang-sequential-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Sequential growth</button>
+          <button type="button" id="bigbang-bang-btn" class="arrow-toggle-btn" aria-pressed="false">Big Bang</button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="bigbang-m-slider" min="1" max="12" step="1" value="3" aria-label="m: connections per character">
+        <span class="slider-value" id="bigbang-m-value">3</span>
+        <button type="button" id="bigbang-run-btn" class="btn">New universe</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    <strong>Sequential growth</strong> adds one character at a time, wiring each newcomer's
+    <var>m</var> links proportional to how connected existing characters already are (the same
+    rule as above). <strong>Big Bang</strong> creates all 370 at once and wires the same
+    <var>m</var> links per character uniformly at random — no regard for who's already connected.
+    Switch models or click "New universe" for a fresh run; node size shows degree, and the largest
+    hub is highlighted in gold. Hover a node (mouse only) for its name and degree.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="bigbang-chart" role="img" aria-label="Node-link diagram of the simulated network; node size encodes degree and the largest hub is highlighted"></div>
+    <div id="bigbang-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Hover a node to see who occupies it and how connected it is in this run.</p>
+    </div>
+  </div>
+
+  <ul class="test-readout" id="bigbang-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser, positions included: a small force-directed layout (nodes repel,
+    edges pull connected characters together) settles fresh each run, so a hub shows up both as a
+    bigger node and as something others cluster around. Positions aren't comparable run-to-run or
+    model-to-model — only the overall pattern is. Character names are borrowed from the real
+    dataset just so hovering means something; the degree shown is this simulation's, not that
+    character's real Wikipedia in-degree. This is a counterfactual model for illustration, not a
+    reconstruction of how Marvel's network was actually written.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+  <p>
+    Run each model a few times at the same <var>m</var>. Big Bang spreads connections fairly
+    evenly — most nodes end up a similar, modest size, and the largest hub barely varies run to
+    run. Sequential growth, at that same <var>m</var>, reliably produces one or two stand-out
+    characters, because whoever gets ahead early keeps attracting a disproportionate share of new
+    links. That's the mechanism in miniature: Hulk's 58 real in-links aren't just abstract
+    "popularity" — in a growing network, being popular <em>early</em> is itself an advantage that
+    compounds. In a universe born all at once, there's no "early" for that advantage to attach to.
+  </p>
+  <p>
+    None of this shows preferential attachment is what actually produced the real Wikipedia
+    network — the CCDF comparison above already found PA, at the edge-matched <var>m</var>,
+    reliably <em>overshoots</em> Hulk's real in-degree. What it does show is why network
+    history <em>can</em> matter: a heavy-tailed degree distribution is consistent with a
+    growth-plus-preference story, but consistent isn't proof — this counterfactual just isolates
+    what history specifically contributes.
+  </p>
+</article>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="paradox">Are your friends more popular than you?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    Definitions: on the undirected projection (same one used for clustering above), a character's
+    <strong>degree</strong> is their number of distinct neighbors, and their <strong>average
+    neighbor degree</strong> is the mean degree of those neighbors. Network-wide,
+    <span class="formula">⟨k⟩ = 4.919</span>, while the edge-weighted mean neighbor degree
+    <span class="formula">⟨k²⟩⁄⟨k⟩ = 13.18</span> — nearly triple. That gap is the friendship
+    paradox. It's worth stating plainly that <span class="formula">⟨k²⟩⁄⟨k⟩</span> is a pure
+    function of the degree sequence, so it's mathematically guaranteed to survive a
+    degree-preserving shuffle — not something this page needs to test.
+  </p>
+  <p>
+    What isn't guaranteed is what it looks like character by character. Of the 327 connected
+    characters, 274 (83.8%) have neighbors who are on average more connected than they are; 44
+    (13.5%) out-rank their average neighbor, and 9 are exactly tied. Fifteen characters are never
+    out-popularitied by any neighbor at all — the local degree champions, from
+    <strong>Hulk</strong> at the top of the giant component to <strong>Ogre</strong> and
+    <strong>Humus Sapien</strong> inside their own two-villain island, each merely the biggest
+    fish in a pond of one relationship.
+  </p>
+  <p>Search for a villain below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw supervillains data files in your browser. The 43 fully isolated
+    characters have no neighbors to compare against and are excluded here.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="fit">Is the degree distribution random, scale-free, or neither?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>
+    We plotted the in-degree CCDF P(K&nbsp;&ge;&nbsp;k) on the frozen snapshot (370 characters,
+    1,136 directed links) against two nulls: an <strong>ER random graph</strong>, whose in-degree
+    is exactly Poisson with <span class="formula">λ&nbsp;=&nbsp;1,136/370&nbsp;&asymp;&nbsp;3.07</span>,
+    and a 200-seed ensemble of directed <strong>Price</strong> graphs (N&nbsp;=&nbsp;370,
+    m&nbsp;=&nbsp;3 — edge-matched), with the ensemble maximum marked. A discrete power-law fit
+    (Clauset–Shalizi–Newman MLE, via the <code>powerlaw</code> package) then summarizes the tail:
+    exponent α&#770; with its standard error, and a self-selected cutoff k&#770;<sub>min</sub>.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Mean in-degree ⟨k⟩</span><span class="stat-value">3.07</span></li>
+    <li class="stat-card"><span class="stat-label">Max in-degree</span><span class="stat-value">58 · Hulk</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted exponent α&#770;</span><span class="stat-value">2.43 ± 0.15</span></li>
+    <li class="stat-card"><span class="stat-label">Fitted tail</span><span class="stat-value">k ≥ 4 · 94 of 267</span></li>
+  </ul>
+
+  <div class="figure-grid cols-2">
+    <figure>
+      <img src="../assets/week2/villains_ccdf_models.png" alt="CCDF of supervillain in-degree on log-log axes against an exact Poisson ER null and a 200-seed Price ensemble with its maximum marked">
+      <figcaption>In-degree CCDF (blue) vs. the Poisson ER null (gray) and the Price ensemble
+      (orange, 200 seeds, m=3). Poisson exits the chart by k&nbsp;&asymp;&nbsp;12; Hulk's 58
+      is barely a third of the heaviest Price hub (164).</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/week2/villains_ccdf_fit.png" alt="CCDF of the supervillain in-degree tail with the fitted discrete power law">
+      <figcaption>The fit: α&#770;&nbsp;=&nbsp;2.43&nbsp;±&nbsp;0.15 above
+      k&#770;<sub>min</sub>&nbsp;=&nbsp;4. Only 94 of the 267 cited characters sit in the fitted
+      region — the fit describes the tail, not the network.</figcaption>
+    </figure>
+  </div>
+
+  <p>
+    <strong>Not random.</strong> Under ER with λ&nbsp;=&nbsp;3.07, a character with in-degree 12
+    or more should essentially never exist — expected count 0.033 across all 370 nodes, real count
+    20. A degree of 58 is off the Poisson scale by
+    <span class="formula">1.3&nbsp;&times;&nbsp;10<sup>&minus;49</sup></span> expected occurrences
+    in a network of this size: the gray curve exits the chart by k&nbsp;&asymp;&nbsp;12, while the
+    real network still has 7 characters at k&nbsp;≥&nbsp;20.
+  </p>
+  <p>
+    <strong>Lighter than Price.</strong> The fitted exponent
+    (<span class="formula">α&#770;&nbsp;=&nbsp;2.43</span>) sits well below Price/BA's theoretical
+    3.0 (smaller exponent = heavier tail), but the ensemble comparison points the other way at the
+    extreme: every one of the 200 Price seeds produced a hub above Hulk's 58 (ensemble max 164,
+    mean 118). Forced to choose between random and Price: Price, easily — it just
+    <em>overstates</em> this network's skew at the very top, the same overshoot the growth section
+    found.
+  </p>
+  <p>
+    <strong>Neither, strictly.</strong> The power law describes the tail, not the whole network:
+    only 94 of the 267 cited characters sit in the fitted region, 103 characters were never cited
+    at all, and a network this small carries wide uncertainty on α&#770;. "Scale-free-looking
+    tail" is as far as this data goes.
+  </p>
+
+  <p><strong>What we can't conclude (for this question):</strong></p>
+  <ul>
+    <li><strong>The mechanism.</strong> A heavy tail doesn't prove preferential attachment — many
+      processes produce one, and the frozen snapshot has no timestamps to test Price's growth
+      story at all.</li>
+    <li><strong>The exact exponent.</strong> α&#770; comes from just 94 tail points; everything
+      below k&nbsp;=&nbsp;4, including the 103 never-cited characters, is outside the fit.</li>
+    <li><strong>A like-for-like Price test.</strong> The comparison is directed-in-degree against
+      a directed model, but the shape verdict is still visual, not a fitted-model likelihood
+      comparison.</li>
+  </ul>
+
+</article>
+
+<article class="post wide">
+
+  <div class="section-head">
+    <h2 id="synthesis">What the models get right, and what they miss</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 2 navigation">&uarr;</a>
+  </div>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Independent random edges (ER) are rejected outright.</strong> 300 draws topped out
+      at max in-degree 15 — nowhere near Hulk's 58 (z ≈ 46).
+    </li>
+    <li>
+      <strong>Degree alone doesn't explain the clustering or reciprocity either.</strong> Both sit
+      far outside the shuffle's null distribution (z ≈ 19 and z ≈ 44) — real relational structure
+      (teams, mutual nemeses, shared storylines) beyond what link count alone predicts. The one
+      thing that stayed fixed under the shuffle — the giant-component/islands split — is invariant
+      by construction, not a discovery about the network.
+    </li>
+    <li>
+      <strong>Preferential attachment overshoots harder here than anywhere else so far.</strong>
+      Every trial at every tested <var>m</var> more than doubled Hulk's real in-degree, and the
+      200-seed ensemble never once produced a hub as small as 58. The model structurally can't
+      produce isolated characters or disconnected islands either: everyone who joins, connects —
+      versus this network's 43 isolates and two two-villain islands.
+    </li>
+    <li>
+      <strong>The friendship paradox holds, strongly, for two different reasons.</strong>
+      Network-wide, <span class="formula">⟨k²⟩⁄⟨k⟩ (13.18)</span> nearly triples
+      <span class="formula">⟨k⟩ (4.919)</span> — guaranteed by the degree sequence alone.
+      Individually, 83.8% of connected characters personally experience it — but who plays "the
+      popular friend" for whom depends on the network's actual wiring, not just link counts.
+    </li>
+  </ul>
+  <p>
+    So: no, Hulk isn't an accident of scale or density. Something like rich-get-richer growth fits
+    the real hub structure far better than any random baseline — but that's a hypothesis this data
+    is <em>consistent with</em>, not something these four tests prove happened, and even its
+    best-fitting version overshoots the real hub while structurally ruling out the 43 characters
+    nobody bothered to link to. The villains' verdict rhymes with the heroes': heavy tail, real
+    structure, model in the right neighborhood — and one stowaway android from a different
+    franchise entirely.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline numbers above come from
+    <code>analysis/build_week2_reference.py</code> and
+    <code>analysis/build_week2_fit_reference.py</code>, run against the frozen
+    <code>data/Marvel_Comics_supervillains/</code> crawl (2026-09-13), writing
+    <code>villains_week2_summary.json</code> in the same directory. Every interactive figure
+    recomputes its own live version of the same algorithm in your browser — nothing here is
+    hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data: Marvel Comics supervillains
+    crawl (Wikipedia Category, 2026-09-13) from the 02805 course data page · analysis: stdlib +
+    NetworkX/powerlaw, code in <code>analysis/</code>; all interactive figures recompute live in
+    the browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="villains"></script>
+</body>
+</html>

@@ -56,10 +56,11 @@ def ccdf_points(degs):
 
 def poisson_ccdf(lam, ks):
     """Exact Poisson survival function 1 - CDF, computed via pmf sums."""
-    from math import exp, factorial
+    from math import exp, factorial, log
     ks = np.asarray(ks)
-    # log-space pmf to stay stable
-    logpmf = np.array([k * np.log(lam) - lam - np.log(factorial(k)) for k in range(ks.max() + 1)])
+    # log-space pmf to stay stable (math.log handles huge ints; np.log would
+    # choke on factorials past int64 range)
+    logpmf = np.array([k * log(lam) - lam - log(factorial(k)) for k in range(ks.max() + 1)])
     pmf = np.exp(logpmf)
     cdf = np.cumsum(pmf)
     return 1.0 - cdf[ks]
