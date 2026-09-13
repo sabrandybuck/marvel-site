@@ -111,5 +111,26 @@
         "mean": 13.8
       }
     }
+  },
+  "fit": {
+    "n_seeds_price": 200,
+    "price_m": 6,
+    "price_max_in_degree": {
+      "min": 11,
+      "max": 16,
+      "mean": 14.26
+    },
+    "power_law": {
+      "alpha": 2.3894755452386933,
+      "sigma": 0.34736888630967333,
+      "k_min": 4,
+      "n_tail_points": 16,
+      "n_positive_degree": 21
+    },
+    "figures": [
+      "ds9_ccdf_models.png",
+      "ds9_ccdf_fit.png"
+    ],
+    "note": "Small-n caveat: with few nodes the CSN fit rests on very few tail points; treat alpha as descriptive, not a model verdict."
   }
 }
