@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · Silmarillion — The Web of Heroes</title>
+<meta name="description" content="Testing the Silmarillion character network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls, and checking the friendship paradox elf by elf.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · Silmarillion dataset · Models &amp; null models</div>
+  <h1>Is Morgoth an accident?</h1>
+  <p class="subtitle">We ran the same four Week 2 tests on a smaller, colder network: the 21 characters of the Silmarillion — and the Marvel verdict mostly does not carry over.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">The same tests, a different network</h2>
+  <p>
+    Week 2's Marvel post asked whether Spider-Man's extreme hub size was an accident. This page
+    reruns exactly the same four tests on our second dataset: the 21 pages reachable in
+    Wikipedia's Category: The Silmarillion characters (redirects resolved; crawled 2026-09-09),
+    with 151 directed edges between them — an edge A→B when B's article appears on A's.
+  </p>
+  <p>
+    Before any test, the shape is different from Marvel's in one visible way: there are no gaps.
+    No isolated characters (minimum in-degree 1, minimum out-degree 2), a single weakly connected
+    component of all 21 nodes, and a mild but real in/out asymmetry (mean in-degree = mean
+    out-degree = 7.19, but the ranges differ: 1–15 in, 2–12 out). The hub question looks like a
+    rematch: Morgoth is cited by 15 of the other 20 articles — Elrond is next at 14, Eärendil and
+    Elwing and Galadriel at 12, Fëanor at 10. Is 15 distinctive, or just what a small dense
+    network looks like? Four questions, in the same order as the Marvel page: chance,
+    degree-preserving chance, growth, and the individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    Same null as the Marvel page: an Erdős–Rényi random directed graph with the same 21 nodes and
+    151 edges. On Marvel's 303 nodes, chance could barely build a hub bigger than 18 (Spider-Man:
+    106); on 21 nodes with a mean
+    in-degree of 7.2, chance sits close to Morgoth's league.
+    Offline we ran 300 independent ER draws: the biggest hub's in-degree ranged from 9 to 16
+    (mean 11.4, sd 1.1). Morgoth's 15 is in that range — it's under the single largest draw
+    (16) — and sits about 3.3 standard deviations above the random mean.
+  </p>
+  <p>
+    Draw your own random network below and watch where its biggest hub lands. Where the Marvel
+    page returned "not a chance," this page returns more honestly: <em>maybe.</em> A 21-node
+    network may not be large enough for a hub test to be informative.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 151 directed edges among 21 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Silmarillion data files in your browser. Same caveat as the Marvel
+    page: ER only tests "edges placed with no preference at all" — all it can say here is where
+    chance lands, and this small a network leaves a wide landing zone.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    Same degree-preserving directed shuffle as the Marvel page — chains of edges a→b, b→c, c→d
+    rewired to a→c, c→b, b→d, leaving every character's in- and out-degree exactly intact. Same
+    two statistics, on the undirected projection (edge if either article links to the other):
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — average local clustering on the undirected
+      projection, all 21 nodes, degree-&lt;2 contributing 0. Real value: <strong>0.6572</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges ≈ 104 ÷ 151 =
+      <strong>0.6887</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, 300 shuffle realizations (3,000 swaps each). Clustering's null mean was 0.6717
+    (sd 0.0267) — the real value sits at <strong>z ≈ −0.54, p ≈ 0.69</strong>: dead level, not one
+    standard deviation from the null. On 21 characters whose articles cite each other densely,
+    holding degrees fixed and re-wiring <em>reproduces the clustering entirely</em>. Marvel's same
+    test returned z ≈ 14 — real relational structure beyond degree. Here, degree is the whole
+    story. That is a real (if unromantic) finding: high-degree dwarves and kings in a small
+    closed world make triangles by arithmetic, not lineage.
+  </p>
+  <p>
+    Reciprocity is the flip side — and the one thing this network genuinely wins:
+    null mean 0.4572 (sd 0.0349) vs. real 0.6887, about <strong>z ≈ 6.6, beyond every one of
+    the 300 shuffles     (p ≈ 0)</strong>. Two-thirds of the Silmarillion's citations are mutual — you link me and I
+    link you — at a rate no degree sequence alone explains. On Marvel, degree sequence explained
+    almost nothing of the network's actual wiring; here, it explains the clustering completely and
+    only fails on this mutual-citation rate.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Same distinction as the Marvel page, one extra caveat special to small graphs. <strong>First,
+  the distinction:</strong> the ER test above randomizes links without any constraint at all; this
+  shuffle preserves each node's exact in- and out-degree and randomizes only who connects to whom.
+  <strong>Second, the caveat:</strong> with only 21 nodes, neither null has much room to spread —
+  a "real value within one sd of the null" (clustering) is consistent both with "nothing special"
+  and with "this test simply can't see it at this scale." The reciprocity gap is big enough to
+  survive that concern; the clustering non-result genuinely isn't. We're reporting both rather
+  than picking the flattering one.
+</div>
+
+<p class="lede-connector">
+  As on the Marvel page, one property the shuffle can't even probe: the giant component. All 300
+  offline realizations left the network's component partition untouched (giant = 21, every single
+  time, sd 0) — guaranteed by construction, since a swap rewires only along an existing chain
+  a→b→c→d and that chain can never cross between weakly connected components. The Marvel network
+  made that fact interesting (it has an island); the Silmarillion network has one component, so
+  the invariance here is merely a fact about the method rather than anything about the data.
+  That's why it isn't a toggle above: a histogram with zero variance tests nothing.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Directed preferential attachment — the Price model, same growth rule as the Marvel page:
+    new nodes join with <var>m</var> outgoing links, chosen with probability proportional to the
+    target's current in-degree. Out-degree is exactly <var>m</var> for every non-seed node; in-degree
+    accumulates by preference.
+  </p>
+  <p>
+    At four values of <var>m</var>, 50 trials each. Now the comparison with Marvel turns over. On
+    Marvel, preferential attachment at the matching <var>m</var> reliably <em>overshot</em> the real
+    hub and no <var>m</var> could satisfy both the real density and hub size. Here, the trials track
+    Morgoth closely across the plausible range: Price(m=3) max in-degree 10–17 (mean 13.1), Price(m=5)
+    11–16 (mean 13.9), Price(m=7) 11–14 (mean 12.9), against the real 15. Some trials land at or
+    above Morgoth (m=3 topped out at 17; m=5 at 16), some trail below (m=9 never exceeds 12);
+    the real hub sits comfortably inside the model's spread at all but the most extreme <var>m</var>.
+    For the first hub we've tested, <strong>the growth story doesn't overshoot and
+    isn't obviously needed either</strong> — a network this small can grow a Morgoth by chance or
+    mellow preference alike. The one thing the growth model <em>always</em> gets right here is
+    something it got wrong on Marvel: everyone joins attached to someone, and our real network
+    indeed has no isolates at all.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="12" step="1" value="7" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">7</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=21 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions, same as the Marvel page: take the undirected projection (a link either way
+    counts as one connection). A character's <strong>degree</strong> is their number of distinct
+    neighbors; their <strong>average neighbor degree</strong> is the mean degree of those neighbors.
+    Here every one of the 21 characters has neighbors — no isolates. Averaged over the network,
+    ⟨k⟩ = 9.43, while the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 10.80 — only 14% higher.
+    Marvel's version of this gap was more than 2× (9.465 vs 22.08). The Silmarillion's is barely
+    a paradox at all: skip the Elves and the Men and there was never anyone unlinked to gawk at —
+    a dense closed world has a flatness everyone shares.
+  </p>
+  <p>
+    Individually: 14 of 21 (66.7%) have neighbors on average better connected than they are; 6
+    (28.6%) beat their neighborhood on their own; 1 ties. Exactly one character is never
+    out-popularitied by any neighbor — degree ≥ every neighbor's — and it is who you'd guess:
+    <strong>Morgoth</strong> (degree 17 on the undirected projection).
+  </p>
+  <p>Search for a character below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Silmarillion data files in your browser. All 21 characters appear —
+    none are isolated in this network.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together — and the through-line is <em>how differently the same test suite reports on a small network</em>:</p>
+  <ul>
+    <li>
+      <strong>Chance alone is not eliminated.</strong> An ER draw's biggest hub topped out at 16
+      across 300 tries; Morgoth's 15 is inside it. Marvel rejected chance by z far larger than
+      anything visible here; at n=21, "accident" stays viable.
+    </li>
+    <li>
+      <strong>Degree explains most of the shape here — reciprocity is the exception.</strong> The
+      shuffle reproduces the Silmarillion's clustering exactly (z ≈ −0.54). Only the mutual-citation
+      rate (real 0.689, null 0.457, z ≈ 6.6) is real relational structure the null can't produce.
+      In Marvel, both clustering and reciprocity survived by wide margins; the Silmarillion keeps
+      only the two-way-citation result.
+    </li>
+    <li>
+      <strong>Preferential attachment fits without overclaiming.</strong> Price-model trials
+      bracket Morgoth's hub size at <var>m</var> in the plausible 3–7 range, and the model's
+      built-in "everyone joins attached" matches this network's zero isolates — the one place the
+      Marvel analysis called the model structurally blind, the data happens to agree with it.
+    </li>
+    <li>
+      <strong>The friendship paradox holds, but weakly.</strong> ⟨k²⟩⁄⟨k⟩ (10.80) exceeds ⟨k⟩
+      (9.43) by 14% — a much flatter gap than Marvel's (>2× on the same test suite). 66.7% of
+      characters live it. Morgoth stands alone as the only never-out-ranked node.
+    </li>
+  </ul>
+  <p>
+    So: this time, Morgoth may well be an accident of counting — and that's the finding. The same
+    null models that stripped Marvel's network of everything except rich-get-richer growth mostly
+    let the Silmarillion network pass as what its degree sequence (and a strongly mutual citation
+    habit) predicts. An honest Week 2 conclusion for this dataset: on 21 nodes, the interesting
+    question isn't the tail — it's reciprocity.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2_reference.py</code>, run against the crawled data in
+    <code>data/Silmarillion_characters/</code>; it writes
+    <code>data/Silmarillion_characters/silmarillion_week2_summary.json</code>. Every interactive
+    figure on this page recomputes its own live version of the same algorithm in your browser —
+    nothing here is hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
+    The Silmarillion characters (crawled 2026-09-09), 21 nodes / 151 directed links ·
+    analysis: stdlib + random-shuffle defaults, code in
+    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in
+    the browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="silmarillion"></script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · Middle-earth — The Web of Heroes</title>
+<meta name="description" content="Testing the List of Middle-earth characters network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls — where the biggest hub is a list page, not a character.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · Middle-earth dataset · Models &amp; null models</div>
+  <h1>The hub that isn't a person</h1>
+  <p class="subtitle">Running the Week 2 test suite on the 57 pages of the List of Middle-earth characters — and the network's biggest in-degree winner is a category page. The null models have opinions about that.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">Not a category — a list page</h2>
+  <p>
+    Fourth dataset, same four tests. Its source isn't a Wikipedia category: we seeded
+    <code>List_of_Middle-earth_characters</code>, the wiki's own index page, and took the 57
+    distinct pages reachable from it after resolving redirects (crawled 2026-09-10). That seed
+    choice has a consequence the rest of the page keeps meeting: the "node set" contains a few
+    <em>metadata</em> pages alongside actual character articles. With 790 directed edges between
+    them (an edge A→B when B's article appears on A's), this is our densest small dataset:
+    mean in- and out-degree 13.9, no isolates, a single weakly connected component of all 57 nodes.
+  </p>
+  <p>
+    The in-degree ranking makes the problem plain: <strong>Elves in Middle-earth</strong> — itself
+    a list-page, not a person — leads with 41 citations; Sauron 39; Aragorn 38; Gandalf 34;
+    Elrond 29. Minimum degree 0 means someone is cited by nobody, and the in-degree maximum is
+    nearly 3× the mean. So the Week 2 question splits in two: is the real structure distinctive,
+    and how much of the headline hub is even a character? Same order as before: chance,
+    degree-preserving chance, growth, and the individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    Erdős–Rényi with the same 57 nodes and 790 edges. Across 300 offline draws the biggest hub's
+    in-degree ranged 18–27 (mean 21.4, sd 1.6). The real max is 41 — roughly 12 standard
+    deviations above the random mean and 52% beyond the most extreme of 300 draws. Sauron's 39
+    and Aragorn's 38 also clear the ER ceiling; even Gandalf's 34 does.
+  </p>
+  <p>
+    One visible complication: the "Elves in Middle-earth" hub is partly an artifact (every
+    character page listing its elves links to it), so some share of the
+    distinction belongs to Wikipedia's structure rather than Middle-earth's story. But the
+    same caution applies in reverse: four of the top five are genuine characters, and all four
+    beat chance by well over 7 standard deviations. Draw your own random network below — its
+    biggest hub will never come close.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 790 directed edges among 57 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Middle-earth data files in your browser. Same ER caveat as every
+    dataset: it tests "edges placed with no preference at all" — and at this density the real
+    network's extremes sit far above any of its draws.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    Degree-preserving directed shuffle throughout: chains a→b, b→c, c→d rewired to a→c, c→b, b→d
+    with every node keeping its exact in- and out-degree. On the undirected projection (an edge
+    if either article links to the other; 550 undirected edges here):
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — average local clustering on that projection, all
+      57 nodes, degree-&lt;2 contributing 0. Real value: <strong>0.5984</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges ≈ 480 ÷ 790 =
+      <strong>0.6076</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, 300 shuffle realizations (3,000 swaps each). This is the first dataset where
+    <em>both</em> statistics are distinctive. Clustering: null mean 0.5623 (sd 0.0103) vs. real
+    0.5984 — z ≈ 3.5, beyond every shuffle (p ≈ 0). Holding everyone's link counts fixed and
+    re-dealing them lowers the triangle rate: some of Middle-earth's clique structure isn't
+    explained by degree at all, and a likely suspect is the artifact page again — "Elves in
+    Middle-earth" links to a huge part of the network, while a different shuffle gives its
+    57-in-degree to scattered mid-degree nodes who form fewer triangles. The honest statement:
+    the clustering signal is real, but some of it is one unusual node's link count being
+    <em>helped by</em> a hub whose out-links co-reference each other.
+  </p>
+  <p>
+    Reciprocity is bigger: null mean 0.3394 (sd 0.0165) vs. real 0.6076 — z ≈ 16.2, beyond all
+    300 shuffles (p ≈ 0). Sixty percent of Middle-earth links run both ways against a degree-only
+    34% — the second-largest reciprocity gap per sd we've seen behind only Westeros's.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Same distinction as everywhere. <strong>ER</strong> randomizes links without constraint;
+  <strong>this shuffle</strong> freezes every node's in- and out-degree and randomizes only the
+  wiring. One dataset-specific caveat this time: the node set isn't characters-pure. It includes
+  list pages like "Elves in Middle-earth" whose link behavior (a few pages citing dozens of
+  characters, plus many characters citing each list page) is a Wikipedia artifact rather than a
+  Middle-earth property, and that leaks into every statistic above. Unlike the other datasets,
+  this network's numbers describe <em>"the pages reachable from the List page"</em> — a fact
+  which both inflates the hub (ER rejected partly on that node's behalf) and structures the
+  shuffles' verdicts. Read the rest of the page as "distinctive given this seed choice."
+</div>
+
+<p class="lede-connector">
+  One thing no shuffle can address: the component partition. All 300 realizations left the giant
+  component at exactly 57 nodes (sd 0), by construction — because a degree-preserving swap
+  rewires only along an existing chain a→b→c→d and such a chain can never cross between weakly
+  connected components. The network has a single component, so this is a fact about the method,
+    not a discovery about Middle-earth — so no histogram above, on purpose.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Directed preferential attachment, Price model, unchanged from the Silmarillion page: each new
+    node joins with <var>m</var> outgoing links chosen with probability proportional to the
+    target's current in-degree. Mean out-degree is 13.9, so we ran trials at <var>m</var> = 13,
+    14 and 15 (50 each).
+  </p>
+  <p>
+    Price(m=13) trials reached max in-degree 35–43 (mean 38.2), Price(m=14) 35–41 (mean 37.6),
+    Price(m=15) 33–40 (mean 37.3) — the real top of 41 fits inside that spread without tuning at
+    Price(m=15) 33–40 (mean 37.3) — the real top of 41 fits inside that spread without tuning at
+    <var>m</var> = 13–14. This is the hub closest to a comfortable Price-model fit we've measured
+    on the smaller datasets: the growth model neither overshoots (Marvel, Street Fighter) nor
+    scrapes under (Silmarillion, DS9). But remember the artifact: a hub of 41 in a 57-node
+    network would have to be generated by a model whose world is this list page's link pattern —
+    a genuinely pleasing consistency for the Price hypothesis, and a genuine worry for anyone
+    reading the number as a character-level claim.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="20" step="1" value="14" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">14</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=57 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions, same as everywhere else: undirected projection (a link either way counts
+    one connection). A character's <strong>degree</strong> is their number of distinct neighbors;
+    their <strong>average neighbor degree</strong> is the mean degree of those neighbors.
+    Network average ⟨k⟩ = 19.30 against the edge-weighted mean neighbor degree ⟨k²⟩⁄⟨k⟩ = 23.24 —
+    20% higher. Marvel's same gap was 133%; Silmarillion's 15%. Middle-earth sits in the mild band,
+    consistent with a construction built for reachability rather than star power.
+  </p>
+  <p>
+    Individually: 44 of 57 (77.2%) have neighbors on average better connected than they are; 13
+    (22.8%) hold their own; zero ties. Two characters have degree ≥ every neighbor's:
+    <strong>Aragorn</strong> — and <strong>Elves in Middle-earth</strong>, the artifact page whose
+    own degree (41) is hard to beat because most of the network links to it. This is the only
+    dataset where a list page is a paradox champion, which is the cleanest illustration of why it
+    should read as data caution: who the "popular friend" is depends on what counts as a
+    "character."
+  </p>
+  <p>Search for a character below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw Middle-earth data files in your browser. All 57 pages appear —
+    none are isolated in this network.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Chance is rejected, hard.</strong> 300 ER draws maxed at 27 against a real hub of
+      41 — a gap of ~12 standard deviations, and four separate characters clear the ceiling. On
+      hubs, the list-page dataset is closer to Marvel's verdict than to the Silmarillion's.
+    </li>
+    <li>
+      <strong>For the first time, clustering itself survives the shuffle.</strong> Real 0.5984
+      against a null of 0.5623 (z ≈ 3.5) — small, but beyond all 300 realizations. Reasonable
+      suspect: the artifact page's out-neighbors all co-reference each other. Reciprocity (real
+      0.6076 vs null 0.3394, z ≈ 16.2) repeats the pattern we keep finding: mutual citation is
+      the hardest thing for a degree-only null to fake.
+    </li>
+    <li>
+      <strong>Preferential attachment fits the hub without tuning.</strong> Price trials at
+      m=13 and m=14 bracket the real hub of 41 — for once the growth story is consistent with
+      both the density and the extremes. It still can't speak at the node level: "Elves in
+      Middle-earth" isn't a person, and no named character here is ever a hub the way Spider-Man
+      is.
+    </li>
+    <li>
+      <strong>The friendship paradox holds, mildly.</strong> ⟨k²⟩⁄⟨k⟩ (23.24) exceeds ⟨k⟩ (19.30)
+      by 20%; 77.2% of pages live it. Aragorn and the list page are its only never-out-ranked
+      nodes. The mild gap keeps the theme from the Silmarillion: dense small worlds are
+      self-similar near the top — structural inequality is all in the artifact pages and true
+      superstars, not in the rank-chasing of the individual level.
+    </li>
+  </ul>
+  <p>
+    So: Middle-earth's Week 2 verdict is "distinctive hub, distinctive reciprocity, and —
+    uniquely in our collection so far — a clustering coefficient that no degree sequence can
+    fully account for." The data story hidden in the numbers is about metadata: the dataset's
+    biggest hub isn't a character, its most central resolver is a list page, and a fair reading
+    of this network's null models has to remember that both happened by seed choice.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2_reference.py middle-earth</code>, run against the crawled data in
+    <code>data/List_of_Middle-earth_characters/</code>; it writes
+    <code>data/List_of_Middle-earth_characters/middle_earth_week2_summary.json</code>. Every
+    interactive figure on this page recomputes its own live version of the same algorithm in
+    your browser — nothing here is hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia list page
+    List of Middle-earth characters (crawled 2026-09-10), 57 nodes / 790 directed links ·
+    analysis: stdlib + random-shuffle defaults, code in
+    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in the
+    browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="middle-earth"></script>
+</body>
+</html>

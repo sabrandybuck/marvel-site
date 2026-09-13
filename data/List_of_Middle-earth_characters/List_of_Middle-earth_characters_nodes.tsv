@@ -1,0 +1,61 @@
+# marvel-crawler — the_list_page_List_of_Middle-earth_characters crawl (2026-09-10)
+# Wikipedia the list page List_of_Middle-earth_characters — 57 nodes (redirects resolved).
+# node_id matches the source column of the edges file.
+node_id	name	wikidata_id	url	description
+Aragorn	Aragorn	Q180322	https://en.wikipedia.org/wiki/Aragorn	Aragorn (Sindarin: [ˈaraɡɔrn]) is a fictional character and a protagonist in J. R. R. Tolkien's The Lord of the Rings.
+Arwen	Arwen	Q206018	https://en.wikipedia.org/wiki/Arwen	Arwen Undómiel is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Balin_(Middle-earth)	Balin (Middle-earth)	Q780499	https://en.wikipedia.org/wiki/Balin_(Middle-earth)	Balin is a fictional character in J. R. R. Tolkien's world of Middle-earth.
+Bard_the_Bowman	Bard the Bowman	Q2470173	https://en.wikipedia.org/wiki/Bard_the_Bowman	Bard the Bowman is a character in J. R. R. Tolkien's The Hobbit.
+Beorn	Beorn	Q1750830	https://en.wikipedia.org/wiki/Beorn	Beorn is a character created by J. R. R. Tolkien as part of his Middle-earth legendarium.
+Bilbo_Baggins	Bilbo Baggins	Q185737	https://en.wikipedia.org/wiki/Bilbo_Baggins	Bilbo Baggins (Westron: Bilba Labingi) is the title character and protagonist of J. R. R. Tolkien's 1937 novel The Hobbit, a supporting character in The Lord of the Rings, and the fictional narrator (along with Frodo Baggins) of many of Tolkien's Middle-earth writings.
+Boromir	Boromir	Q219504	https://en.wikipedia.org/wiki/Boromir	Boromir is a fictional character in J. R. R. Tolkien's legendarium.
+Celebrimbor	Celebrimbor	Q833015	https://en.wikipedia.org/wiki/Celebrimbor	Celebrimbor (Sindarin pronunciation: [ˌkɛlɛˈbrimbɔr]) is a fictional character in J. R. R. Tolkien's legendarium.
+Denethor	Denethor	Q718380	https://en.wikipedia.org/wiki/Denethor	Denethor II, son of Ecthelion II, is a fictional character in J. R. R. Tolkien's novel The Lord of the Rings.
+Dúnedain	Dúnedain	Q748994	https://en.wikipedia.org/wiki/Dúnedain	In J. R. R. Tolkien's Middle-earth writings, the Dúnedain (Sindarin pronunciation: [ˈduːnɛˌdaɪn]; sing. Dúnadan; lit. 'Man of the West') were a race of Men, also known as the Númenóreans or Men of Westernesse (translated from the Sindarin term).
+Elendil	Elendil	Q719736	https://en.wikipedia.org/wiki/Elendil	Elendil (Quenya: [ɛˈlendil]) is a fictional character in J. R. R. Tolkien's legendarium.
+Elrond	Elrond	Q208426	https://en.wikipedia.org/wiki/Elrond	Elrond Half-elven is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Elves_in_Middle-earth	Elves in Middle-earth	Q203904	https://en.wikipedia.org/wiki/Elves_in_Middle-earth	In J. R. R. Tolkien's writings, Elves are the first fictional race to appear in Middle-earth.
+Eärendil_and_Elwing	Eärendil and Elwing	Q593531	https://en.wikipedia.org/wiki/Eärendil_and_Elwing	Eärendil (Quenya pronunciation: [ɛ.aˈrɛn.dil]) the Mariner and his wife Elwing are characters in J. R. R. Tolkien's Middle-earth legendarium.
+Faramir	Faramir	Q223468	https://en.wikipedia.org/wiki/Faramir	Faramir  is a fictional character in J. R. R. Tolkien's The Lord of the Rings.
+Fingolfin	Fingolfin	Q217190	https://en.wikipedia.org/wiki/Fingolfin	Fingolfin (Sindarin: [fiŋˈɡolfin]) is a character in J. R. R. Tolkien's legendarium, appearing in The Silmarillion.
+Finwë_and_Míriel	Finwë and Míriel	Q1154861	https://en.wikipedia.org/wiki/Finwë_and_Míriel	Finwë (Quenya: [ˈfinwɛ]) and  Míriel  (Quenya: [ˈmiːriɛl]) are fictional characters from J. R. R. Tolkien's legendarium.
+Frodo_Baggins	Frodo Baggins	Q177329	https://en.wikipedia.org/wiki/Frodo_Baggins	Frodo Baggins is a fictional character in J. R. R. Tolkien's writings and one of the protagonists in The Lord of the Rings.
+Fëanor	Fëanor	Q716794	https://en.wikipedia.org/wiki/Fëanor	Fëanor (Quenya pronunciation: [ˈfɛ.anɔr]) is a fictional character in J. R. R. Tolkien's The Silmarillion.
+Galadriel	Galadriel	Q204274	https://en.wikipedia.org/wiki/Galadriel	Galadriel (IPA: [ɡaˈladri.ɛl]) is a character created by J. R. R. Tolkien in his Middle-earth writings.
+Gandalf	Gandalf	Q177499	https://en.wikipedia.org/wiki/Gandalf	Gandalf, in longer form Gandalf the Grey and later Gandalf the White, is a protagonist in J. R. R. Tolkien's novels The Hobbit and The Lord of the Rings.
+Gil-galad	Gil-galad	Q718383	https://en.wikipedia.org/wiki/Gil-galad	Gil-galad is a fictional character in J. R. R. Tolkien's Middle-earth legendarium, the last High King of the Noldor, one of the main divisions of Elves.
+Gimli_(Middle-earth)	Gimli (Middle-earth)	Q206818	https://en.wikipedia.org/wiki/Gimli_(Middle-earth)	Gimli is a fictional character in J. R. R. Tolkien's Middle-earth, appearing in The Lord of the Rings.
+Glorfindel	Glorfindel	Q753773	https://en.wikipedia.org/wiki/Glorfindel	Glorfindel (Sindarin pronunciation: [ɡlɔrˈfindɛl]) is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Goldberry	Goldberry	Q2485929	https://en.wikipedia.org/wiki/Goldberry	Goldberry is a character from the works of the author J. R. R. Tolkien.
+Gollum	Gollum	Q15007	https://en.wikipedia.org/wiki/Gollum	Gollum is a fictional character in J. R. R. Tolkien's fantasy world of Middle-earth.
+Gríma_Wormtongue	Gríma Wormtongue	Q748450	https://en.wikipedia.org/wiki/Gríma_Wormtongue	Gríma, called (the) Wormtongue, is a fictional character in J. R. R. Tolkien's The Lord of the Rings.
+Húrin	Húrin	Q770363	https://en.wikipedia.org/wiki/Húrin	Húrin is a fictional character in the Middle-earth legendarium of J. R. R. Tolkien.
+Isildur	Isildur	Q206324	https://en.wikipedia.org/wiki/Isildur	Isildur (Quenya: [iˈsildur]) is a fictional character in J. R. R. Tolkien's Middle-earth, the elder son of Elendil, descended from Elros, the founder of the island Kingdom of Númenor.
+Legolas	Legolas	Q213480	https://en.wikipedia.org/wiki/Legolas	Legolas (Sindarin: [ˈlɛɡɔlas]) is a fictional character in J. R. R. Tolkien's The Lord of the Rings.
+Lúthien_and_Beren	Lúthien and Beren	Q115526988	https://en.wikipedia.org/wiki/Lúthien_and_Beren	Lúthien and Beren are characters in J. R. R. Tolkien's fantasy world Middle-earth.
+Melian_(Middle-earth)	Melian (Middle-earth)	Q753788	https://en.wikipedia.org/wiki/Melian_(Middle-earth)	Melian is a fictional character in J.R.R. Tolkien's Middle-earth legendarium.
+Merry_Brandybuck	Merry Brandybuck	Q219498	https://en.wikipedia.org/wiki/Merry_Brandybuck	Meriadoc Brandybuck (Westron: Kalimac Brandagamba; usually called Merry) is a Hobbit, a fictional character from J. R. R. Tolkien's Middle-earth legendarium, featured throughout his most famous work, The Lord of the Rings.
+Middle-earth_peoples	Middle-earth peoples	Q17412916	https://en.wikipedia.org/wiki/Middle-earth_peoples	The fictional races and peoples that appear in J. R. R. Tolkien's fantasy world of Middle-earth include the seven listed in Appendix F of The Lord of the Rings: Elves, Men, Dwarves, Hobbits, Ents, Orcs and Trolls, as well as spirits such as the Valar and Maiar.
+Morgoth	Morgoth	Q80453	https://en.wikipedia.org/wiki/Morgoth	Morgoth Bauglir ([ˈmɔrɡɔθ ˈbau̯ɡlir]; originally Melkor [ˈmɛlkor]) is the primary antagonist of Tolkien's legendarium, the mythic epic by the English author J. R. R. Tolkien and published in parts as The Silmarillion, The Children of Húrin, Beren and Lúthien, and The Fall of Gondolin.
+Noldor	Noldor	Q6672460	https://en.wikipedia.org/wiki/Noldor	In the works of J. R. R. Tolkien, the Noldor (also spelled Ñoldor, meaning those with knowledge in his constructed language Quenya) are a kindred of Elves who migrate west to the blessed realm of Valinor from the continent of Middle-earth, splitting from other groups of Elves as they went.
+Pippin_Took	Pippin Took	Q219493	https://en.wikipedia.org/wiki/Pippin_Took	Peregrin Took (Westron: Razanur Tûk), commonly known simply as Pippin, is a fictional character from J. R. R. Tolkien's fantasy novel The Lord of the Rings.
+Radagast	Radagast	Q719492	https://en.wikipedia.org/wiki/Radagast	Radagast the Brown is a fictional character in J. R. R. Tolkien's legendarium.
+Samwise_Gamgee	Samwise Gamgee	Q219473	https://en.wikipedia.org/wiki/Samwise_Gamgee	Samwise Gamgee (, usually called Sam) (Westron: Banazîr Galbasi) is a fictional character in J. R. R. Tolkien's Middle-earth.
+Saruman	Saruman	Q216489	https://en.wikipedia.org/wiki/Saruman	Saruman, also called Saruman the White, later Saruman of Many Colours, is a fictional character and an antagonist in J. R. R. Tolkien's fantasy novel The Lord of the Rings.
+Sauron	Sauron	Q2281	https://en.wikipedia.org/wiki/Sauron	Sauron () is the title character and the main antagonist of J. R. R. Tolkien's The Lord of the Rings, where he rules the land of Mordor.
+Shelob	Shelob	Q1234661	https://en.wikipedia.org/wiki/Shelob	Shelob is a fictional monster in the form of a giant spider from J. R. R. Tolkien's The Lord of the Rings.
+Smaug	Smaug	Q46302	https://en.wikipedia.org/wiki/Smaug	Smaug () is a dragon and the main antagonist in J. R. R. Tolkien's 1937 novel The Hobbit, his treasure and the mountain he lives in being the goal of the quest.
+Thingol	Thingol	Q734128	https://en.wikipedia.org/wiki/Thingol	Elu Thingol or Elwë Singollo is a fictional character in J.R.R. Tolkien's Middle-earth legendarium.
+Thorin_Oakenshield	Thorin Oakenshield	Q46285	https://en.wikipedia.org/wiki/Thorin_Oakenshield	Thorin Oakenshield (Thorin II) is a fictional character in J. R. R. Tolkien's 1937 novel The Hobbit.
+Thranduil	Thranduil	Q746840	https://en.wikipedia.org/wiki/Thranduil	Thranduil is a fictional character in J. R. R. Tolkien's Middle-earth legendarium.
+Théoden	Théoden	Q308813	https://en.wikipedia.org/wiki/Théoden	Théoden is a fictional character in J. R. R. Tolkien's fantasy novel, The Lord of the Rings.
+Tom_Bombadil	Tom Bombadil	Q280608	https://en.wikipedia.org/wiki/Tom_Bombadil	Tom Bombadil is a character in J. R. R. Tolkien's legendarium.
+Treebeard	Treebeard	Q754477	https://en.wikipedia.org/wiki/Treebeard	Treebeard, or Fangorn in Sindarin, is a tree-giant character in J. R. R. Tolkien's The Lord of the Rings.
+Tuor_and_Idril	Tuor and Idril	Q1806136	https://en.wikipedia.org/wiki/Tuor_and_Idril	Tuor Eladar and Idril Celebrindal are fictional characters from J. R. R. Tolkien's Middle-earth legendarium.
+Túrin_Turambar	Túrin Turambar	Q572434	https://en.wikipedia.org/wiki/Túrin_Turambar	Túrin Turambar (pronounced [ˈtuːrɪn tuˈrambar]) is a fictional character in J. R. R. Tolkien's legendarium.
+Ungoliant	Ungoliant	Q1227698	https://en.wikipedia.org/wiki/Ungoliant	Ungoliant (Sindarin pronunciation: [ʊŋˈɡɔljant]) is a fictional character in J. R. R. Tolkien's legendarium, described as an evil spirit in the form of a giant spider.
+Watcher_in_the_Water	Watcher in the Water	Q462760	https://en.wikipedia.org/wiki/Watcher_in_the_Water	The Watcher in the Water is a fictional creature in J. R. R. Tolkien's Middle-earth; it appears in The Fellowship of the Ring, the first volume of The Lord of the Rings.
+Witch-king_of_Angmar	Witch-king of Angmar	Q559524	https://en.wikipedia.org/wiki/Witch-king_of_Angmar	The Lord of the Nazgûl, also called the Witch-king of Angmar, the Pale King, or Black Captain, is a fictional character in J. R. R. Tolkien's fantasy novel The Lord of the Rings.
+Women_in_The_Lord_of_the_Rings	Women in The Lord of the Rings	Q97585963	https://en.wikipedia.org/wiki/Women_in_The_Lord_of_the_Rings	The roles of women in The Lord of the Rings have often been assessed as insignificant, or important only in relation to male characters in a story about men for boys.
+Éomer	Éomer	Q216605	https://en.wikipedia.org/wiki/Éomer	Éomer is a fictional character in J. R. R. Tolkien's Middle-earth.
+Éowyn	Éowyn	Q716565	https://en.wikipedia.org/wiki/Éowyn	Éowyn ( or ) is a fictional character in J. R. R. Tolkien's The Lord of the Rings.

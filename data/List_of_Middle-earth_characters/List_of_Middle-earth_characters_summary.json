@@ -1,0 +1,71 @@
+{
+  "node_count": 57,
+  "directed_edge_count": 790,
+  "isolate_count": 0,
+  "weakly_connected_components": {
+    "count": 1,
+    "giant_component_size": 57,
+    "non_giant_component_sizes": []
+  },
+  "degree": {
+    "in_degree": {
+      "min": 0,
+      "max": 41,
+      "mean": 13.859649122807017
+    },
+    "out_degree": {
+      "min": 4,
+      "max": 29,
+      "mean": 13.859649122807017
+    },
+    "pearson_correlation_in_vs_out_degree": 0.6537968000481393
+  },
+  "top5_in_degree": [
+    {
+      "name": "Elves in Middle-earth",
+      "in_degree": 41
+    },
+    {
+      "name": "Sauron",
+      "in_degree": 39
+    },
+    {
+      "name": "Aragorn",
+      "in_degree": 38
+    },
+    {
+      "name": "Gandalf",
+      "in_degree": 34
+    },
+    {
+      "name": "Elrond",
+      "in_degree": 29
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Aragorn",
+      "out_degree": 29
+    },
+    {
+      "name": "Gandalf",
+      "out_degree": 26
+    },
+    {
+      "name": "Galadriel",
+      "out_degree": 25
+    },
+    {
+      "name": "Elrond",
+      "out_degree": 24
+    },
+    {
+      "name": "Frodo Baggins",
+      "out_degree": 22
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 0,
+    "members": []
+  }
+}

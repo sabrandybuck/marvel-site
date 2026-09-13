@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2: Models &amp; null models · Deep Space Nine — The Web of Heroes</title>
+<meta name="description" content="Testing the Star Trek: Deep Space Nine character network against random-graph, degree-preserving-shuffle, and preferential-attachment nulls — where Sisko's hub might genuinely be an accident.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 2 · Deep Space Nine dataset · Models &amp; null models</div>
+  <h1>Is Sisko an accident?</h1>
+  <p class="subtitle">Running the Week 2 test suite on the 22 Deep Space Nine character pages — the minimal cast where the null models have real authority, and one infiltrator from a different series nobody links to at all.</p>
+
+  <nav class="week2-quicknav" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#er">Random nulls</a>
+    <a href="#shuffle">Shuffle test</a>
+    <a href="#ba">Grow a network</a>
+    <a href="#paradox">Friendship paradox</a>
+    <a href="#synthesis">Takeaways</a>
+  </nav>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="intro">A small cast, and one stowaway</h2>
+  <p>
+    Fifth dataset, same four tests: the 22 pages reachable in Wikipedia's Category:
+    Star Trek: Deep Space Nine characters (redirects resolved; crawled 2026-09-10), with 135
+    directed edges between them. Nearly the Silmarillion's size (21 nodes), and like it this
+    network is dense by cast standards: mean in- and out-degree 6.14, ranges 0–14 in and 2–12 out,
+    one weakly connected component of 21 nodes — plus exactly one isolate.
+  </p>
+  <p>
+    The isolate is a gift for testing how reusable the Week 2 pipeline is: Category:
+    Deep Space Nine also contains <strong>Tuvok</strong> — a <em>Voyager</em> character — whose
+    article links to no other page in this node set and is linked by none of them. He keeps his
+    node, has no edges, and every statistic on this page has to live with that.
+  </p>
+  <p>
+    The hub race isn't a race: Benjamin Sisko is cited by 14 of the other 21 pages, Worf by 12,
+    Julian Bashir and Kira Nerys by 11, Odo by 10. Is 14 distinctive, or is this a Silmarillion
+    case — chance that can't be ruled out? Same order as ever: chance, degree-preserving chance,
+    growth, and the individual level.
+  </p>
+
+</article>
+
+<article class="post wide">
+
+  <h2 id="er">Could chance alone produce this?</h2>
+  <p>
+    So far, every small dataset divided the same way: Silmarillion — chance can't be ruled out;
+    ASOIAF and Middle-earth — chance rejected. Deep Space Nine is only a whisker larger, and the
+    ER draw isn't shy: across 300 offline draws on the same 22 nodes and 135 edges, the biggest
+    hub's in-degree ranged 8–15 (mean 10.2, sd 1.1).
+  </p>
+  <p>
+    Sisko's 14 is inside that spread — one lucky draw would beat him, and the mean is six pages
+    below. His 14 is about 3.4 standard deviations above the random mean, which on 300 draws isn't
+    far off the possibility of seeing it. Verdict here: <em>yet another hub that chance alone
+    can be the best explanation of</em>. Draw your own random network and watch it happily
+    produce a Sisko-sized hub.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="er-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Random draws</span>
+      <div class="hero-search-row">
+        <button type="button" id="er-draw-btn" class="btn">Draw a new random network</button>
+        <span id="er-current-readout" class="search-status" style="color:var(--text-dim);"></span>
+      </div>
+      <div id="er-history" class="draw-history" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each draw independently places 135 directed edges among 22 nodes at random (no self-loops,
+    no repeats) and plots the resulting in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="er-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current random draw"></div>
+
+  <div class="chart-legend" id="er-legend"></div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw DS9 data files in your browser. Same ER caveat as every dataset:
+    it tests "edges placed with no preference at all" — and at this size the landing zone is
+    wide enough that a Sisko-sized hub isn't safe from it.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="shuffle">What survives once degree is held fixed?</h2>
+  <p>
+    Same degree-preserving directed shuffle — chains a→b, b→c, c→d rewired to a→c, c→b, b→d —
+    so every crew member keeps their exact in- and out-degree. Same two statistics on the
+    undirected projection (an edge if either article links to the other; 92 undirected edges):
+  </p>
+  <ul>
+    <li>
+      <strong>Clustering coefficient</strong> — average local clustering on that projection, all
+      22 nodes, degree-&lt;2 contributing 0. Real value: <strong>0.5786</strong>.
+    </li>
+    <li>
+      <strong>Reciprocity</strong> — mutual directed edges ÷ total directed edges ≈ 86 ÷ 135 =
+      <strong>0.6370</strong>.
+    </li>
+  </ul>
+  <p>
+    Offline, 300 shuffle realizations (3,000 swaps each). Clustering: null mean 0.6016
+    (sd 0.0293) vs. real 0.5786 — the third dataset in a row where the degree sequence carries
+    the triangles outright (z ≈ −0.8, p ≈ 0.77). On a 6-person senior staff linking each of 12
+    mid-degree crew members, keeping link counts fixed and re-dealing produces the same triangle
+    density; nothing here needs a friendship clique to survive.
+  </p>
+  <p>
+    Reciprocity keeps the department's record unbroken: null mean 0.3568 (sd 0.0393) vs. real
+    0.6370 — z ≈ 7.1, beyond every one of the 300 shuffles (p ≈ 0). Two-thirds of DS9 citations
+    are mutual — Sisko links Worf and Worf links Sisko — which the degree-preserving null
+    produces under half as often. This is now the pattern of the whole Week 2 mini-series:
+    the wiring's two-way rate is the one structure the null can't fake, on every single cast and
+    canon we've tested.
+  </p>
+  <p>Run the same test yourself: pick a statistic, run some shuffles, and watch the null build up.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="shuffle-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Statistic</span>
+      <div class="stat-toggle-row">
+        <div class="arrow-toggle" role="group" aria-label="Which statistic to null-test">
+          <button type="button" id="shuffle-clustering-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Clustering coefficient</button>
+          <button type="button" id="shuffle-reciprocity-btn" class="arrow-toggle-btn" aria-pressed="false">Reciprocity</button>
+        </div>
+        <button type="button" id="shuffle-run-btn" class="btn">Run 15 more shuffles</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each shuffle is a fresh copy of the real network, degree-preserving-swapped from scratch — not
+    a running chain — matching how the offline reference numbers above were produced (with fewer
+    swaps per realization here, for responsiveness).
+  </p>
+
+  <div class="chart-box" id="shuffle-chart" role="img" aria-label="Histogram of the selected statistic across degree-preserving shuffle realizations, with the real network's value marked"></div>
+
+  <ul class="test-readout" id="shuffle-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  Same distinction, with one structural cameo: the isolate. <strong>ER</strong> randomizes links
+  without any constraint; <strong>this shuffle</strong> preserves every node's exact in- and
+  out-degree and randomizes only the wiring — and because Tuvok has in- and out-degree 0, a
+  degree-preserving shuffle <em>cannot touch his edges</em>, and he stays isolated forever. That
+  isn't a hidden methodological wrinkle; it's the null telling you it already knows he has no
+  edges. Meanwhile on the small-sample caveats side: 22 nodes leave the shuffle nulls wide
+  (the clustering null sd is large enough to swallow a mild real effect, while the reciprocity
+  gap is far too big for that to matter) — the same asymmetry as the Silmarillion.
+</div>
+
+<p class="lede-connector">
+  One property the shuffle truly cannot probe: the component partition, which is invariant under
+  a chain-rewire by construction (no chain a→b→c→d can cross between weakly connected components).
+  All 300 realizations leave the network as a 21-node giant plus the same lonely Tuvok — sd 0.
+  Unlike the Marvel network, whose component question was real, here the invariance is a
+  structural fact about the method rather than anything the data could have said. So no
+  histogram above.
+</p>
+
+<article class="post wide">
+
+  <h2 id="ba">Growing a network that favors the popular</h2>
+  <p>
+    Directed preferential attachment — the Price model, parameters matching this density: each
+    node joins with <var>m</var> outgoing links, target weighted by current in-degree. Mean
+    out-degree 6.14 → trials at <var>m</var> = 5, 6, 7 (50 each).
+  </p>
+  <p>
+    Price(m=5) trials reached max in-degree 13–16 (mean 14.3), Price(m=6) 13–16 (mean 14.3),
+    Price(m=7) 12–15 (mean 13.8) — Sisko's 14 is inside the model's spread at every <var>m</var>
+    tried. Growth-plus-preference neither overshoots him (Marvel did that to Spider-Man) nor
+    claims to need any such mechanism.
+  </p>
+  <p>
+    And the Price hypothesis has the same structural blind spot as on the Marvel page: by
+    construction, everyone who joins attaches — the model can't produce Tuvok. Deep Space Nine,
+    middle-man the Marvel analysis called "structurally impossible," turns out to be real: a
+    cast member, from a neighboring show, with no edges at all. Between Sisko's hub being
+    chancy and Tuvok's edges being impossible in the model, the network's one structural fact the
+    model fails at is its smallest one.
+  </p>
+  <p>Move the slider and regenerate to see for yourself.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="ba-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Growth parameter</span>
+      <div class="slider-row">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">m =</span>
+        <input type="range" id="ba-m-slider" min="1" max="12" step="1" value="6" aria-label="m: outgoing links per new node">
+        <span class="slider-value" id="ba-m-value">6</span>
+        <button type="button" id="ba-regen-btn" class="btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Grows a fresh directed preferential-attachment network to n=22 nodes with the chosen
+    <var>m</var>, then plots its in-degree CCDF against the real network's.
+  </p>
+
+  <div class="chart-box" id="ba-chart" role="img" aria-label="Log-log CCDF of in-degree: real network versus the current preferential-attachment draw"></div>
+
+  <div class="chart-legend" id="ba-legend"></div>
+
+  <ul class="test-readout" id="ba-readout"></ul>
+
+  <figcaption class="explorer-caption">
+    Computed live in your browser. Reference numbers in the prose above come from 50 offline
+    trials per <var>m</var>; this draw is a single live sample, so expect it to land somewhere
+    within those ranges rather than exactly on the reported mean.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="paradox">Are your friends more popular than you?</h2>
+  <p>
+    Exact definitions, as everywhere else: undirected projection (a link either way counts one
+    connection). A character's <strong>degree</strong> is their number of distinct neighbors;
+    their <strong>average neighbor degree</strong> is the mean degree of those neighbors. Excluding
+    the isolate Tuvok (degree 0 — no neighbors to be popular against), there are 21 connected
+    characters. Network average ⟨k⟩ = 8.36 against the edge-weighted mean neighbor degree
+    ⟨k²⟩⁄⟨k⟩ = 10.09 — 21% higher, one of the flattest gaps we've measured (Marvel's was 133%;
+    the Silmarillion's 15%).
+  </p>
+  <p>
+    Individually: 13 of 21 (61.9%) have neighbors on average better connected than they are; 8
+    (38.1%) hold their own; zero ties. Two characters' degree is ≥ every neighbor's —
+    <strong>Benjamin Sisko</strong>, and <strong>Worf</strong>, the station's two most-cited
+    pages. Like the Silmarillion, this is a cast of mostly-equals where the paradox mostly shows
+    up as "the well-connected are connected to hubs."
+  </p>
+  <p>Search for a character below to see their own numbers.</p>
+
+</article>
+
+<figure class="wide-figure explorer" id="paradox-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a character</span>
+      <form id="paradox-search-form" class="hero-search-row">
+        <input
+          id="paradox-search-input"
+          class="search-input"
+          type="search"
+          list="paradox-character-list"
+          placeholder="Type a name…"
+          aria-label="Find a character by name"
+        >
+        <datalist id="paradox-character-list"></datalist>
+        <button type="button" id="paradox-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="paradox-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Each dot is one connected character (own degree vs. average neighbor degree, log-log). The
+    dashed diagonal marks equality: above it, your neighbors out-rank you on average; below it,
+    you out-rank them. Click a dot or search a name.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box" id="paradox-chart" role="img" aria-label="Scatter plot of each character's degree against their average neighbor degree"></div>
+    <div id="paradox-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No character selected yet — click a dot or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Computed live from the raw DS9 data files in your browser. Tuvok (isolated, degree 0) has no
+    neighbors to compare against and is excluded — everything else is all 21 connected
+    characters.
+  </figcaption>
+</figure>
+
+<article class="post wide">
+
+  <h2 id="synthesis">What the models get right, and what they miss</h2>
+  <p>Pulling the four sections together:</p>
+  <ul>
+    <li>
+      <strong>Chance isn't eliminated.</strong> 300 ER draws topped out at 15 — one above
+      Sisko's 14. Deep Space Nine joins the Silmarillion as a network where the hub question has
+      no answer at this size: "maybe an accident" is the sharpest available claim.
+    </li>
+    <li>
+      <strong>Degree carries the triangles; reciprocity remains the signature.</strong> The
+      shuffle reproduces the clustering entirely (z ≈ −0.8) but at reciprocity (real 0.637 vs
+      null 0.357, z ≈ 7.1, p ≈ 0) a degree-only null fails hard. Every dataset we've tested —
+      Marvel, Silmarillion, ASOIAF, Middle-earth, DS9 — keeps exactly one relational structure:
+      the two-way citation rate.
+    </li>
+    <li>
+      <strong>Preferential attachment fits the hub and misses the isolate.</strong> Price trials
+      at m=5–7 bracket Sisko's 14 without tuning. But the model cannot produce Tuvok, its one
+      structural blind spot — the same one the Marvel post flagged for 17 isolates, shrinking
+      here to a single one.
+    </li>
+    <li>
+      <strong>The friendship paradox holds mildly.</strong> ⟨k²⟩⁄⟨k⟩ (10.09) exceeds ⟨k⟩ (8.36)
+      by 21%; 61.9% of connected characters live it; Sisko and Worf are the only never-out-ranked
+      nodes. Among our five datasets it's on the mild end, where dense closed worlds are
+      self-similar near the top.
+    </li>
+  </ul>
+  <p>
+    So: this time, yes — Sisko may well be an accident of the draw, and the same null models that
+    eliminated chance elsewhere leave Deep Space Nine's character graph largely explained by its
+    degree sequence plus one honest structural fact: the regular crew genuinely cite each other
+    both ways. The pipeline's big little dataset: nearly everything visible in the Marvel and ASOIAF
+    hubs disappears at this scale — except reciprocity, which never does.
+  </p>
+
+  <div class="callout">
+    📎 Reproducing this: the offline reference numbers quoted above come from
+    <code>analysis/build_week2_reference.py ds9</code>, run against the crawled data in
+    <code>data/Star_Trek:_Deep_Space_Nine_characters/</code>; it writes
+    <code>data/Star_Trek:_Deep_Space_Nine_characters/ds9_week2_summary.json</code>. Every
+    interactive figure on this page recomputes its own live version of the same algorithm in
+    your browser — nothing here is hand-typed separately from the code that produced it.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · dataset: Wikipedia Category:
+    Star Trek: Deep Space Nine characters (crawled 2026-09-10), 22 nodes / 135 directed links ·
+    analysis: stdlib + random-shuffle defaults, code in
+    <code>analysis/build_week2_reference.py</code>; all interactive figures recompute live in the
+    browser
+  </div>
+</footer>
+
+<script src="week2.js" data-dataset="ds9"></script>
+</body>
+</html>

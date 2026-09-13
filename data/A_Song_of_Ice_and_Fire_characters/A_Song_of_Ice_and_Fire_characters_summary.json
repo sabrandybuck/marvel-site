@@ -1,0 +1,71 @@
+{
+  "node_count": 50,
+  "directed_edge_count": 720,
+  "isolate_count": 0,
+  "weakly_connected_components": {
+    "count": 1,
+    "giant_component_size": 50,
+    "non_giant_component_sizes": []
+  },
+  "degree": {
+    "in_degree": {
+      "min": 1,
+      "max": 33,
+      "mean": 14.4
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 27,
+      "mean": 14.4
+    },
+    "pearson_correlation_in_vs_out_degree": 0.7615690004299549
+  },
+  "top5_in_degree": [
+    {
+      "name": "Tyrion Lannister",
+      "in_degree": 33
+    },
+    {
+      "name": "Daenerys Targaryen",
+      "in_degree": 32
+    },
+    {
+      "name": "Cersei Lannister",
+      "in_degree": 29
+    },
+    {
+      "name": "Joffrey Baratheon",
+      "in_degree": 29
+    },
+    {
+      "name": "Robert Baratheon",
+      "in_degree": 29
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Gendry",
+      "out_degree": 27
+    },
+    {
+      "name": "Arya Stark",
+      "out_degree": 25
+    },
+    {
+      "name": "Brienne of Tarth",
+      "out_degree": 25
+    },
+    {
+      "name": "Sansa Stark",
+      "out_degree": 25
+    },
+    {
+      "name": "Stannis Baratheon",
+      "out_degree": 24
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 0,
+    "members": []
+  }
+}

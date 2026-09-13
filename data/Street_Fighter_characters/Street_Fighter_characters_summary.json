@@ -1,0 +1,75 @@
+{
+  "node_count": 53,
+  "directed_edge_count": 299,
+  "isolate_count": 1,
+  "weakly_connected_components": {
+    "count": 2,
+    "giant_component_size": 52,
+    "non_giant_component_sizes": [
+      1
+    ]
+  },
+  "degree": {
+    "in_degree": {
+      "min": 0,
+      "max": 34,
+      "mean": 5.6415094339622645
+    },
+    "out_degree": {
+      "min": 0,
+      "max": 12,
+      "mean": 5.6415094339622645
+    },
+    "pearson_correlation_in_vs_out_degree": 0.5648827734283214
+  },
+  "top5_in_degree": [
+    {
+      "name": "Ryu (Street Fighter)",
+      "in_degree": 34
+    },
+    {
+      "name": "M. Bison",
+      "in_degree": 26
+    },
+    {
+      "name": "Chun-Li",
+      "in_degree": 22
+    },
+    {
+      "name": "Ken Masters",
+      "in_degree": 19
+    },
+    {
+      "name": "Guile (Street Fighter)",
+      "in_degree": 13
+    }
+  ],
+  "top5_out_degree": [
+    {
+      "name": "Ryu (Street Fighter)",
+      "out_degree": 12
+    },
+    {
+      "name": "Chun-Li",
+      "out_degree": 11
+    },
+    {
+      "name": "Blanka",
+      "out_degree": 10
+    },
+    {
+      "name": "Cammy",
+      "out_degree": 10
+    },
+    {
+      "name": "E. Honda",
+      "out_degree": 10
+    }
+  ],
+  "largest_non_giant_component": {
+    "size": 1,
+    "members": [
+      "Tifa Lockhart"
+    ]
+  }
+}
