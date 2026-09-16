@@ -992,3 +992,26 @@ article.post blockquote {
   margin: 0 1px;
   white-space: nowrap;
 }
+
+/* ---- Week 3 extensions: kept inside the same design system ----
+   (dark surfaces, --line borders, --radius corners, mono labels) -- no new
+   colors beyond the existing --accent/--accent-2/--accent-3 trio, no
+   competing visual language. Everything else Week 3's four interactives use
+   (.rank-list, .inspector*, .chart-box, .legend-grid, .test-readout,
+   .arrow-toggle, .network-note, .callout, .explorer-*) is unchanged Week 1/2
+   CSS, reused as-is -- see posts/week3.js. */
+
+/* scope badge on the centrality explorer -- makes "this measure is computed
+   on the undirected giant component" vs. "...on the full directed network"
+   a glanceable color, not just a sentence to read every time. Same pill
+   shape as .tag, just with the graph-type coded onto its border/text color
+   the way .legend-swatch/.chart-legend already code meaning onto color
+   elsewhere on the site. */
+.tag-scope-undirected {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+.tag-scope-directed {
+  border-color: var(--accent);
+  color: var(--accent);
+}

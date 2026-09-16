@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 3 — The Web of Heroes</title>
+<title>Week 3: Paths, centrality &amp; cliques — The Web of Heroes</title>
+<meta name="description" content="Who is important in the Marvel network, how far apart characters really are, what happens when the hubs are removed, and which groups form tight cliques — with degree-preserving-shuffle null models throughout.">
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -22,16 +23,407 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 3</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 3 · Paths, centrality &amp; cliques</div>
+  <h1>Who matters, how far apart we are, and what breaks when they're gone</h1>
+  <p class="subtitle">
+    Four ways to ask "who's important," a general shortest-path explorer, a node-removal
+    fragmentation test, and the tightest cliques in the network — every number checked against a
+    degree-preserving-shuffle null before it gets to call itself a finding.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#centrality">Who's important?</a>
+    <a href="#directed-undirected">Directed vs. undirected</a>
+    <a href="#six-degrees">Six Degrees</a>
+    <a href="#fragmentation">Fragmentation</a>
+    <a href="#cliques">Cliques</a>
+    <a href="#conclusion">Conclusion</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>What does it mean to be important in a network?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    "Important" is not one thing. A character can be important because a lot of other characters
+    link to them, because they sit close to everyone else, because they're the bridge that holds
+    two otherwise-unconnected parts of the story together, or because the <em>important</em>
+    characters happen to be the ones linking to them. Those are four different, precisely defined
+    questions — and on this network they don't always agree on an answer.
+  </p>
+  <p>
+    Everything below runs on the same 303-character, 1,784-edge frozen snapshot from
+    <code>data/week1/</code> that Week 1 and Week 2 used. No new data, no team or decade labels —
+    just paths, four centrality measures plus PageRank, degree-preserving-shuffle null models,
+    node removal, and maximal cliques, computed offline in
+    <code>analysis/build_week3.py</code> and loaded frozen from
+    <code>data/week3/week3_summary.json</code>. The three big interactives below recompute nothing
+    expensive live — they look numbers up and draw them; the one live computation left in the
+    browser is the shortest-path search in the Six Degrees explorer, which is cheap enough to run
+    per click.
+  </p>
+
+  <ul class="stats-grid" id="intro-stats">
+    <li class="stat-card"><span class="stat-label">Giant component</span><span class="stat-value">277 of 303</span></li>
+    <li class="stat-card"><span class="stat-label">Avg. shortest path</span><span class="stat-value">2.674</span></li>
+    <li class="stat-card"><span class="stat-label">Diameter</span><span class="stat-value">6</span></li>
+    <li class="stat-card"><span class="stat-label">Largest clique</span><span class="stat-value">8 members</span></li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="centrality">
+
+  <div class="section-head">
+    <h2>Who is important?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Five measures, five different definitions of "matters." Switch between them below — the
+    ranking changes every time, because each one is answering a different question. Degree,
+    closeness, harmonic and betweenness are all computed on the <strong>undirected giant
+    component</strong> (277 characters, treating a link either direction as a connection).
+    PageRank is the odd one out: it's computed on the <strong>full directed network</strong>,
+    following Wikipedia's links exactly as written.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="centrality-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Measure</span>
+      <div class="arrow-toggle" id="centrality-metric-toggle" role="group" aria-label="Which centrality measure to display">
+        <button type="button" id="centrality-btn-degree" class="arrow-toggle-btn is-active" aria-pressed="true">Degree</button>
+        <button type="button" id="centrality-btn-closeness" class="arrow-toggle-btn" aria-pressed="false">Closeness</button>
+        <button type="button" id="centrality-btn-harmonic" class="arrow-toggle-btn" aria-pressed="false">Harmonic</button>
+        <button type="button" id="centrality-btn-betweenness" class="arrow-toggle-btn" aria-pressed="false">Betweenness</button>
+        <button type="button" id="centrality-btn-pagerank" class="arrow-toggle-btn" aria-pressed="false">PageRank</button>
+      </div>
+      <p class="network-note" id="centrality-definition-box">
+        <span class="tag tag-scope-undirected" id="centrality-graph-badge">Undirected giant component</span>
+        <span id="centrality-definition-text"></span>
+      </p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    The top 15 by the selected measure, on the left; the same characters sized and colored on the
+    network, on the right (the rest of the 277-character giant component sits dim in the
+    background so the shape stays stable across measures). Click a name — in the list or on the
+    network — to inspect that character, including a null-model comparison where one was computed.
+  </p>
+
+  <div class="explorer-stage">
+    <ol class="rank-list" id="centrality-rank-list" aria-label="Top 15 characters by the selected measure"></ol>
+    <div class="chart-box chart-box-tall" id="centrality-network" role="img" aria-label="Marvel giant-component network, sized and colored by the selected centrality measure"></div>
+  </div>
+
+  <div id="centrality-inspector" class="inspector" aria-live="polite">
+    <p class="inspector-empty">Click a character above to inspect their numbers.</p>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Values computed once, offline, in <code>analysis/build_week3.py</code> — degree/closeness/
+    harmonic/betweenness with NetworkX on the undirected giant component, PageRank
+    (&alpha;&nbsp;=&nbsp;0.85) with NetworkX on the full directed graph — and loaded frozen from
+    <code>data/week3/week3_summary.json</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="directed-undirected">
+
+  <div class="section-head">
+    <h2>Directed vs. undirected: it depends which way you look</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Wikipedia links have a direction, and treating the network as undirected throws that away.
+    Spider-Man's article is linked <em>from</em> 106 other characters' pages but itself links
+    <em>out to</em> only <span class="formula" id="dvu-spidey-out"></span> — a huge asymmetry that
+    changes the answer once "importance" has to follow arrows.
+  </p>
+  <p>
+    Recomputing betweenness with arrows respected — a shortest path only counts if it can actually
+    be walked in the link direction — reshuffles the ranking. Wolverine and Hercules both move
+    ahead of Spider-Man:
+  </p>
+
+  <div class="figure-grid cols-2">
+    <div>
+      <p style="font-weight:600;color:var(--text);margin:0 0 8px;">Undirected betweenness rank &rarr; directed betweenness rank</p>
+      <ol class="rank-list" id="dvu-betweenness-list" aria-label="Characters whose betweenness rank changes most between undirected and directed"></ol>
+    </div>
+    <div>
+      <p style="font-weight:600;color:var(--text);margin:0 0 8px;">PageRank surfaces characters outside the in-degree top 10</p>
+      <ol class="rank-list" id="dvu-pagerank-list" aria-label="Characters ranked highly by PageRank but not by raw in-degree"></ol>
+    </div>
+  </div>
+
+  <p>
+    That second list is PageRank's actual mechanism showing through: Spider-Man links out to only
+    <span class="formula" id="dvu-spidey-out-2"></span> characters, so each one inherits an
+    unusually large slice of his vote — which is how characters like Black Cat and Mayday Parker
+    outrank characters with a higher raw in-degree.
+  </p>
 
   <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+    <strong>Reading this right:</strong> neither ranking is "more correct" — they're answers to
+    different questions. Undirected betweenness asks who bridges the story treating every mention
+    as mutual; directed betweenness asks who bridges it exactly as written, link by link.
+  </div>
+
+</article>
+
+<article class="post wide" id="six-degrees">
+
+  <div class="section-head">
+    <h2>Six Degrees of Marvel</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Pick any two characters from the 277-character giant component (the other 26 sit outside it —
+    see Week 1) and find the shortest chain between them. Switch between treating links as mutual
+    or following them exactly as written; the two modes can disagree, including about whether a
+    path exists at all.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="six-degrees-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 320px;">
+      <span class="hero-search-label">From</span>
+      <div class="hero-search-row">
+        <input id="sixdeg-source-input" class="search-input" type="search" list="sixdeg-character-list" placeholder="Type a name…" aria-label="Source character">
+      </div>
+    </div>
+    <div class="hero-search" style="flex:1 1 320px;">
+      <span class="hero-search-label">To</span>
+      <div class="hero-search-row">
+        <input id="sixdeg-target-input" class="search-input" type="search" list="sixdeg-character-list" placeholder="Type a name…" aria-label="Target character">
+        <button type="button" id="sixdeg-swap-btn" class="btn" title="Swap source and target" aria-label="Swap source and target">&#8646;</button>
+      </div>
+    </div>
+    <datalist id="sixdeg-character-list"></datalist>
+  </div>
+
+  <div class="explorer-controls" style="margin-top:12px;">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Mode</span>
+      <div class="arrow-toggle" id="sixdeg-mode-toggle" role="group" aria-label="Directed or undirected path-finding">
+        <button type="button" id="sixdeg-mode-undirected-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Undirected</button>
+        <button type="button" id="sixdeg-mode-directed-btn" class="arrow-toggle-btn" aria-pressed="false">Directed</button>
+      </div>
+      <p class="network-note" id="sixdeg-mode-definition">
+        Treat connections as mutual when finding paths.
+      </p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    The network below colors every character by BFS distance from the source (0, 1, 2, 3…); once a
+    target is chosen, the shortest path between them animates in and the rest of the network fades
+    back. Everything here is computed live in your browser from the raw Week&nbsp;1 edge list — a
+    single BFS on a 277-node graph is effectively instant.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="sixdeg-network" role="img" aria-label="Marvel giant-component network colored by BFS distance from the selected source character, with the shortest path to the target highlighted"></div>
+    <div id="sixdeg-stats" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Choose a source character above.</p>
+    </div>
+  </div>
+
+  <div class="legend-grid" id="sixdeg-legend"></div>
+
+  <div id="sixdeg-path-panel" class="network-note" style="margin-top:16px;" aria-live="polite"></div>
+
+  <figcaption class="explorer-caption">
+    Character list, positions and adjacency all come from <code>data/week1/</code>; the layout
+    coordinates come from the same seeded <code>spring_layout</code> precomputed in
+    <code>analysis/build_week3.py</code> that every network view on this page reuses, so the shape
+    stays stable as you explore.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="fragmentation">
+
+  <div class="section-head">
+    <h2>Who holds the network together?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    High centrality and structural importance aren't automatically the same thing — a character
+    can rack up connections without their removal actually breaking anything. To test it directly:
+    remove characters one at a time, in order of degree, in order of betweenness, or at random, and
+    watch the giant component shrink.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="fragmentation-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Removal strategy</span>
+      <div class="arrow-toggle" id="frag-strategy-toggle" role="group" aria-label="Which order to remove characters in">
+        <button type="button" id="frag-btn-degree" class="arrow-toggle-btn is-active" aria-pressed="true">Highest degree first</button>
+        <button type="button" id="frag-btn-betweenness" class="arrow-toggle-btn" aria-pressed="false">Highest betweenness first</button>
+        <button type="button" id="frag-btn-random" class="arrow-toggle-btn" aria-pressed="false">Random</button>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Playback</span>
+      <div class="hero-search-row">
+        <button type="button" id="frag-play-btn" class="btn">Play</button>
+        <button type="button" id="frag-step-btn" class="btn">Step</button>
+        <button type="button" id="frag-reset-btn" class="btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slider-row" style="margin-top:14px;">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">removed =</span>
+    <input type="range" id="frag-scrubber" min="0" max="276" step="1" value="0" aria-label="Number of characters removed">
+    <span class="slider-value" id="frag-scrubber-value">0</span>
+  </div>
+
+  <p class="explorer-hint">
+    Precomputed offline for every strategy, all 277 removal steps — the browser only plays the
+    numbers back and redraws. The chart shows all three strategies at once for comparison; the
+    network shows the currently-selected strategy, with removed characters faded out.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="frag-network" role="img" aria-label="Marvel giant-component network with progressively removed characters faded out"></div>
+    <div class="chart-box" id="frag-chart" role="img" aria-label="Giant component size as characters are removed, for all three strategies"></div>
+  </div>
+
+  <ul class="test-readout" id="frag-readout"></ul>
+
+  <div class="callout" id="frag-summary-callout"></div>
+
+  <figcaption class="explorer-caption">
+    Removal orders and the resulting giant-component size at every step come from
+    <code>fragmentation</code> in <code>data/week3/week3_summary.json</code>, computed once offline.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="cliques">
+
+  <div class="section-head">
+    <h2>The tightest circles</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    A clique is a group where <em>everyone</em> is directly connected to <em>everyone else</em> —
+    for k members, that's k(k&minus;1)/2 links, all of them present. A <strong>maximal</strong>
+    clique is one that can't be grown any further: no other character is connected to every single
+    member. NetworkX's <code>find_cliques()</code> only ever returns maximal cliques, so picking
+    "4-cliques" below means groups that max out at exactly 4 — never a 4-member slice carved out of
+    a bigger group (a slice like that could always be grown back, so it would never come back as
+    its own maximal clique).
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="clique-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Clique size</span>
+      <div class="arrow-toggle" id="clique-size-toggle" role="group" aria-label="Which maximal-clique size to highlight"></div>
+      <p class="search-status" id="clique-count-readout"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Every maximal clique of the selected size is highlighted at once, in the same color; hover or
+    click one in the list to bring just that clique forward. The rest of the giant component stays
+    visible, dimmed, for context.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="clique-network" role="img" aria-label="Marvel giant-component network with the selected maximal cliques highlighted"></div>
+    <ol class="rank-list" id="clique-list" aria-label="Maximal cliques of the selected size"></ol>
+  </div>
+
+  <div id="clique-inspector" class="inspector" aria-live="polite">
+    <p class="inspector-empty">Hover or click a clique to see its members.</p>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Maximal cliques enumerated once offline with <code>networkx.find_cliques()</code> on the
+    undirected giant component, stored in <code>data/week3/week3_summary.json</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>What the measurements show</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+
+  <p><strong>Observed:</strong></p>
+  <ul>
+    <li>Degree, closeness, harmonic and betweenness agree on a core of seven characters in all four
+      top-10s (Spider-Man, Hulk, Wolverine, Doctor Strange, Deadpool, She-Hulk, Phoenix) — but
+      disagree below that, and diverge sharply once direction is respected: Wolverine and Hercules
+      both out-rank Spider-Man on directed betweenness.</li>
+    <li>Against 200 degree-preserving shuffles, Spider-Man's betweenness (z&nbsp;&asymp;&nbsp;3.7)
+      and Hercules's (z&nbsp;&asymp;&nbsp;3.5) both sit meaningfully above what their degree alone
+      predicts — genuine brokers, not degree artifacts. Rockman's near-identical betweenness,
+      by contrast, lands almost exactly on the shuffle mean (z&nbsp;&asymp;&nbsp;0): it's fully
+      explained by sitting between one well-connected neighbor and one degree-1 pendant, a
+      structural fact about that shape that survives literally any degree-preserving rewiring.</li>
+    <li>Removing Spider-Man alone — the top character by both degree and betweenness — fragments
+      the giant component more than removing anyone else, confirming the two rankings agree on the
+      single biggest structural point of failure here. But the effect is modest: 277 characters
+      drop to 271, a 2% shrink, with only 13 articulation points in the whole giant component. This
+      network does not hinge on one hub the way its centrality numbers alone might suggest.</li>
+    <li>The largest cliques are all 8-member, all drawn from the same X-Men-associated core
+      (Betsy Braddock, Cyclops, Emma Frost, Jean Grey, Rachel Summers, Wolverine common to every
+      one) — a real, nameable team, visible from the character names alone without needing any
+      team-affiliation data this dataset doesn't have.</li>
+  </ul>
+
+  <p><strong>Interpretation:</strong></p>
+  <p>
+    Different centrality measures are not competing estimates of one true "importance" — they are
+    different, equally valid questions, and a network with a heavy-tailed degree distribution will
+    always show large disagreements between them precisely where that distribution is most extreme
+    (its handful of hubs). Directedness is not a footnote here: it changes who counts as a broker,
+    because Wikipedia's own linking behavior is itself asymmetric (see Spider-Man's 9 outgoing
+    links against 106 incoming).
+  </p>
+
+  <p><strong>Limitations:</strong></p>
+  <ul>
+    <li>This is still a citation network built from one encyclopedia's editorial choices, not the
+      comics' actual social structure — an untouched hero with a short article will always look
+      structurally unimportant here regardless of their role in the fiction.</li>
+    <li>Null-model z-scores test against a degree-preserving shuffle specifically — they say a
+      value is unusual <em>given the degree sequence</em>, not unusual in any absolute sense, and a
+      heavy-tailed degree sequence already constrains how assortative or disassortative the network
+      could possibly be.</li>
+    <li>No team or decade attribute data was added for this analysis — the clique section's "X-Men"
+      label is a read of the character names, not a tested homophily claim.</li>
+  </ul>
+
+  <div class="callout">
+    📎 Reproducing this: every number above comes from <code>analysis/build_week3.py</code>, run
+    against the same frozen <code>data/week1/</code> Week 1 and Week 2 use, writing
+    <code>data/week3/week3_summary.json</code>. The centrality, fragmentation and clique
+    interactives read that file directly; the Six Degrees explorer is the one piece that
+    recomputes live, straight from the raw edge list, since it has to answer an arbitrary
+    character pair chosen in the browser.
   </div>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -41,10 +433,13 @@
 
 <footer>
   <div class="wrap">
-    Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    Built for DTU course 02805, Social Graphs and Interactions · data: frozen Week 1 snapshot
+    (Wikipedia, 2026-08-26) from the 02805 course data page · analysis: NetworkX + stdlib, code in
+    <code>analysis/build_week3.py</code>; the Six Degrees explorer recomputes live in the browser,
+    every other figure reads the frozen <code>data/week3/week3_summary.json</code>
   </div>
 </footer>
 
+<script src="week3.js"></script>
 </body>
 </html>
