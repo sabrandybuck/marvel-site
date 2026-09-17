@@ -25,6 +25,7 @@ import json
 import pathlib
 import random
 import statistics
+import sys
 import time
 from collections import Counter
 
@@ -173,6 +174,27 @@ def compute_centralities(graph, giant_und):
     in_degree = dict(graph.in_degree())
     out_degree = dict(graph.out_degree())
 
+    # directed scope for the centrality explorer: every measure is also
+    # computed on the full directed network. Degree is the in+out total;
+    # closeness/harmonic follow arrows outward (matching the Six Degrees
+    # directed mode); betweenness and PageRank were already directed here.
+    directed_degree = {
+        nid: in_degree[nid] + out_degree[nid] for nid in graph.nodes()
+    }
+    # to get outward closeness/harmonic (following arrows out, matching the
+    # Six Degrees directed mode), run on the reversed graph -- nx's directed
+    # closeness measures distance *into* a node.
+    rev = graph.reverse(copy=False)
+    directed_closeness = nx.closeness_centrality(rev)
+    # to get outward harmonic (following arrows out, matching the Six
+    # Degrees directed mode), run on the reversed graph -- see above.
+    directed_harmonic_raw = nx.harmonic_centrality(rev)
+    n_all = graph.number_of_nodes()
+    directed_harmonic = {k: v / (n_all - 1) for k, v in directed_harmonic_raw.items()}
+
+    # the reverse pair: PageRank on the undirected giant component
+    pagerank_undirected = nx.pagerank(giant_und, alpha=0.85)
+
     return {
         "degree": degree_raw,
         "closeness": closeness,
@@ -182,6 +204,10 @@ def compute_centralities(graph, giant_und):
         "pagerank": pagerank,
         "in_degree": in_degree,
         "out_degree": out_degree,
+        "directed_degree": directed_degree,
+        "directed_closeness": directed_closeness,
+        "directed_harmonic": directed_harmonic,
+        "pagerank_undirected": pagerank_undirected,
     }
 
 
@@ -207,36 +233,77 @@ def all_values(values):
 
 
 def build_centrality_block(cent, names):
+    """Each measure carries BOTH a directed and an undirected scope, each with
+    its own graph label, definition, top list and full values. The explorer
+    toggles between them; the old one-scalar-per-measure shape is gone."""
+    def variant(graph_label, definition, values):
+        return {
+            "graph": graph_label,
+            "definition": definition,
+            "top": top_n(values, names),
+            "all": all_values(values),
+        }
+
     return {
         "degree": {
-            "graph": "undirected_giant_component",
-            "definition": "Raw undirected degree -- number of distinct characters this one shares an edge with, either direction, on the 277-character giant component.",
-            "top": top_n(cent["degree"], names),
-            "all": all_values(cent["degree"]),
+            "undirected": variant(
+                "undirected_giant_component",
+                "Raw undirected degree -- number of distinct characters this one shares an edge with, either direction, on the 277-character giant component.",
+                cent["degree"],
+            ),
+            "directed": variant(
+                "directed_full_network",
+                "Total directed degree on the full network -- in-degree plus out-degree, i.e. distinct incoming plus outgoing Wikipedia links.",
+                cent["directed_degree"],
+            ),
         },
         "closeness": {
-            "graph": "undirected_giant_component",
-            "definition": "(n-1) / sum of shortest-path distances to every other reachable character -- how quickly you can reach everyone.",
-            "top": top_n(cent["closeness"], names),
-            "all": all_values(cent["closeness"]),
+            "undirected": variant(
+                "undirected_giant_component",
+                "(n-1) / sum of shortest-path distances to every other reachable character -- how quickly you can reach everyone.",
+                cent["closeness"],
+            ),
+            "directed": variant(
+                "directed_full_network",
+                "Outward closeness on the directed network: (n-1) / sum of arrow-following distances to every reachable character -- how quickly you can reach everyone along Wikipedia's links as written.",
+                cent["directed_closeness"],
+            ),
         },
         "harmonic": {
-            "graph": "undirected_giant_component",
-            "definition": "Mean of 1/distance to every other character (1/infinity treated as 0) -- closeness's fix for unreachable nodes, not needed here since the giant component is fully connected, but computed the same way for comparability.",
-            "top": top_n(cent["harmonic"], names),
-            "all": all_values(cent["harmonic"]),
+            "undirected": variant(
+                "undirected_giant_component",
+                "Mean of 1/distance to every other character (1/infinity treated as 0) -- closeness's fix for unreachable nodes, not needed here since the giant component is fully connected, but computed the same way for comparability.",
+                cent["harmonic"],
+            ),
+            "directed": variant(
+                "directed_full_network",
+                "Outward harmonic centrality on the directed network: mean of 1/distance along arrows to every reachable character (1/infinity treated as 0) -- unlike directed closeness this keeps credit for the nodes you can reach even when others are unreachable.",
+                cent["directed_harmonic"],
+            ),
         },
         "betweenness": {
-            "graph": "undirected_giant_component",
-            "definition": "Fraction of all shortest paths between other character pairs that pass through this one -- how often you're the bridge.",
-            "top": top_n(cent["betweenness"], names),
-            "all": all_values(cent["betweenness"]),
+            "undirected": variant(
+                "undirected_giant_component",
+                "Fraction of all shortest paths between other character pairs that pass through this one -- how often you're the bridge.",
+                cent["betweenness"],
+            ),
+            "directed": variant(
+                "directed_full_network",
+                "Betweenness with arrows respected on the full directed network: fraction of directed shortest paths between other pairs that pass through this one.",
+                cent["directed_betweenness"],
+            ),
         },
         "pagerank": {
-            "graph": "directed_full_network",
-            "definition": "Random-walk importance on the directed network (alpha=0.85): who is linked to by the important, following arrows.",
-            "top": top_n(cent["pagerank"], names),
-            "all": all_values(cent["pagerank"]),
+            "undirected": variant(
+                "undirected_giant_component",
+                "PageRank computed on the undirected giant component (alpha=0.85) -- random-walk importance when links are mutual.",
+                cent["pagerank_undirected"],
+            ),
+            "directed": variant(
+                "directed_full_network",
+                "Random-walk importance on the directed network (alpha=0.85): who is linked to by the important, following arrows.",
+                cent["pagerank"],
+            ),
         },
     }
 
@@ -640,8 +707,17 @@ def main():
 
     print(f"[7/8] Null models: {N_SHUFFLES} degree-preserving shuffles "
           f"({SWAPS_PER_REALIZATION} swaps each) -- this is the slow step ...")
-    null_models = run_null_models(graph, giant_und, cent, names)
-    print(f"  done in {null_models['elapsed_seconds']}s")
+    if "--reuse-null" in sys.argv and SUMMARY_PATH.exists():
+        # centralities grew a directed scope (cheap to recompute) but the
+        # 200-shuffle null block is unchanged by that -- reuse the previous
+        # run's numbers instead of minutes of swapping.
+        with open(SUMMARY_PATH, encoding="utf-8") as f:
+            prev = json.load(f)
+        null_models = prev["null_models"]
+        print("  reused null_models from the existing summary (--reuse-null)")
+    else:
+        null_models = run_null_models(graph, giant_und, cent, names)
+        print(f"  done in {null_models['elapsed_seconds']}s")
 
     print("[8/8] Six Degrees prose facts + BFS validation spot-checks ...")
     six_degrees = six_degrees_notes(graph, giant_und, names, None)
@@ -664,8 +740,10 @@ def main():
         "directed": {
             "largest_scc_size": len(max(nx.strongly_connected_components(graph), key=len)),
             "note": (
-                "Degree/closeness/harmonic/betweenness in `centrality` below are computed on the "
-                "undirected giant component. PageRank is computed on the full directed network. "
+                "Every measure in `centrality` below comes in two scopes: an "
+                "undirected one on the giant component and a directed one on the "
+                "full directed network (degree = in+out total, closeness/harmonic "
+                "follow arrows outward; the explorer toggles between scopes). "
                 "`directed_vs_undirected.betweenness_rank_changes` compares undirected betweenness "
                 "against betweenness computed with arrows respected on the full directed graph."
             ),

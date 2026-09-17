@@ -114,6 +114,12 @@
       if (opts.onNodeClick) {
         c.addEventListener("click", function () { opts.onNodeClick(id); });
       }
+      if (opts.onNodeContextMenu) {
+        c.addEventListener("contextmenu", function (ev) {
+          ev.preventDefault(); // don't open the browser menu on graph nodes
+          opts.onNodeContextMenu(id);
+        });
+      }
       if (opts.onNodeHover) {
         c.addEventListener("mouseenter", function () { opts.onNodeHover(id); });
         c.addEventListener("mouseleave", function () { opts.onNodeHover(null); });
@@ -343,9 +349,14 @@
           betweenness: document.getElementById("centrality-btn-betweenness"),
           pagerank: document.getElementById("centrality-btn-pagerank"),
         };
+        var scopeButtons = {
+          undirected: document.getElementById("centrality-scope-undirected-btn"),
+          directed: document.getElementById("centrality-scope-directed-btn"),
+        };
         if (!rankListEl || !networkContainer || !inspectorEl) return;
 
         var currentMeasure = "degree";
+        var currentScope = "undirected"; // "undirected" | "directed"
         var selectedId = null;
 
         var view = createNetworkView(networkContainer, giantIds, layout, giantEdges, {
@@ -353,8 +364,8 @@
           onNodeClick: function (id) { selectCharacter(id); },
         });
 
-        function valueFor(measure, id) {
-          var all = summary.centrality[measure].all;
+        function valueFor(measure, id, scope) {
+          var all = summary.centrality[measure][scope || currentScope].all;
           return all.hasOwnProperty(id) ? all[id] : null;
         }
 
@@ -367,7 +378,7 @@
 
         function renderRankList() {
           rankListEl.innerHTML = "";
-          var top = summary.centrality[currentMeasure].top;
+          var top = summary.centrality[currentMeasure][currentScope].top;
           var topIds = {};
           top.forEach(function (row) {
             topIds[row.node_id] = true;
@@ -385,7 +396,7 @@
         }
 
         function renderNetwork(topIds) {
-          var top = summary.centrality[currentMeasure].top;
+          var top = summary.centrality[currentMeasure][currentScope].top;
           var rankById = {};
           top.forEach(function (row) { rankById[row.node_id] = row.rank; });
 
@@ -404,7 +415,7 @@
         }
 
         function renderBadgeAndDefinition() {
-          var info = summary.centrality[currentMeasure];
+          var info = summary.centrality[currentMeasure][currentScope];
           defTextEl.textContent = info.definition;
           if (info.graph === "directed_full_network") {
             badgeEl.textContent = "Directed full network";
@@ -422,7 +433,7 @@
           }
           var name = names[selectedId];
           var value = valueFor(currentMeasure, selectedId);
-          var topEntry = summary.centrality[currentMeasure].top.find(function (r) { return r.node_id === selectedId; });
+          var topEntry = summary.centrality[currentMeasure][currentScope].top.find(function (r) { return r.node_id === selectedId; });
           var rankText = topEntry ? ("rank " + topEntry.rank + " of the top 15") : "outside the top 15 for this measure";
 
           var html =
@@ -431,28 +442,32 @@
             '<div class="inspector-stat"><span class="stat-label">' + currentMeasure + '</span>' +
             '<span class="stat-value">' + formatValue(currentMeasure, value) + '</span></div>' +
             '<div class="inspector-stat"><span class="stat-label">Ranking</span>' +
-            '<span class="stat-value" style="font-size:13px;">' + rankText + '</span></div>' +
+            '<span class="stat-value">' + rankText + '</span></div>' +
             '</div>';
 
           var nullBlock = null;
-          if (currentMeasure === "betweenness" && summary.null_models.betweenness[selectedId]) {
-            nullBlock = summary.null_models.betweenness[selectedId];
-          } else if (currentMeasure === "closeness" && summary.null_models.closeness[selectedId]) {
-            nullBlock = summary.null_models.closeness[selectedId];
+          if (currentScope === "undirected") {
+            if (currentMeasure === "betweenness" && summary.null_models.betweenness[selectedId]) {
+              nullBlock = summary.null_models.betweenness[selectedId];
+            } else if (currentMeasure === "closeness" && summary.null_models.closeness[selectedId]) {
+              nullBlock = summary.null_models.closeness[selectedId];
+            }
           }
           if (nullBlock) {
             html +=
               '<div class="inspector-section"><h5>Against 200 degree-preserving shuffles</h5>' +
               '<ul class="test-readout">' +
               '<li class="stat-card"><span class="stat-label">Real value</span><span class="stat-value">' + fmtFloat(nullBlock.real, 4) + '</span></li>' +
-              '<li class="stat-card"><span class="stat-label">Shuffle mean &plusmn; SD</span><span class="stat-value" style="font-size:14px;">' + fmtFloat(nullBlock.shuffle_mean, 4) + ' &plusmn; ' + fmtFloat(nullBlock.shuffle_sd, 4) + '</span></li>' +
+              '<li class="stat-card"><span class="stat-label">Shuffle mean &plusmn; SD</span><span class="stat-value">' + fmtFloat(nullBlock.shuffle_mean, 4) + ' &plusmn; ' + fmtFloat(nullBlock.shuffle_sd, 4) + '</span></li>' +
               '<li class="stat-card"><span class="stat-label">z-score</span><span class="stat-value">' + (nullBlock.z == null ? "n/a" : nullBlock.z.toFixed(2)) + '</span></li>' +
               '<li class="stat-card"><span class="stat-label">Extreme shuffles</span><span class="stat-value">' + nullBlock.extreme_count + ' / ' + nullBlock.n_shuffles + '</span></li>' +
               '</ul></div>';
+          } else if (currentScope === "directed") {
+            html += '<p class="inspector-empty">No null-model comparison for the directed scope -- the shuffles preserve edge directions only for the undirected analysis. Switch the scope to Undirected to see one.</p>';
           } else if (currentMeasure === "betweenness" || currentMeasure === "closeness") {
             html += '<p class="inspector-empty">No null-model comparison was computed for this character (only the characters discussed on this page, or in either measure’s real top 15, were run through the 200-shuffle null).</p>';
           } else {
-            html += '<p class="inspector-empty">Null-model comparisons on this page are computed for betweenness and closeness -- switch measures to see one.</p>';
+            html += '<p class="inspector-empty">Null-model comparisons on this page are computed for undirected betweenness and closeness -- switch measures to see one.</p>';
           }
           inspectorEl.innerHTML = html;
         }
@@ -477,6 +492,19 @@
               if (!buttons[k2]) return;
               buttons[k2].classList.toggle("is-active", k2 === key);
               buttons[k2].setAttribute("aria-pressed", String(k2 === key));
+            });
+            render();
+          });
+        });
+
+        Object.keys(scopeButtons).forEach(function (key) {
+          if (!scopeButtons[key]) return;
+          scopeButtons[key].addEventListener("click", function () {
+            currentScope = key;
+            Object.keys(scopeButtons).forEach(function (k2) {
+              if (!scopeButtons[k2]) return;
+              scopeButtons[k2].classList.toggle("is-active", k2 === key);
+              scopeButtons[k2].setAttribute("aria-pressed", String(k2 === key));
             });
             render();
           });
@@ -552,7 +580,22 @@
         var sourceId = null, targetId = null;
         var animationToken = 0;
 
-        var view = createNetworkView(networkContainer, giantIds, layout, giantEdges, { titleFor: titleFor });
+        var view = createNetworkView(networkContainer, giantIds, layout, giantEdges, {
+          titleFor: titleFor,
+          // click sets the "From" character, right-click sets the "To"
+          // character; the text inputs are kept in sync so the figure and
+          // the controls never disagree.
+          onNodeClick: function (id) {
+            sourceId = id;
+            sourceInput.value = names[id];
+            render();
+          },
+          onNodeContextMenu: function (id) {
+            targetId = id;
+            targetInput.value = names[id];
+            render();
+          },
+        });
 
         var DIST_COLORS = ["#ffffff", "#8fb1ff", "#6690ff", "#4d7cff", "#3c63d6", "#2c4aa8", "#1f3480"];
         function colorForDistance(d) {
