@@ -431,7 +431,7 @@
             '<div class="inspector-stat"><span class="stat-label">' + currentMeasure + '</span>' +
             '<span class="stat-value">' + formatValue(currentMeasure, value) + '</span></div>' +
             '<div class="inspector-stat"><span class="stat-label">Ranking</span>' +
-            '<span class="stat-value" style="font-size:13px;">' + rankText + '</span></div>' +
+            '<span class="stat-value">' + rankText + '</span></div>' +
             '</div>';
 
           var nullBlock = null;
@@ -445,7 +445,7 @@
               '<div class="inspector-section"><h5>Against 200 degree-preserving shuffles</h5>' +
               '<ul class="test-readout">' +
               '<li class="stat-card"><span class="stat-label">Real value</span><span class="stat-value">' + fmtFloat(nullBlock.real, 4) + '</span></li>' +
-              '<li class="stat-card"><span class="stat-label">Shuffle mean &plusmn; SD</span><span class="stat-value" style="font-size:14px;">' + fmtFloat(nullBlock.shuffle_mean, 4) + ' &plusmn; ' + fmtFloat(nullBlock.shuffle_sd, 4) + '</span></li>' +
+              '<li class="stat-card"><span class="stat-label">Shuffle mean &plusmn; SD</span><span class="stat-value">' + fmtFloat(nullBlock.shuffle_mean, 4) + ' &plusmn; ' + fmtFloat(nullBlock.shuffle_sd, 4) + '</span></li>' +
               '<li class="stat-card"><span class="stat-label">z-score</span><span class="stat-value">' + (nullBlock.z == null ? "n/a" : nullBlock.z.toFixed(2)) + '</span></li>' +
               '<li class="stat-card"><span class="stat-label">Extreme shuffles</span><span class="stat-value">' + nullBlock.extreme_count + ' / ' + nullBlock.n_shuffles + '</span></li>' +
               '</ul></div>';
