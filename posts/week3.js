@@ -114,6 +114,12 @@
       if (opts.onNodeClick) {
         c.addEventListener("click", function () { opts.onNodeClick(id); });
       }
+      if (opts.onNodeContextMenu) {
+        c.addEventListener("contextmenu", function (ev) {
+          ev.preventDefault(); // don't open the browser menu on graph nodes
+          opts.onNodeContextMenu(id);
+        });
+      }
       if (opts.onNodeHover) {
         c.addEventListener("mouseenter", function () { opts.onNodeHover(id); });
         c.addEventListener("mouseleave", function () { opts.onNodeHover(null); });
@@ -552,7 +558,22 @@
         var sourceId = null, targetId = null;
         var animationToken = 0;
 
-        var view = createNetworkView(networkContainer, giantIds, layout, giantEdges, { titleFor: titleFor });
+        var view = createNetworkView(networkContainer, giantIds, layout, giantEdges, {
+          titleFor: titleFor,
+          // click sets the "From" character, right-click sets the "To"
+          // character; the text inputs are kept in sync so the figure and
+          // the controls never disagree.
+          onNodeClick: function (id) {
+            sourceId = id;
+            sourceInput.value = names[id];
+            render();
+          },
+          onNodeContextMenu: function (id) {
+            targetId = id;
+            targetInput.value = names[id];
+            render();
+          },
+        });
 
         var DIST_COLORS = ["#ffffff", "#8fb1ff", "#6690ff", "#4d7cff", "#3c63d6", "#2c4aa8", "#1f3480"];
         function colorForDistance(d) {
