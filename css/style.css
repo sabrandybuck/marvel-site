@@ -498,6 +498,12 @@ article.post blockquote {
 
 .arrow-toggle {
   display: inline-flex;
+  /* keep the capsule hugging its buttons: align-self: flex-start shrugs off
+     the stretch of column-flex parents like .hero-search, fit-content covers
+     plain block parents -- row-based usages (.arrow-mode-row, etc.) are
+     unaffected either way */
+  align-self: flex-start;
+  width: fit-content;
   border: 1px solid var(--line);
   border-radius: 999px;
   overflow: hidden;
