@@ -743,9 +743,14 @@
       }
 
       function findGenuineBroker() {
-        var betweennessTop = summary.centrality.betweenness.top.slice(0, 15);
-        var degreeRank = buildRankLookup(summary.centrality.degree.all);
-        var betweennessRank = buildRankLookup(summary.centrality.betweenness.all);
+        // NOTE: as of the w3-rkh merge, centrality.<measure> is nested under
+        // .undirected/.directed (each computed on that scope) rather than a
+        // flat {top, all}. This game's fragmentation logic is undirected
+        // throughout (see the module doc comment), so it always reads the
+        // .undirected variant here to match.
+        var betweennessTop = summary.centrality.betweenness.undirected.top.slice(0, 15);
+        var degreeRank = buildRankLookup(summary.centrality.degree.undirected.all);
+        var betweennessRank = buildRankLookup(summary.centrality.betweenness.undirected.all);
         var best = null;
         betweennessTop.forEach(function (row) {
           var dRank = degreeRank[row.node_id];
@@ -771,8 +776,8 @@
           for (var j = 0; j < rounds.length; j++) {
             if (i === j) continue;
             var a = rounds[i], b = rounds[j];
-            var degA = summary.centrality.degree.all[a.id] || 0;
-            var degB = summary.centrality.degree.all[b.id] || 0;
+            var degA = summary.centrality.degree.undirected.all[a.id] || 0;
+            var degB = summary.centrality.degree.undirected.all[b.id] || 0;
             if (degA >= degB || a.delta <= 0 || a.delta < b.delta) continue;
             var candidate = { lower: a, higher: b, lowerDeg: degA, higherDeg: degB, gap: degB - degA };
             (a.delta > b.delta ? strictCandidates : tieCandidates).push(candidate);
