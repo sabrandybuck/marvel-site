@@ -1024,3 +1024,511 @@ article.post blockquote {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* =====================================================================
+   "Save the Marvel Network" -- network-crisis-simulator visual identity.
+
+   Deliberately its OWN look, distinct from the rest of the site (as
+   agreed): a dark command-center/HUD aesthetic instead of the analytical
+   Week 1/2/3 data-journalism style. Scoped entirely under body.sg-body /
+   .sg-* / #sg-* / #screen-* / #save-* so none of it can leak onto any
+   other page, and none of the site's shared rules (.wrap, .btn, .rank-list,
+   .callout, etc.) are touched -- this page simply doesn't use them for its
+   game screens. See posts/week3-save-game.js.
+
+   Design tokens are additive custom properties on :root (a new --sg-*
+   namespace) so they can't collide with or override the existing
+   --accent/--bg/etc. tokens the rest of the site relies on.
+   ===================================================================== */
+
+:root {
+  --sg-bg: #05070c;
+  --sg-bg-panel: #0b0e16;
+  --sg-line: #1c2130;
+  --sg-cyan: #35e0ff;
+  --sg-cyan-dim: rgba(53, 224, 255, 0.35);
+  --sg-danger: #ff3b4e;
+  --sg-danger-dim: rgba(255, 59, 78, 0.25);
+  --sg-amber: #ffb020;
+  --sg-success: #2ee6a8;
+  --sg-text: #eef2f8;
+  --sg-text-dim: #8993a8;
+}
+
+body.sg-body main.sg-shell {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  color: var(--sg-text);
+}
+
+.sg-shell {
+  background: var(--sg-bg);
+}
+
+/* ---- screens: one visible at a time, cross-faded by JS toggling
+   .is-active (no page navigation, so nothing re-fetches) ---- */
+.sg-screen { display: none; }
+.sg-screen.is-active { display: block; animation: sg-fade-in 0.35s ease both; }
+@keyframes sg-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- generic HUD button -- deliberately NOT .btn: a different shape
+   (sharper corners, mono caps, glow) so this page reads as its own
+   interface rather than a themed variant of the analysis page's UI. ---- */
+.sg-btn {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 11px 24px;
+  border-radius: 4px;
+  border: 1px solid var(--sg-line);
+  background: var(--sg-bg-panel);
+  color: var(--sg-text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.sg-btn:hover { transform: translateY(-1px); text-decoration: none; }
+.sg-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sg-btn-primary {
+  background: var(--sg-cyan);
+  border-color: var(--sg-cyan);
+  color: #04181d;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(53, 224, 255, 0.35);
+}
+.sg-btn-primary:hover { background: #63eaff; }
+
+.sg-btn-danger {
+  background: var(--sg-danger);
+  border-color: var(--sg-danger);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(255, 59, 78, 0.4);
+}
+.sg-btn-danger:hover { background: #ff5c6c; }
+
+.sg-btn-ghost { background: transparent; }
+.sg-btn-ghost:hover { border-color: var(--sg-cyan); color: var(--sg-cyan); }
+
+.sg-btn-start { font-size: 15px; padding: 15px 38px; margin: 10px 0 20px; }
+.sg-btn-attack, .sg-btn-continue { width: 100%; margin-top: 4px; }
+
+/* ---- shared status banner (intro + debrief) ---- */
+.sg-status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sg-danger);
+  border: 1px solid rgba(255, 59, 78, 0.45);
+  background: rgba(255, 59, 78, 0.08);
+  padding: 8px 16px;
+  border-radius: 4px;
+  animation: sg-banner-flicker 2.2s ease-in-out infinite;
+}
+.sg-status-banner--stable {
+  color: var(--sg-success);
+  border-color: rgba(46, 230, 168, 0.45);
+  background: rgba(46, 230, 168, 0.08);
+  animation: none;
+}
+@keyframes sg-banner-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+.sg-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--sg-cyan);
+  box-shadow: 0 0 8px var(--sg-cyan);
+  flex: none;
+}
+.sg-status-dot--critical {
+  background: var(--sg-danger);
+  box-shadow: 0 0 10px var(--sg-danger);
+  animation: sg-pulse-dot 1s ease-in-out infinite;
+}
+.sg-status-dot--stable { background: var(--sg-success); box-shadow: 0 0 8px var(--sg-success); }
+@keyframes sg-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.5); }
+}
+
+/* =====================================================================
+   Screen 1: crisis briefing
+   ===================================================================== */
+#screen-intro {
+  position: relative;
+  min-height: 620px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+/* #screen-intro is an ID selector (specificity 1,0,0), which would always
+   beat the class-level ".sg-screen { display: none }" show/hide rule
+   (specificity 0,1,0) if it set `display` unconditionally -- exactly the
+   same bug shape as the #sg-overlay fix above, just via specificity origin
+   instead of UA-vs-author origin. Scoping `display: flex` to only the
+   `.is-active` state (specificity 1,1,0, still ID-led so it correctly wins
+   over .sg-screen.is-active's 0,2,0) means the intro screen actually
+   disappears once the game starts, instead of permanently stacking above
+   every other screen. */
+#screen-intro.is-active {
+  display: flex;
+}
+.sg-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.sg-intro-network { position: absolute; inset: 0; opacity: 0.5; }
+.sg-intro-network svg { width: 100%; height: 100%; display: block; }
+.sg-intro-network circle { animation: sg-bg-pulse 5s ease-in-out infinite; }
+.sg-intro-network line { stroke: var(--sg-line); stroke-width: 0.6; opacity: 0.6; }
+@keyframes sg-bg-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+}
+.sg-intro-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, transparent 25%, rgba(5, 7, 12, 0.9) 82%);
+  pointer-events: none;
+}
+.sg-intro-content { position: relative; z-index: 2; max-width: 640px; text-align: center; }
+
+.sg-title { margin: 24px 0 20px; line-height: 1.05; }
+.sg-title-sub {
+  display: block;
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.4em;
+  color: var(--sg-text-dim);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.sg-title-main {
+  display: block;
+  font-size: clamp(32px, 7vw, 60px);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-shadow: 0 0 28px rgba(53, 224, 255, 0.4), 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.sg-brief { color: var(--sg-text-dim); font-size: 16px; margin: 0 0 14px; }
+.sg-brief-strong { color: var(--sg-text); }
+.sg-footnote { font-size: 12px; color: var(--sg-text-dim); margin: 4px 0 16px; font-family: var(--mono); }
+.sg-back-link { font-size: 13.5px; }
+.sg-back-link a { color: var(--sg-cyan); }
+
+/* =====================================================================
+   Screen 2: the simulation
+   ===================================================================== */
+#screen-game { padding-bottom: 40px; }
+
+.sg-hud-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--sg-line);
+  background: linear-gradient(180deg, rgba(53, 224, 255, 0.05), transparent);
+}
+.sg-hud-status { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+.sg-hud-status-text { color: var(--sg-cyan); }
+.sg-hud-status.is-armed .sg-hud-status-text { color: var(--sg-amber); }
+.sg-hud-status.is-critical .sg-hud-status-text { color: var(--sg-danger); }
+.sg-hud-status.is-resolved .sg-hud-status-text { color: var(--sg-success); }
+.sg-hud-status.is-armed #sg-status-dot { background: var(--sg-amber); box-shadow: 0 0 8px var(--sg-amber); }
+.sg-hud-status.is-critical #sg-status-dot { background: var(--sg-danger); box-shadow: 0 0 10px var(--sg-danger); animation: sg-pulse-dot 0.6s ease-in-out infinite; }
+.sg-hud-status.is-resolved #sg-status-dot { background: var(--sg-success); box-shadow: 0 0 8px var(--sg-success); animation: none; }
+
+.sg-hud-attempts { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--sg-text-dim); text-transform: uppercase; }
+.sg-pip-row { display: flex; gap: 6px; }
+.sg-pip { width: 22px; height: 6px; border-radius: 3px; background: var(--sg-line); transition: background 0.3s ease, box-shadow 0.3s ease; }
+.sg-pip.is-current { background: var(--sg-cyan); box-shadow: 0 0 8px var(--sg-cyan); }
+.sg-pip.is-done { background: var(--sg-text-dim); }
+.sg-attempt-value { color: #fff; font-weight: 700; }
+
+.sg-hint { padding: 14px 24px 0; margin: 0; color: var(--sg-text-dim); font-size: 13.5px; font-family: var(--mono); }
+
+.sg-console { display: flex; flex-direction: column; gap: 18px; padding: 18px 24px 0; }
+@media (min-width: 900px) {
+  .sg-console { flex-direction: row; align-items: stretch; }
+  .sg-viewport { flex: 2 1 0; min-width: 0; }
+  .sg-panel { flex: 1 1 320px; max-width: 360px; }
+}
+
+.sg-viewport {
+  position: relative;
+  border: 1px solid var(--sg-line);
+  border-radius: 6px;
+  background: radial-gradient(circle at 28% 18%, rgba(53, 224, 255, 0.06), transparent 55%), #04060a;
+  overflow: hidden;
+  min-height: 440px;
+}
+@media (min-width: 640px) { .sg-viewport { min-height: 540px; } }
+@media (min-width: 900px) { .sg-viewport { min-height: 620px; } }
+.sg-viewport.is-shaking { animation: sg-shake 0.4s ease-in-out; }
+@keyframes sg-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-4px, 2px); }
+  80% { transform: translate(3px, -2px); }
+}
+
+.sg-corner { position: absolute; width: 22px; height: 22px; border-color: var(--sg-cyan-dim); opacity: 0.8; z-index: 1; pointer-events: none; }
+.sg-corner-tl { top: 10px; left: 10px; border-top: 2px solid; border-left: 2px solid; }
+.sg-corner-tr { top: 10px; right: 10px; border-top: 2px solid; border-right: 2px solid; }
+.sg-corner-bl { bottom: 10px; left: 10px; border-bottom: 2px solid; border-left: 2px solid; }
+.sg-corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid; border-right: 2px solid; }
+
+.sg-network-box { position: absolute; inset: 0; }
+.sg-network-box svg { width: 100%; height: 100%; display: block; }
+.sg-network-box circle {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: r 0.18s ease, opacity 0.35s ease, stroke-width 0.15s ease, stroke 0.15s ease;
+  cursor: pointer;
+}
+.sg-network-box line { transition: opacity 0.35s ease, stroke 0.25s ease, stroke-width 0.25s ease; }
+.sg-network-box circle.is-drifting {
+  animation: sg-drift var(--sg-drift-duration, 5s) ease-in-out infinite;
+  animation-delay: var(--sg-drift-delay, 0s);
+}
+@keyframes sg-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(var(--sg-drift-dx, 2px), var(--sg-drift-dy, 2px)); }
+}
+.sg-network-box circle.is-relaxing {
+  transition: r 0.18s ease, opacity 0.35s ease, stroke-width 0.15s ease, stroke 0.15s ease,
+    cx 0.75s cubic-bezier(0.22, 0.61, 0.36, 1), cy 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.sg-network-box circle.is-pulsing { animation: sg-node-pulse 0.35s ease-in-out 2; }
+@keyframes sg-node-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.6); }
+}
+.sg-network-box circle.is-shockwave {
+  animation: sg-shockwave 0.65s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+  pointer-events: none;
+}
+@keyframes sg-shockwave {
+  from { r: 4; opacity: 0.9; stroke-width: 2.5; }
+  to { r: 90; opacity: 0; stroke-width: 0.5; }
+}
+
+.sg-network-legend {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--sg-text-dim);
+  background: rgba(5, 7, 12, 0.6);
+  padding: 6px 10px;
+  border-radius: 4px;
+  z-index: 1;
+}
+.sg-network-legend .legend-row { display: flex; align-items: center; gap: 6px; }
+
+.sg-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--sg-bg-panel);
+  border: 1px solid var(--sg-cyan-dim);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  transform: translate(-50%, -125%);
+  white-space: nowrap;
+  z-index: 2;
+}
+.sg-tooltip.is-visible { opacity: 1; }
+.sg-tooltip .sg-tooltip-degree { color: var(--sg-cyan); font-size: 11px; }
+
+/* ---- countdown / impact takeover -- the whole viewport reacts, not just
+   the side panel ---- */
+.sg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 59, 78, 0.22), rgba(5, 7, 12, 0.9) 72%);
+}
+/* `display: flex` above is an author-stylesheet rule, which always beats the
+   browser's own default `[hidden] { display: none }` UA rule regardless of
+   selector specificity -- so without this override, #sg-overlay stayed
+   display:flex (and therefore visible AND absorbing every pointer event
+   over the whole viewport, on top of the network SVG) even while its
+   `hidden` attribute was set, silently blocking every node click on the
+   game screen. This same-origin, higher-specificity rule restores the
+   attribute's actual effect. */
+.sg-overlay[hidden] {
+  display: none;
+}
+.sg-overlay-inner { text-align: center; }
+.sg-overlay-banner {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--sg-danger);
+  margin-bottom: 16px;
+  animation: sg-banner-flicker 0.7s ease-in-out infinite;
+}
+.sg-overlay-count {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: clamp(60px, 13vw, 130px);
+  color: #fff;
+  text-shadow: 0 0 44px var(--sg-danger), 0 0 10px #fff;
+  line-height: 1;
+}
+
+/* ---- side panel: HUD console ---- */
+.sg-panel { display: flex; flex-direction: column; gap: 16px; padding: 4px 0 20px; }
+.sg-panel-section {
+  background: var(--sg-bg-panel);
+  border: 1px solid var(--sg-line);
+  border-radius: 6px;
+  padding: 18px 20px;
+}
+.sg-panel-heading {
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sg-text-dim);
+}
+.sg-stat-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sg-stat { text-align: center; }
+.sg-stat-value {
+  display: block;
+  font-family: var(--mono);
+  font-size: 25px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 14px rgba(53, 224, 255, 0.3);
+  font-variant-numeric: tabular-nums;
+}
+.sg-stat-label { display: block; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--sg-text-dim); margin-top: 3px; }
+
+.sg-panel-empty { color: var(--sg-text-dim); font-size: 13px; font-family: var(--mono); }
+
+.sg-target-name { font-size: 21px; font-weight: 800; letter-spacing: 0.01em; margin-bottom: 4px; color: #fff; }
+.sg-target-degree { font-family: var(--mono); font-size: 12.5px; color: var(--sg-cyan); margin-bottom: 16px; }
+
+.sg-result-banner {
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  text-align: center;
+  font-family: var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sg-result-card[data-severity="high"] .sg-result-banner { background: rgba(255, 59, 78, 0.14); border: 1px solid rgba(255, 59, 78, 0.5); color: var(--sg-danger); }
+.sg-result-card[data-severity="medium"] .sg-result-banner { background: rgba(255, 176, 32, 0.14); border: 1px solid rgba(255, 176, 32, 0.5); color: var(--sg-amber); }
+.sg-result-card[data-severity="low"] .sg-result-banner { background: rgba(46, 230, 168, 0.12); border: 1px solid rgba(46, 230, 168, 0.4); color: var(--sg-success); }
+
+.sg-result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.sg-result-stat { background: var(--sg-bg); border: 1px solid var(--sg-line); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.sg-result-value { font-family: var(--mono); font-size: 16px; font-weight: 800; color: #fff; }
+.sg-result-text { color: var(--sg-text-dim); font-size: 13px; margin: 0 0 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-status-dot--critical,
+  .sg-hud-status.is-critical #sg-status-dot,
+  .sg-status-banner,
+  .sg-overlay-banner,
+  .sg-intro-network circle,
+  .sg-network-box circle.is-drifting,
+  .sg-viewport.is-shaking {
+    animation: none !important;
+  }
+  .sg-network-box circle,
+  .sg-network-box line,
+  .sg-network-box circle.is-relaxing,
+  .sg-network-box circle.is-shockwave {
+    transition-duration: 0.01s !important;
+    animation-duration: 0.01s !important;
+  }
+}
+
+/* =====================================================================
+   Screen 3: mission debrief
+   ===================================================================== */
+.sg-debrief { max-width: 760px; margin: 0 auto; padding: 48px 24px 72px; }
+.sg-debrief-title { font-size: clamp(26px, 5vw, 38px); font-weight: 800; margin: 20px 0 10px; color: #fff; }
+.sg-debrief-subtitle { color: var(--sg-text-dim); margin: 0 0 8px; font-size: 15px; }
+.sg-debrief-heading {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sg-cyan);
+  border-bottom: 1px solid var(--sg-line);
+  padding-bottom: 8px;
+  margin: 36px 0 14px;
+}
+.sg-debrief-note { color: var(--sg-text-dim); font-size: 13.5px; margin: 0 0 12px; }
+
+.sg-report-list { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.sg-report-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: var(--sg-bg-panel);
+  border: 1px solid var(--sg-line);
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+.sg-report-list .rank { font-family: var(--mono); font-size: 12px; color: var(--sg-cyan); width: 1.5em; flex: none; }
+.sg-report-list .name { flex: 1; color: #fff; }
+.sg-report-list .metric { font-family: var(--mono); font-size: 12px; color: var(--sg-text-dim); }
+
+.sg-debrief-message {
+  background: var(--sg-bg-panel);
+  border: 1px solid var(--sg-line);
+  border-left: 3px solid var(--sg-cyan);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin: 24px 0;
+}
+.sg-debrief-message p { margin: 0 0 10px; color: var(--sg-text); font-size: 14.5px; }
+.sg-debrief-message p:last-child { margin-bottom: 0; }
+
+.sg-debrief-actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.sg-footer { border-top: 1px solid var(--sg-line); background: var(--sg-bg); color: var(--sg-text-dim); }

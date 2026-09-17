@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save the Marvel Network — The Web of Heroes</title>
+<meta name="description" content="A network-crisis simulator: take three attempts to identify the Marvel characters whose removal fragments the network the most, then compare your picks against the real degree, betweenness and random-removal numbers.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="sg-body">
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="week-3.html">Week 3</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="sg-shell" id="sg-shell">
+
+  <!-- ==================================================================
+       Screen 1: crisis briefing
+       ================================================================== -->
+  <section class="sg-screen is-active" id="screen-intro">
+    <div class="sg-scanlines" aria-hidden="true"></div>
+    <div class="sg-intro-network" id="save-intro-bg" aria-hidden="true"></div>
+    <div class="sg-intro-vignette" aria-hidden="true"></div>
+
+    <div class="sg-intro-content">
+      <div class="sg-status-banner">
+        <span class="sg-status-dot sg-status-dot--critical" aria-hidden="true"></span>
+        NETWORK&nbsp;STATUS:&nbsp;<strong>CRITICAL</strong>
+      </div>
+
+      <h1 class="sg-title">
+        <span class="sg-title-sub">SAVE THE</span>
+        <span class="sg-title-main">MARVEL&nbsp;NETWORK</span>
+      </h1>
+
+      <p class="sg-brief">
+        A villain is taking heroes offline, one at a time. Some characters are far more important
+        than others for keeping distant parts of the network connected &mdash; removing the right
+        one could fracture the whole story into pieces.
+      </p>
+      <p class="sg-brief sg-brief-strong">
+        You have <strong>3 ATTEMPTS</strong> to identify the characters whose removal causes the
+        greatest disruption.
+      </p>
+
+      <button type="button" class="sg-btn sg-btn-primary sg-btn-start" id="save-start-btn">
+        INITIATE&nbsp;SIMULATION
+      </button>
+
+      <p class="sg-footnote">
+        Real network, live-verified &mdash; undirected giant component computed from
+        <code>data/week1/</code>, not hard-coded.
+      </p>
+      <p class="sg-back-link"><a href="week-3.html">&larr; Back to the Week 3 analysis</a></p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       Screen 2: the simulation
+       ================================================================== -->
+  <section class="sg-screen" id="screen-game">
+
+    <div class="sg-hud-bar">
+      <div class="sg-hud-status">
+        <span class="sg-status-dot" id="sg-status-dot" aria-hidden="true"></span>
+        <span class="sg-hud-status-text" id="sg-status-text">MONITORING</span>
+      </div>
+      <div class="sg-hud-attempts">
+        <span class="sg-hud-label">ATTEMPT</span>
+        <div class="sg-pip-row" id="sg-pip-row" aria-hidden="true">
+          <span class="sg-pip" data-pip="1"></span>
+          <span class="sg-pip" data-pip="2"></span>
+          <span class="sg-pip" data-pip="3"></span>
+        </div>
+        <span class="sg-attempt-value" id="save-attempt-value">1 / 3</span>
+      </div>
+      <button type="button" class="sg-btn sg-btn-ghost" id="save-reset-btn" title="Restart the whole simulation">RESTART</button>
+    </div>
+
+    <p class="sg-hint" id="save-game-hint">Select a character to target them.</p>
+
+    <div class="sg-console">
+      <div class="sg-viewport" id="sg-viewport">
+        <span class="sg-corner sg-corner-tl" aria-hidden="true"></span>
+        <span class="sg-corner sg-corner-tr" aria-hidden="true"></span>
+        <span class="sg-corner sg-corner-bl" aria-hidden="true"></span>
+        <span class="sg-corner sg-corner-br" aria-hidden="true"></span>
+
+        <div class="sg-network-box" id="save-network" role="img" aria-label="Marvel network under attack simulation"></div>
+
+        <div class="sg-overlay" id="sg-overlay" hidden>
+          <div class="sg-overlay-inner">
+            <div class="sg-overlay-banner" id="sg-overlay-banner">NETWORK TARGETED</div>
+            <div class="sg-overlay-count" id="sg-overlay-count"></div>
+          </div>
+        </div>
+
+        <div class="sg-network-legend" id="save-network-legend"></div>
+      </div>
+
+      <aside class="sg-panel" id="save-side-panel">
+
+        <div class="sg-panel-section">
+          <h3 class="sg-panel-heading">Network status</h3>
+          <div class="sg-stat-trio">
+            <div class="sg-stat">
+              <span class="sg-stat-value" id="save-stat-giant">277</span>
+              <span class="sg-stat-label">Giant component</span>
+            </div>
+            <div class="sg-stat">
+              <span class="sg-stat-value" id="save-stat-comp">19</span>
+              <span class="sg-stat-label">Components</span>
+            </div>
+            <div class="sg-stat">
+              <span class="sg-stat-value" id="save-stat-removed">0</span>
+              <span class="sg-stat-label">Offline</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sg-panel-section sg-panel-action" id="sg-panel-action">
+          <h3 class="sg-panel-heading">Target</h3>
+          <div id="save-selection-empty" class="sg-panel-empty">
+            Hover characters to inspect them. Click one to lock a target.
+          </div>
+          <div id="save-selection-card" class="sg-target-card" hidden>
+            <div class="sg-target-name" id="save-selection-name"></div>
+            <div class="sg-target-degree" id="save-selection-degree"></div>
+            <button type="button" class="sg-btn sg-btn-danger sg-btn-attack" id="save-attack-btn">
+              SIMULATE&nbsp;ATTACK
+            </button>
+          </div>
+
+          <div id="save-result-block" class="sg-result-card" hidden>
+            <div class="sg-result-banner" id="save-result-banner">
+              <span class="sg-result-title" id="save-result-title"></span>
+            </div>
+            <div class="sg-result-grid">
+              <div class="sg-result-stat">
+                <span class="sg-stat-label">Giant component</span>
+                <span class="sg-result-value" id="save-result-giant"></span>
+              </div>
+              <div class="sg-result-stat">
+                <span class="sg-stat-label">Components</span>
+                <span class="sg-result-value" id="save-result-components"></span>
+              </div>
+            </div>
+            <p class="sg-result-text" id="save-result-text"></p>
+            <button type="button" class="sg-btn sg-btn-primary sg-btn-continue" id="save-continue-btn"></button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       Screen 3: mission debrief
+       ================================================================== -->
+  <section class="sg-screen" id="screen-final">
+    <div class="sg-debrief">
+      <div class="sg-status-banner sg-status-banner--stable">
+        <span class="sg-status-dot sg-status-dot--stable" aria-hidden="true"></span>
+        SIMULATION&nbsp;COMPLETE
+      </div>
+      <h1 class="sg-debrief-title">WHO HOLDS THE NETWORK TOGETHER?</h1>
+      <p class="sg-debrief-subtitle">Your three experiments, measured, and set beside the network's own numbers.</p>
+
+      <h2 class="sg-debrief-heading">Your experiment</h2>
+      <ol class="sg-report-list" id="save-final-mine"></ol>
+
+      <h2 class="sg-debrief-heading">Network analysis</h2>
+      <p class="sg-debrief-note">
+        Tested against every one of the 277 giant-component characters individually, not just the
+        three you happened to try.
+      </p>
+      <ol class="sg-report-list" id="save-final-reference"></ol>
+
+      <div class="sg-debrief-message" id="save-final-message"></div>
+
+      <p class="sg-debrief-actions">
+        <a class="sg-btn sg-btn-primary" href="#" id="save-play-again-btn">RUN&nbsp;AGAIN</a>
+        <a class="sg-btn sg-btn-ghost" href="week-3.html">&larr; Back to the Week 3 analysis</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="sg-footer">
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · same frozen Week 1 network as the
+    rest of the site · game logic in <code>posts/week3-save-game.js</code>, independent of the
+    Week 3 analysis script
+  </div>
+</footer>
+
+<script src="week3-save-game.js"></script>
+</body>
+</html>
