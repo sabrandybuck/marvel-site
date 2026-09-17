@@ -87,11 +87,11 @@
   </div>
   <p>
     Five measures, five different definitions of "matters." Switch between them below — the
-    ranking changes every time, because each one is answering a different question. Degree,
-    closeness, harmonic and betweenness are all computed on the <strong>undirected giant
-    component</strong> (277 characters, treating a link either direction as a connection).
-    PageRank is the odd one out: it's computed on the <strong>full directed network</strong>,
-    following Wikipedia's links exactly as written.
+    ranking changes every time, because each one is answering a different question. Every
+    measure can be computed on two graphs: the <strong>undirected giant component</strong>
+    (277 characters, treating a link either direction as a connection) and the
+    <strong>full directed network</strong> (303 characters, following Wikipedia's links
+    exactly as written). Use the Measure and Scope switches together to compare.
   </p>
 
 </article>
@@ -112,6 +112,13 @@
         <span id="centrality-definition-text"></span>
       </p>
     </div>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Scope</span>
+      <div class="arrow-toggle" id="centrality-scope-toggle" role="group" aria-label="Which graph the measure is computed on">
+        <button type="button" id="centrality-scope-undirected-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Undirected</button>
+        <button type="button" id="centrality-scope-directed-btn" class="arrow-toggle-btn" aria-pressed="false">Directed</button>
+      </div>
+    </div>
   </div>
 
   <p class="explorer-hint">
@@ -131,9 +138,10 @@
   </div>
 
   <figcaption class="explorer-caption">
-    Values computed once, offline, in <code>analysis/build_week3.py</code> — degree/closeness/
-    harmonic/betweenness with NetworkX on the undirected giant component, PageRank
-    (&alpha;&nbsp;=&nbsp;0.85) with NetworkX on the full directed graph — and loaded frozen from
+    Values computed once, offline, in <code>analysis/build_week3.py</code> — every measure in
+    both scopes with NetworkX: undirected variants on the giant component, directed variants
+    on the full graph (degree as in+out total, closeness/harmonic following arrows outward),
+    PageRank (&alpha;&nbsp;=&nbsp;0.85) both ways — and loaded frozen from
     <code>data/week3/week3_summary.json</code>.
   </figcaption>
 </figure>
