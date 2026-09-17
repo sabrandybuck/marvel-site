@@ -498,6 +498,12 @@ article.post blockquote {
 
 .arrow-toggle {
   display: inline-flex;
+  /* keep the capsule hugging its buttons: align-self: flex-start shrugs off
+     the stretch of column-flex parents like .hero-search, fit-content covers
+     plain block parents -- row-based usages (.arrow-mode-row, etc.) are
+     unaffected either way */
+  align-self: flex-start;
+  width: fit-content;
   border: 1px solid var(--line);
   border-radius: 999px;
   overflow: hidden;
@@ -634,8 +640,8 @@ article.post blockquote {
   padding: 8px 12px;
 }
 
-.inspector-stat .stat-label { font-size: 10.5px; }
-.inspector-stat .stat-value { font-size: 18px; }
+.inspector-stat .stat-label { font-size: 10.5px; margin-bottom: 4px; }
+.inspector-stat .stat-value { font-size: 17px; line-height: 1.2; }
 
 .inspector-lists {
   display: grid;
@@ -707,24 +713,16 @@ article.post blockquote {
   margin: 8px 0 0;
 }
 
-/* stat cards, replacing a plain HTML table for the Week 1 metrics */
-.stats-grid {
-  list-style: none;
-  margin: 20px 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-}
-
-.stats-grid .stat-card {
+/* stat cards, replacing a plain HTML table for the Week 1 metrics
+   (shared by .stats-grid, .test-readout and .inspector-stat cards) */
+.stat-card {
   background: var(--bg-elevated);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px 16px;
 }
 
-.stats-grid .stat-label {
+.stat-label {
   display: block;
   font-family: var(--mono);
   font-size: 11.5px;
@@ -734,12 +732,24 @@ article.post blockquote {
   margin-bottom: 6px;
 }
 
-.stats-grid .stat-value {
+.stat-value {
   display: block;
-  font-size: 22px;
   font-weight: 700;
   color: var(--text);
   font-variant-numeric: tabular-nums;
+}
+
+.stats-grid {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stats-grid .stat-value {
+  font-size: 22px;
 }
 
 /* ranked list, e.g. "top 5 by in-degree" */
@@ -941,7 +951,6 @@ article.post blockquote {
 
 .test-readout .stat-card { padding: 10px 12px; }
 .test-readout .stat-value { font-size: 17px; }
-
 /* section heading + "back to top" arrow, scoped to this wrapper so the
    shared article.post h2 rule (used by every other page) is untouched --
    the wrapper takes over the margin/border-bottom that h2 normally owns,
