@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Find maximal cliques in the Marvel network(s).
+"""Find maximal cliques in each crawled network.
 
-Loads one dataset's frozen TSVs (Week 1 heroes snapshot or the Week 2
-supervillains crawl -- same files the site's clique explorers use), treats a
-link in either direction as a connection, keeps the giant component, runs
+Loads one dataset's frozen crawler TSVs (the Week 1 heroes snapshot and all
+six Week 2 crawls -- the same files the site's clique explorers use), treats
+a link in either direction as a connection, keeps the giant component, runs
 NetworkX's Bron-Kerbosch and prints a summary.
 
-Usage: python3 scripts/find_cliques.py [--dataset marvel|villains] [--min-size N]
+Usage: python3 scripts/find_cliques.py --dataset NAME [--min-size N]
 """
 
 import argparse
@@ -28,6 +28,31 @@ DATASETS = {
         "label": "Marvel Comics supervillains (Week 2 crawl)",
         "nodes": DATA_DIR / "Marvel_Comics_supervillains" / "Marvel_Comics_supervillains_nodes.tsv",
         "edges": DATA_DIR / "Marvel_Comics_supervillains" / "Marvel_Comics_supervillains_edges.tsv",
+    },
+    "silmarillion": {
+        "label": "The Silmarillion characters (Week 2 crawl)",
+        "nodes": DATA_DIR / "Silmarillion_characters" / "The_Silmarillion_characters_nodes.tsv",
+        "edges": DATA_DIR / "Silmarillion_characters" / "The_Silmarillion_characters_edges.tsv",
+    },
+    "asoiaf": {
+        "label": "A Song of Ice and Fire characters (Week 2 crawl)",
+        "nodes": DATA_DIR / "A_Song_of_Ice_and_Fire_characters" / "A_Song_of_Ice_and_Fire_characters_nodes.tsv",
+        "edges": DATA_DIR / "A_Song_of_Ice_and_Fire_characters" / "A_Song_of_Ice_and_Fire_characters_edges.tsv",
+    },
+    "middle-earth": {
+        "label": "Middle-earth list-page characters (Week 2 crawl)",
+        "nodes": DATA_DIR / "List_of_Middle-earth_characters" / "List_of_Middle-earth_characters_nodes.tsv",
+        "edges": DATA_DIR / "List_of_Middle-earth_characters" / "List_of_Middle-earth_characters_edges.tsv",
+    },
+    "ds9": {
+        "label": "Star Trek: Deep Space Nine characters (Week 2 crawl)",
+        "nodes": DATA_DIR / "Star_Trek_Deep_Space_Nine_characters" / "Star_Trek_Deep_Space_Nine_characters_nodes.tsv",
+        "edges": DATA_DIR / "Star_Trek_Deep_Space_Nine_characters" / "Star_Trek_Deep_Space_Nine_characters_edges.tsv",
+    },
+    "street-fighter": {
+        "label": "Street Fighter characters (Week 2 crawl)",
+        "nodes": DATA_DIR / "Street_Fighter_characters" / "Street_Fighter_characters_nodes.tsv",
+        "edges": DATA_DIR / "Street_Fighter_characters" / "Street_Fighter_characters_edges.tsv",
     },
 }
 
