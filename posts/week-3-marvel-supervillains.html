@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3: Paths, centrality &amp; cliques — Marvel supervillains · The Web of Heroes</title>
+<meta name="description" content="Who is important in the Marvel supervillain network, how far apart villains really are, what happens when the hubs are removed, and which groups form tight cliques — with degree-preserving-shuffle null models throughout.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 3 · Marvel supervillains dataset · Paths, centrality &amp; cliques</div>
+  <h1>Who matters in the underworld, and what breaks when they're gone</h1>
+  <p class="subtitle">
+    The same Week 3 playbook — five centrality measures, directed vs. undirected rankings, a general
+    shortest-path explorer, a node-removal fragmentation test, and the tightest cliques — run over
+    Wikipedia's Marvel supervillains network instead of the heroes: 370 nodes where 43 villains nobody
+    links to sit outside a 323-node giant component, and Purple Man — not the biggest hub — turns out to
+    be the single worst point to disappear.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#centrality">Who's important?</a>
+    <a href="#directed-undirected">Directed vs. undirected</a>
+    <a href="#six-degrees">Six Degrees</a>
+    <a href="#fragmentation">Fragmentation</a>
+    <a href="#cliques">Cliques</a>
+    <a href="#conclusion">Conclusion</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>What does it mean to be important in a network?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    "Important" is not one thing. A villain can be important because a lot of other villains link to
+    them, because they sit close to everyone else, because they're the bridge that holds two
+    otherwise-unconnected parts of the underworld together, or because the <em>important</em> villains
+    happen to be the ones linking to them. Those are four different, precisely defined questions — and
+    on this network they don't always agree on an answer.
+  </p>
+  <p>
+    Everything below runs on the same 370-villain, 1,136-edge frozen crawl from
+    <code>data/Marvel_Comics_supervillains/</code> that the Week 2 supervillains post used — no new
+    data, no team or decade labels. The giant component is a stretchier world than the heroes': the
+    category articles mostly share one Rogue's Gallery each (Venom's page links to a lot of Spider-Man
+    antagonists; Apocalypse's to X-Men antagonists), so hubs sit on <em>both</em> sides of the
+    hero/villain divide — Hulk, Deadpool and Doctor Doom loom large here too, alongside genuine
+    villains like Norman Osborn and Magneto.
+    Just paths, four centrality measures plus PageRank, degree-preserving-shuffle null models, node
+    removal, and maximal cliques, computed offline in <code>analysis/build_week3_villains.py</code> and
+    loaded frozen from <code>data/week3/week3_villains_summary.json</code>. The three big interactives
+    below recompute nothing expensive live — they look numbers up and draw them; the one live
+    computation left in the browser is the shortest-path search in the Six Degrees explorer, which is
+    cheap enough to run per click.
+  </p>
+
+  <ul class="stats-grid" id="intro-stats">
+    <li class="stat-card"><span class="stat-label">Giant component</span><span class="stat-value">323 of 370</span></li>
+    <li class="stat-card"><span class="stat-label">Avg. shortest path</span><span class="stat-value">3.552</span></li>
+    <li class="stat-card"><span class="stat-label">Diameter</span><span class="stat-value">10</span></li>
+    <li class="stat-card"><span class="stat-label">Largest clique</span><span class="stat-value">6 members</span></li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="centrality">
+
+  <div class="section-head">
+    <h2>Who is important?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Five measures, five different definitions of "matters." Switch between them below — the ranking
+    changes every time, because each one is answering a different question. Every measure can be
+    computed on two graphs: the <strong>undirected giant component</strong> (323 villains, treating a
+    link either direction as a connection) and the <strong>full directed network</strong> (370
+    villains, following Wikipedia's links exactly as written). Use the Measure and Scope switches
+    together to compare.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="centrality-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Measure</span>
+      <div class="arrow-toggle" id="centrality-metric-toggle" role="group" aria-label="Which centrality measure to display">
+        <button type="button" id="centrality-btn-degree" class="arrow-toggle-btn is-active" aria-pressed="true">Degree</button>
+        <button type="button" id="centrality-btn-closeness" class="arrow-toggle-btn" aria-pressed="false">Closeness</button>
+        <button type="button" id="centrality-btn-harmonic" class="arrow-toggle-btn" aria-pressed="false">Harmonic</button>
+        <button type="button" id="centrality-btn-betweenness" class="arrow-toggle-btn" aria-pressed="false">Betweenness</button>
+        <button type="button" id="centrality-btn-pagerank" class="arrow-toggle-btn" aria-pressed="false">PageRank</button>
+      </div>
+      <p class="network-note" id="centrality-definition-box">
+        <span class="tag tag-scope-undirected" id="centrality-graph-badge">Undirected giant component</span>
+        <span id="centrality-definition-text"></span>
+      </p>
+    </div>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Scope</span>
+      <div class="arrow-toggle" id="centrality-scope-toggle" role="group" aria-label="Which graph the measure is computed on">
+        <button type="button" id="centrality-scope-undirected-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Undirected</button>
+        <button type="button" id="centrality-scope-directed-btn" class="arrow-toggle-btn" aria-pressed="false">Directed</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    The top 15 by the selected measure, on the left; the same villains sized and colored on the
+    network, on the right (the rest of the 323-villain giant component sits dim in the background so
+    the shape stays stable across measures). Click a name — in the list or on the network — to inspect
+    that villain, including a null-model comparison where one was computed.
+  </p>
+
+  <div class="explorer-stage">
+    <ol class="rank-list" id="centrality-rank-list" aria-label="Top 15 villains by the selected measure"></ol>
+    <div class="chart-box chart-box-tall" id="centrality-network" role="img" aria-label="Marvel supervillain giant-component network, sized and colored by the selected centrality measure"></div>
+  </div>
+
+  <div id="centrality-inspector" class="inspector" aria-live="polite">
+    <p class="inspector-empty">Click a villain above to inspect their numbers.</p>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Values computed once, offline, in <code>analysis/build_week3_villains.py</code> — every measure in
+    both scopes with NetworkX: undirected variants on the giant component, directed variants on the
+    full graph (degree as in+out total, closeness/harmonic following arrows outward), PageRank
+    (&alpha;&nbsp;=&nbsp;0.85) both ways — and loaded frozen from
+    <code>data/week3/week3_villains_summary.json</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="directed-undirected">
+
+  <div class="section-head">
+    <h2>Directed vs. undirected: it depends which way you look</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Wikipedia links have a direction, and treating the network as undirected throws that away. Hulk's
+    article is linked <em>from</em> 58 other villains' pages but itself links <em>out to</em> only
+    <span class="formula" id="dvu-spidey-out"></span> — a huge asymmetry that changes the answer once
+    "importance" has to follow arrows.
+  </p>
+  <p>
+    Recomputing betweenness with arrows respected — a shortest path only counts if it can actually be
+    walked in the link direction — reshuffles the ranking. Norman Osborn overtakes Hulk for the top
+    spot, and three specialists surge: Ultron (9 &rarr; 5), Super-Adaptoid (13 &rarr; 6) and Thunderbolt
+    Ross (43 &rarr; 10):
+  </p>
+
+  <div class="figure-grid cols-2">
+    <div>
+      <p style="font-weight:600;color:var(--text);margin:0 0 8px;">Undirected betweenness rank &rarr; directed betweenness rank</p>
+      <ol class="rank-list" id="dvu-betweenness-list" aria-label="Villains whose betweenness rank changes most between undirected and directed"></ol>
+    </div>
+    <div>
+      <p style="font-weight:600;color:var(--text);margin:0 0 8px;">PageRank surfaces villains outside the in-degree top 10</p>
+      <ol class="rank-list" id="dvu-pagerank-list" aria-label="Villains ranked highly by PageRank but not by raw in-degree"></ol>
+    </div>
+  </div>
+
+  <p>
+    That second list is PageRank's actual mechanism showing through: Hulk links out to only
+    <span class="formula" id="dvu-spidey-out-2"></span> villains, so each one inherits an unusually
+    large slice of his vote — which is how villains like Thunderbolt Ross (PageRank #5 against an
+    in-degree rank of #16), the Beyonder and Dracula outrank villains with a higher raw in-degree.
+  </p>
+
+  <div class="callout">
+    <strong>Reading this right:</strong> neither ranking is "more correct" — they're answers to
+    different questions. Undirected betweenness asks who bridges the underworld treating every mention
+    as mutual; directed betweenness asks who bridges it exactly as written, link by link.
+  </div>
+
+</article>
+
+<article class="post wide" id="six-degrees">
+
+  <div class="section-head">
+    <h2>Six Degrees of Marvel Villainy</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    Pick any two villains from the 323-villain giant component (the other 47 sit outside it — see Week
+    2) and find the shortest chain between them. Switch between treating links as mutual or following
+    them exactly as written; the two modes can disagree, including about whether a path exists at all.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="six-degrees-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 320px;">
+      <span class="hero-search-label">From</span>
+      <div class="hero-search-row">
+        <input id="sixdeg-source-input" class="search-input" type="search" list="sixdeg-character-list" placeholder="Type a name…" aria-label="Source villain">
+      </div>
+    </div>
+    <div class="hero-search" style="flex:1 1 320px;">
+      <span class="hero-search-label">To</span>
+      <div class="hero-search-row">
+        <input id="sixdeg-target-input" class="search-input" type="search" list="sixdeg-character-list" placeholder="Type a name…" aria-label="Target villain">
+        <button type="button" id="sixdeg-swap-btn" class="btn" title="Swap source and target" aria-label="Swap source and target">&#8646;</button>
+      </div>
+    </div>
+    <datalist id="sixdeg-character-list"></datalist>
+  </div>
+
+  <div class="explorer-controls" style="margin-top:12px;">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Mode</span>
+      <div class="arrow-toggle" id="sixdeg-mode-toggle" role="group" aria-label="Directed or undirected path-finding">
+        <button type="button" id="sixdeg-mode-undirected-btn" class="arrow-toggle-btn is-active" aria-pressed="true">Undirected</button>
+        <button type="button" id="sixdeg-mode-directed-btn" class="arrow-toggle-btn" aria-pressed="false">Directed</button>
+      </div>
+      <p class="network-note" id="sixdeg-mode-definition">
+        Treat connections as mutual when finding paths.<br>
+        Click a node to set "From"; right-click a node to set "To".
+      </p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    The network below colors every villain by BFS distance from the source (0, 1, 2, 3…); once a
+    target is chosen, the shortest path between them animates in and the rest of the network fades
+    back. Everything here is computed live in your browser from the raw villains edge list — a single
+    BFS on a 323-node graph is effectively instant.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="sixdeg-network" role="img" aria-label="Marvel supervillain giant-component network colored by BFS distance from the selected source villain, with the shortest path to the target highlighted"></div>
+    <div id="sixdeg-stats" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Choose a source villain above.</p>
+    </div>
+  </div>
+
+  <div class="legend-grid" id="sixdeg-legend"></div>
+
+  <div id="sixdeg-path-panel" class="network-note" style="margin-top:16px;" aria-live="polite"></div>
+
+  <figcaption class="explorer-caption">
+    Villain list, positions and adjacency all come from
+    <code>data/Marvel_Comics_supervillains/</code>; the layout coordinates come from the same seeded
+    <code>spring_layout</code> precomputed in <code>analysis/build_week3_villains.py</code> that every
+    network view on this page reuses, so the shape stays stable as you explore.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="fragmentation">
+
+  <div class="section-head">
+    <h2>Who holds the underworld together?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    High centrality and structural importance aren't automatically the same thing — a villain can rack
+    up connections without their removal actually breaking anything. To test it directly: remove
+    villains one at a time, in order of degree, in order of betweenness, or at random, and watch the
+    giant component shrink.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="fragmentation-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Removal strategy</span>
+      <div class="arrow-toggle" id="frag-strategy-toggle" role="group" aria-label="Which order to remove villains in">
+        <button type="button" id="frag-btn-degree" class="arrow-toggle-btn is-active" aria-pressed="true">Highest degree first</button>
+        <button type="button" id="frag-btn-betweenness" class="arrow-toggle-btn" aria-pressed="false">Highest betweenness first</button>
+        <button type="button" id="frag-btn-random" class="arrow-toggle-btn" aria-pressed="false">Random</button>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Playback</span>
+      <div class="hero-search-row">
+        <button type="button" id="frag-play-btn" class="btn">Play</button>
+        <button type="button" id="frag-step-btn" class="btn">Step</button>
+        <button type="button" id="frag-reset-btn" class="btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slider-row" style="margin-top:14px;">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">removed =</span>
+    <input type="range" id="frag-scrubber" min="0" max="322" step="1" value="0" aria-label="Number of villains removed">
+    <span class="slider-value" id="frag-scrubber-value">0</span>
+  </div>
+
+  <p class="explorer-hint">
+    Precomputed offline for every strategy, all 323 removal steps — the browser only plays the numbers
+    back and redraws. The chart shows all three strategies at once for comparison; the network shows
+    the currently-selected strategy, with removed villains faded out.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="frag-network" role="img" aria-label="Marvel supervillain giant-component network with progressively removed villains faded out"></div>
+    <div class="chart-box" id="frag-chart" role="img" aria-label="Giant component size as villains are removed, for all three strategies"></div>
+  </div>
+
+  <ul class="test-readout" id="frag-readout"></ul>
+
+  <div class="callout" id="frag-summary-callout"></div>
+
+  <figcaption class="explorer-caption">
+    Removal orders and the resulting giant-component size at every step come from
+    <code>fragmentation</code> in <code>data/week3/week3_villains_summary.json</code>, computed once
+    offline.
+  </figcaption>
+</figure>
+
+<a class="post-card" href="week-3-save-game-villains.html" style="margin:8px 0 32px;">
+  <span class="week">Interactive game · same 370-villain network</span>
+  <h3>Save the Supervillain Network &rarr;</h3>
+  <p>A hero is taking villains offline. You get three attempts to identify the villains whose removal
+  fragments the network the most — then see how your picks measure up against the real degree,
+  betweenness and random-removal numbers above.</p>
+</a>
+
+<article class="post wide" id="cliques">
+
+  <div class="section-head">
+    <h2>The tightest circles</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+  <p>
+    A clique is a group where <em>everyone</em> is directly connected to <em>everyone else</em> — for
+    k members, that's k(k&minus;1)/2 links, all of them present. A <strong>maximal</strong> clique is
+    one that can't be grown any further: no other villain is connected to every single member.
+    NetworkX's <code>find_cliques()</code> only ever returns maximal cliques, so picking "4-cliques"
+    below means groups that max out at exactly 4 — never a 4-member slice carved out of a bigger group
+    (a slice like that could always be grown back, so it would never come back as its own maximal
+    clique).
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="clique-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Clique size</span>
+      <div class="arrow-toggle" id="clique-size-toggle" role="group" aria-label="Which maximal-clique size to highlight"></div>
+      <p class="search-status" id="clique-count-readout"></p>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Every maximal clique of the selected size is highlighted at once, in the same color; hover or click
+    one in the list to bring just that clique forward. The rest of the giant component stays visible,
+    dimmed, for context.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="chart-box chart-box-tall" id="clique-network" role="img" aria-label="Marvel supervillain giant-component network with the selected maximal cliques highlighted"></div>
+    <ol class="rank-list" id="clique-list" aria-label="Maximal cliques of the selected size"></ol>
+  </div>
+
+  <div id="clique-inspector" class="inspector" aria-live="polite">
+    <p class="inspector-empty">Hover or click a clique to see its members.</p>
+  </div>
+
+  <figcaption class="explorer-caption">
+    Maximal cliques enumerated once offline with <code>networkx.find_cliques()</code> on the undirected
+    giant component, stored in <code>data/week3/week3_villains_summary.json</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>What the measurements show</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 3 navigation">&uarr;</a>
+  </div>
+
+  <p><strong>Observed:</strong></p>
+  <ul>
+    <li>Degree, closeness, harmonic and betweenness agree on a core of six villains in all four
+      top-10s (Hulk, Norman Osborn, Venom, Deadpool, Black Cat, Apocalypse) — but disagree below that,
+      about who sits at the top: Norman Osborn owns closeness, harmonic, directed degree and directed
+      betweenness, while Hulk only owns raw degree and undirected betweenness.</li>
+    <li>Against 200 degree-preserving shuffles, Deadpool's betweenness (z&nbsp;&asymp;&nbsp;4.3),
+      Purple Man's (z&nbsp;&asymp;&nbsp;4.2) and Hulk's (z&nbsp;&asymp;&nbsp;3.9) all sit far above what
+      their degree alone predicts — genuine brokers, not degree artifacts; no shuffled network in 200
+      draws produced a higher betweenness for any of them. Norman Osborn's (z&nbsp;&asymp;&nbsp;2.6)
+      is more above-the-null than extreme. The closeness nulls point the other way: Hulk's and Norman
+      Osborn's real closeness sits <em>below</em> the shuffle mean (z&nbsp;&asymp;&nbsp;&minus;7.1 and
+      &minus;5.8, extreme 200/200) — their link counts come from a tight local cluster, so shuffled
+      networks spread their degree around and get <em>closer</em> to everyone faster.</li>
+    <li>Removing Purple Man alone — matching <em>neither</em> the top-degree (Hulk) nor the
+      top-betweenness (also Hulk) character — fragments the giant component more than removing anyone
+      else: 323 villains drop to 317, splitting off 2 extra villains (3 pieces total, a 1.5% shrink),
+      and it's the network's most extreme broker under the null (z&nbsp;&asymp;&nbsp;4.2) despite
+      being nowhere near the degree top. The effect itself is modest — the giant has 45 articulation
+      points among its 323 villains, and taking the top 5 by degree or betweenness only shaves it to
+      310 — but who it is <em>doesn't match either centrality ranking</em>, the one finding that most
+      cleanly separates "structurally load-bearing" from "merely famous."</li>
+    <li>The largest cliques are all 6-member, five of them, all drawn from the same Spider-Man
+      rogue-gallery core (Black Cat, Eddie Brock, Mysterio, Norman Osborn, Tinkerer, Venom present in
+      every one) — a real, nameable shared neighborhood, visible from the villain names alone without
+      needing any team-affiliation data this dataset doesn't have.</li>
+    <li>This underworld is a looser network than its heroes counterpart: diameter 10 against the hero
+      network's 6, average shortest path 3.55 against 2.67, and a 6-clique against the heroes' 8.
+      Fewer shared-neighborhood connections per villain means longer chains.</li>
+  </ul>
+
+  <p><strong>Interpretation:</strong></p>
+  <p>
+    Different centrality measures are not competing estimates of one true "importance" — they are
+    different, equally valid questions, and a network with a heavy-tailed degree distribution will
+    always show large disagreements between them precisely where that distribution is most extreme
+    (its handful of hubs). Directedness is not a footnote here: it hands the crown to Norman Osborn,
+    because Wikipedia's own linking behavior is itself asymmetric (see Hulk's 11 outgoing links against
+    58 incoming). And the network's biggest structural weakness is its own villain — Purple Man —
+    invisible in the degree and PageRank rankings until you a) ask about shortest paths in edge
+    direction or b) actually delete him.
+  </p>
+
+  <p><strong>Limitations:</strong></p>
+  <ul>
+    <li>This is still a citation network built from one encyclopedia's editorial choices, not the
+      comics' actual social structure — an untouched villain with a short article will always look
+      structurally unimportant here regardless of their role in the fiction.</li>
+    <li>Null-model z-scores test against a degree-preserving shuffle specifically — they say a value
+      is unusual <em>given the degree sequence</em>, not unusual in any absolute sense, and a
+      heavy-tailed degree sequence already constrains how assortative or disassortative the network
+      could possibly be.</li>
+    <li>No team or decade attribute data was added for this analysis — the clique section's "Spider-Man
+      rogue gallery" label is a read of the villain names, not a tested homophily claim.</li>
+    <li>43 of the 370 villains are complete isolates — no link in or out, 12% of the network — all
+      structurally invisible to every measure above; they only exist in the node list.</li>
+  </ul>
+
+  <div class="callout">
+    📎 Reproducing this: every number above comes from <code>analysis/build_week3_villains.py</code>,
+    run against the same frozen <code>data/Marvel_Comics_supervillains/</code> crawl the Week 2
+    supervillains post used, writing <code>data/week3/week3_villains_summary.json</code>. The
+    centrality, fragmentation and clique interactives read that file directly; the Six Degrees explorer
+    is the one piece that recomputes live, straight from the raw edge list, since it has to answer an
+    arbitrary villain pair chosen in the browser.
+  </div>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data: frozen Marvel Comics
+    supervillains crawl (Wikipedia, 2026-09-13) via
+    <code>data/Marvel_Comics_supervillains/</code> · analysis: NetworkX + stdlib, code in
+    <code>analysis/build_week3_villains.py</code>; the Six Degrees explorer recomputes live in the
+    browser, every other figure reads the frozen
+    <code>data/week3/week3_villains_summary.json</code>
+  </div>
+</footer>
+
+<script src="week3-villains.js"></script>
+</body>
+</html>
