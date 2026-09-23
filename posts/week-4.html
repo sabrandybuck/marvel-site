@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 4 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 4: Communities, traditions &amp; the backbone — The Web of Heroes</title>
+  <meta name="description" content="Louvain vs Infomap on 1,444 philosophers, the question of which tradition Aristotle is really in, a disparity-filter backbone that comes apart at α ≈ 0.16, and what the weights change — with NMI wherever two methods disagree.">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
@@ -22,27 +23,390 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 4</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 4 · Communities, traditions &amp; backbones</div>
+  <h1>Nine tribes, sixty-six schools, and the philosopher holding the backbone</h1>
+  <p class="subtitle">
+    This week the course playground handed us a new network — 1,444 philosophers born before
+    1900, linked by Wikipedia citations — and four questions about community structure. We ran two
+    community algorithms and made them fight, asked a 2,300-year-old node which tradition he
+    belongs to, filtered the network down to its statistically irreplaceable backbone and watched
+    the giant component come apart, and checked what the weights were doing all along.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#louvain-infomap">Louvain vs Infomap</a>
+    <a href="#aristotle">Which tradition is Aristotle in?</a>
+    <a href="#backbone">The backbone</a>
+    <a href="#weighted">Weighted vs unweighted</a>
+    <a href="#conclusion">Conclusion</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>A different network, same discipline</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    For Weeks 1–3 we mined Marvel superheroes. This week the course's shared playground released a
+    frozen crawl of <strong>1,444 philosophers</strong> on English Wikipedia — everyone in the
+    seven "list of philosophers born in&nbsp;…" century lists up to the end of the 19th century —
+    with 11,135 directed article-to-article links, each carrying its count of repeated links as a
+    weight. Each philosopher also carries metadata: the era list they appear in and any of
+    Wikipedia's subfield lists they're also on (metaphysicians, logicians, ethicists …).
+  </p>
+  <p>
+    Everything below runs on the same preprocessing: treat links as mutual (a citation made in
+    either direction connects two thinkers), sum the two directions' weights, and work on the
+    giant component of that undirected weighted network — 1,374 philosophers and 9,139 edges. The
+    remaining 70 sit outside it, unanchored. Every number and figure was computed once, offline,
+    in <code>analysis/build_week4.py</code> (NetworkX, python-igraph's Infomap, scikit-learn for
+    NMI) and frozen into <code>data/philosophers/week4_summary.json</code> — the browser only
+    looks numbers up and draws them.
+  </p>
+
+  <ul class="stats-grid" id="intro-stats">
+    <li class="stat-card"><span class="stat-label">Giant component</span><span class="stat-value">1,374 of 1,444</span></li>
+    <li class="stat-card"><span class="stat-label">Louvain → communities</span><span class="stat-value">9</span></li>
+    <li class="stat-card"><span class="stat-label">Infomap → modules</span><span class="stat-value">67</span></li>
+    <li class="stat-card"><span class="stat-label">NMI between them</span><span class="stat-value">0.613</span></li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="louvain-infomap">
+
+  <div class="section-head">
+    <h2>Louvain vs Infomap: who tells the better history of philosophy?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    Same network, two objective functions, two histories. <strong>Louvain</strong> maximizes
+    modularity and finds <strong>9 communities</strong> of 4–283 philosophers.
+    <strong>Infomap</strong> minimizes the map equation and finds <strong>67 modules</strong> —
+    its ten largest are shown right, the remaining 57 catch the long tail of small, very
+    internally-coherent schools. Their agreement (NMI = 0.613) is real but partial, and the
+    disagreements are exactly where the history of philosophy gets interesting.
+  </p>
+
+</article>
+
+<figure class="wide-figure" id="alluvial-figure">
+  <img src="../assets/week4/week4_louvain_infomap_alluvial.png"
+       alt="Alluvial diagram of Louvain's nine philosopher communities on the left against Infomap's sixty-seven modules on the right, ribbons showing shared members and famous philosophers labelling the big blocks">
+  <figcaption>
+    Where Louvain and Infomap agree — and where they don't. Left: Louvain's 9 communities
+    (labelled with their most famous members). Right: Infomap's 67 modules (the ten largest
+    labelled). Ribbon width = shared philosophers; ribbon colour = the Louvain community it
+    starts from. Both produced offline by <code>analysis/build_week4.py</code> from
+    <code>data/philosophers/week4_summary.json</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="louvain-infomap-2">
+
+  <p>
+    Look at what each method's groups <em>are</em>. Louvain's nine communities are, almost without
+    exception, <strong>centuries</strong>:
+
+    <ol class="rank-list">
+      <li>283 members, 215 of them from the 19th century — Meinong, Schopenhauer, Freud, Bruno Bauer, Kierkegaard
+      <li>251 members, mostly 17th–18th — Descartes, Newton, Spinoza, Adam Smith, Comte
+      <li>211 members, mostly 11th–14th and 1st–10th — Al-Farabi, Al-Ghazali, Al-Kindi, Proclus, Alexander of Aphrodisias
+      <li>158 members, the Latin Christian middle — Augustine, Boethius, Aquinas, Ockham, Erasmus
+      <li>149 members, mostly BC — Plato, Socrates, Heraclitus, the Stoics, Plotinus
+      <li>147 members, almost all 19th — Russell, Frege, Peirce, James, Dewey, Carnap
+      <li>96, 75 and 4 stragglers — the last containing an entire Chinese cluster (Confucius, Laozi, Zhu Xi)
+    </ol>
+  </p>
+  <p>
+    That reading is visible in the metadata: Louvain's partition aligns with the century-bucket
+    <code>era</code> labels at purity <strong>0.576</strong> — nearly six philosophers in ten sit
+    in a community whose majority era matches their own. Infomap hits
+    <strong>0.686</strong> — but it reaches that by doing the opposite thing: instead of grouping
+    by century, its fine modules purify each era from <em>inside</em>. Its modules are
+    recognizably <strong>schools</strong>:
+  </p>
+  <ul class="rank-list">
+    <li>Hume − Adam Smith − George Berkeley (36) — the Scottish Enlightenment</li>
+    <li>Marx − Engels − Bruno Bauer − Lenin (30) — the Hegelian left</li>
+    <li>William James − Dewey − Peirce (29) — pragmatism</li>
+    <li>Husserl − Brentano (28) — the phenomenology seedbed</li>
+    <li>Averroes − Avicenna − Al-Farabi − Al-Ghazali (52) — the falsafa</li>
+    <li>Kant − Schopenhauer − Spinoza − Durkheim (143) — the one big mixed block, which we return to below</li>
+  </ul>
 
   <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+    <strong>Our answer:</strong> Infomap tells the better history of philosophy, in the same way
+    good intellectual history is written — in <em>schools, movements and correspondence networks</em>,
+    not in centuries. In network terms the trade-off is a classical one. Modularity suffers from
+    the <a href="https://www.pnas.org/doi/10.1073/pnas.0605965104" target="_blank" rel="noopener">resolution
+    limit</a>: a school that is internally tight to its members but weakly wired to everything else —
+    a 30-node Hegelian left — is below modularity's merging threshold next to a 283-node 19th-century
+    super-community, so Louvain swallows it. The map equation's flow-based objective has no such
+    threshold: a module pays for itself whenever a random walker spends measurably more time inside
+    it than its size would predict, so it happily keeps 57 modules alive in the sparse tail —
+    exactly where the small, distinctive schools live. The cost of that sensitivity: one in six
+    philosophers ends up in a module too tiny to mean much (38 of Infomap's 67 modules have
+    fewer than 12 members, versus Louvain's clean 9). Louvain tells the textbook's history,
+    Infomap tells the citation network's — and it's no coincidence that ours matches the
+    years the module usually spans. A school is contemporaneous; a century is not a mechanism.
   </div>
 
-  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+
+<article class="post wide" id="aristotle">
+
+  <div class="section-head">
+    <h2>Which tradition is Aristotle really in?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    Aristotle is the most-connected node in the network: 300 link-partners in the giant component
+    (521 counting weight). Louvain files him under the 211-member "ancient &amp; Islamic
+    commentary" community. That is a textbook answer. His links tell a different one:
+  </p>
+  <ul class="rank-list">
+    <li>111 of his 300 neighbours sit in his own community — Alexander of Aphrodisias, Simplicius, Philoponus, Themistius, Al-Farabi, Avicenna, Averroes: the <em>commentators</em></li>
+    <li>60 point into the ancient Greek isle — Plato, Socrates, the Stoics, Diogenes Laertius, Epicurus</li>
+    <li>45 into the Latin Christian world — Augustine, Boethius, Aquinas, Erasmus</li>
+    <li>34 into early modernity — Descartes, Newton, J.S. Mill, Comte</li>
+    <li>31 into the German century — Kant, Hegel, Husserl, Brentano, Heidegger, Lenin</li>
+    <li>17 into the analytic/pragmatist camp — Russell, Frege, Peirce, Dewey</li>
+    <li>2 into the Chinese cluster</li>
+  </ul>
+  <p>
+    His links touch seven of Louvain's nine communities. No other node in the network does that.
+    The figure below draws every one of those 300 links (gray = links between his neighbours)
+    coloured by the community of the philosopher on the other end.
+  </p>
+
+</article>
+
+<figure class="wide-figure" id="aristotle-figure">
+  <img src="../assets/week4/week4_aristotle_ego.png"
+       alt="Aristotle's ego network: 300 neighbours arranged in a circle around him, links coloured by the Louvain community of the neighbour, famous neighbours labelled">
+  <figcaption>
+    Aristotle's 300 links, coloured by the other endpoint's Louvain community (legend gives the
+    community's neighbour count and famous members; node size scales with degree). Computed in
+    <code>analysis/build_week4.py</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="aristotle-2">
+
+  <p>
+    For a second, sharper instrument we ran <strong>k-clique communities</strong> over the giant
+    component and collected every k-clique community (k&nbsp;=&nbsp;5) that contains him. Six
+    survive, and one of them is a 467-node blob that simply says "Aristotle is, overlappingly, friends with more
+    or less everyone." The other five are the money result — each of them is a <em>tradition
+    hand him down</em>, and no two are the same tradition:
+  </p>
+  <ul class="rank-list">
+    <li><strong>The 12th-century translation effort (9)</strong> — Calcidius, Boethius, Adelard of Bath, William of Conches, Thierry of Chartres, Anselm, John of Salisbury: the portal through which Aristotle (and via him Plato) reentered Latin Europe</li>
+    <li><strong>Medieval logic (8)</strong> — Boethius, Albert of Saxony, Buridan, Oresme, Bradwardine, Marsilius of Inghen, Ockham</li>
+    <li><strong>Persian falsafa (6)</strong> — Al-Farabi, Avicenna, Mir Damad, Mulla Sadra, Jamal al-Din al-Afghani</li>
+    <li><strong>Renaissance heterodoxy (5)</strong> — Aquinas, Averroes, Pomponazzi, Vanini</li>
+    <li><strong>Phenomenology (5)</strong> — Husserl, Heidegger, Scheler, Nicolai Hartmann</li>
+  </ul>
+
+  <div class="callout">
+    <strong>The argument.</strong> "Which tradition is Aristotle really in" is a trick question,
+    and the network agrees. Two lenses, two answers, one conclusion: the Louvain citation-weight
+    answer is the <em>commentary tradition</em> (his articles' densest co-citation web is Late
+    Antique and Islamic — Alexandrian commentators, falsafa, and the scholastics citing them), and
+    the k-clique list says his membership is <em>plural</em> by construction: he is a articulation
+    point of the network, in the technical sense — every tradition reaches modernity <em>through</em>
+    him, so every tradition's clique contains him. In network terms Aristotle isn't in a tradition,
+    he <strong>is</strong> a one-node school whose eventual members keep disagreeing with each other
+    about what he said.
+  </div>
+
+</article>
+
+<article class="post wide" id="backbone">
+
+  <div class="section-head">
+    <h2>The backbone: filtering 9,139 edges to the ones that matter</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    Weights are counts of repeated links — but which edges are carrying <em>real</em> weight and
+    which are just noise? The <a href="https://www.pnas.org/doi/10.1073/pnas.0807047105"
+    target="_blank" rel="noopener">disparity filter</a> (Serrano, Boguñá &amp; Vespignani, 2009)
+    asks, for every node, whether its share <em>p</em><sub>ij</sub> of its total outgoing link
+    weight concentrated on one neighbour could plausibly arise if its strength were spread
+    uniformly at random over its <em>k</em> links. The tail probability is
+    α<sub>ij</sub>&nbsp;=&nbsp;(1&nbsp;−&nbsp;<em>p</em><sub>ij</sub>)<sup>k−1</sup>; keep an edge
+    if it is significant from <em>either</em> endpoint at level α, and watch what survives.
+  </p>
+
+</article>
+
+<figure class="wide-figure" id="backbone-figure">
+  <img src="../assets/week4/week4_backbone_panels.png"
+       alt="Backbone at alpha 0.2, 0.05 and 0.005 in three panels: one coherent giant, then a shattering network of fragments, then six-node clusters; below, a curve of giant component size against alpha with the critical alpha and the last piece annotated">
+  <figcaption>
+    Top: the disparity-filter backbone at three significance levels — α = 0.2 (1,623 edges, one
+    giant of 871), α = 0.05 (384 edges, giant down to 130), α = 0.005 (119 edges, the largest
+    remaining piece has 6 members). Grey dots ring the outside: philosophers whose every backbone
+    link is gone. Bottom: the giant-component curve across the full α scan (tighter test to the
+    right). Computed with <code>analysis/build_week4.py</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="backbone-2">
+
+  <p>
+    The giant doesn't shatter at one dramatic moment — it <em>erodes</em>, fast. Scanning α from
+    loose to strict:
+  </p>
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">α = 0.20</span><span class="stat-value">giant 871 · 1,623 edges</span></li>
+    <li class="stat-card"><span class="stat-label">α = 0.16 — the break</span><span class="stat-value">giant 685, first under half</span></li>
+    <li class="stat-card"><span class="stat-label">α = 0.05</span><span class="stat-value">giant 130 · 384 edges</span></li>
+    <li class="stat-card"><span class="stat-label">α = 0.005</span><span class="stat-value">giant 6 · 119 edges</span></li>
+  </ul>
+
+  <p>
+    <strong>The break is at α ≈ 0.16.</strong> At α = 0.165 the largest connected piece still holds
+    707 philosophers; at α = 0.16 it holds 685 — the first moment no single backbone spans half the
+    network. Around that crossing the pieces fall away fast: giant 327 by α = 0.08, 130 by
+    α = 0.05, six by α = 0.005.
+  </p>
+
+  <p>
+    And the philosopher whose links keep it alive? Right up to the last few edges, the answer is
+    always: <strong>Aristotle</strong>. His backbone degree is 58 at α = 0.2 (Kant, second, has
+    35), 11 at α = 0.05 (next: Kant 9, Marx 8), and even at α = 0.005 — when the network above
+    has dissolved — he shares the capping 3-edge lead with Hegel and Marx. The last two
+    multi-node fragments of all:
+  </p>
+  <ol class="rank-list">
+    <li><strong>The Hegel → Marx cluster (6)</strong> — Hegel, Marx, Engels, Bruno Bauer, Hinrichs, Menéndez Pelayo. Its weakest load-bearing link is Bauer&nbsp;→&nbsp;Marx (11 repeated links; dies when α drops below ≈ 0.0035), and with it the last literarily-political structure goes.</li>
+    <li><strong>The doxographic tail (4)</strong> — Simon of Faversham, <strong>Aristotle</strong>, Heraclitus, Plutarch — held together by Aristotle&nbsp;→&nbsp;Heraclitus (13 repeated links, dies at ≈ 0.00052) and, <em>the single last connection standing anywhere in the whole network</em>, Heraclitus&nbsp;→&nbsp;Plutarch (17 repeated links, dies at ≈ 0.0001).</li>
+  </ol>
+
+  <div class="callout">
+    <strong>Reading it in network terms:</strong> the magnitude of the α<sub>ij</sub> for a
+    philosopher's links measures how much of that philosopher's own link budget each target
+    absorbs. Aristotle's are big spenders (521 total weighted links, spread over 300 targets as
+    the network's largest per-target commitments), so they stay statistically certain longer than
+    anyone else's. When the giant finally comes apart around α ≈ 0.16, the edges that survive are
+    overwhelmingly his — and the network's last heartbeat is a Plutarch–Heraclitus tie: the late
+    antique doxographers, cataloguing each other from a millennium away, are the final
+    statistically-irreplaceable thread in the history of philosophy.
+  </div>
+
+</article>
+
+<article class="post wide" id="weighted">
+
+  <div class="section-head">
+    <h2>Does the weighted network tell a different story?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    All of the community machinery so far used the weights. Throw them away — treat every repeated
+    and every single link identically — and Louvain finds 8 communities instead of 9. Between the
+    weighted and unweighted partitions, NMI = <strong>0.650</strong>: substantial agreement, far
+    from identity. And <strong>1,217 of the 1,374 philosophers (88.6%) end up in a different
+    Louvain community number</strong> when the weights vanish — though part of that is communities
+    being renumbered, which is why the figure below shows the actual pairwise membership flows:
+  </p>
+
+</article>
+
+<figure class="wide-figure" id="weighted-figure">
+  <img src="../assets/week4/week4_weighted_vs_unweighted.png"
+       alt="Alluvial diagram of Louvain communities computed with weights on the left and without weights on the right">
+  <figcaption>
+    Louvain with weights (left) vs without (right), ribbons = shared philosophers. The broad
+    ribbons are stable sovereignty — the 19th-century German block, the early-modern block and the
+    Chinese cluster barely move — while the middle of the diagram is where the weights do their
+    work. Generated by <code>analysis/build_week4.py</code>.
+  </figcaption>
+</figure>
+
+<article class="post wide" id="weighted-2">
+
+  <p>
+    The pattern in the moves is not random: <strong>weights amplify polarization within
+    traditions</strong>. The clearest example is the Islamic golden age. Unweighted, Louvain puts
+    Al-Farabi, Al-Ghazali and Avicenna together in one 88-member community; weighted, the
+    falsafa keep their 52-member module <em>and</em> the ancient commentary tradition (Al-Kindi,
+    Alexander of Aphrodisias, Proclus) becomes a distinct partner — same overall neighbourhood,
+    finer subdivisions. Similarly, the 19th-century block splits by persuasion when weights
+    return: with the weights on, Aristotle's neighbours split cleanly by citation habit: the falsafa
+    (Al-Farabi, Al-Ghazali, Avicenna, Averroes) sit with Al-Kindi and Alexander of Aphrodisias and
+    Proclus in one 211-member commentary mega-community, and the enormous Plato–Plotinus
+    BC-and-commentary soup unweights apart
+  </p>
+
+  <div class="callout">
+    <strong>What the weights are:</strong> repeated links in a Wikipedia article — an author who
+    returns to the same colleague across the page. Those repeats are how philosophers actually
+    signal <em>who they were reading</em>. An unweighted network can see that Hume knew Smith;
+    only the weighted network can see that Hume's article <em>returns to</em> Smith eleven times
+    while visiting almost everyone else once. So: weighted Louvain tells the same broad eras (NMI 0.65 is
+    high), but draws the intra-era boundaries along who-cited-whom rather than
+    who-was-alive-when — which is, again, the Infomap story.
+  </div>
+
+</article>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>What we asked, what we found, what surprised us</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 4 navigation">&uarr;</a>
+  </div>
+  <p>
+    <strong>We asked</strong> whether two community algorithms tell the same history (they don't:
+    NMI 0.613, 9 tribes vs 67 schools, and the disagreement is modularity's resolution limit
+    working exactly as theory says); which tradition Aristotle is really in (all of them: his 300
+    links touch seven of nine communities, and his k-clique communities span the translation
+    movement, medieval logic, falsafa, Renaissance heterodoxy and phenomenology); where the
+    statistically irreplaceable backbone is (critical α ≈ 0.16, with Aristotle carrying the
+    most surviving backbone links at every stage until the very last edges and Heraclitus→Plutarch
+    the final link);
+    and whether the weights change the story (NMI 0.650 — the broad strokes survive, but the
+    weights re-draw the lines inside eras along citation lines).
+  </p>
+  <p>
+    <strong>What surprised us</strong> most was the ending of the backbone experiment. We expected
+    the final survivors to be a hub — Kant, maybe, whose links to 20th-century textbooks are
+    everywhere. Instead the network's very last standing structure is two islands: a 19th-century
+    Hegel-to-Marx cell, and a four-node cluster of <em>Aristotle, Heraclitus, Plutarch and a
+    14th-century Oxford scholastic</em> — a late-antique doxography book club, outliving every
+    modern school. The disparity filter doesn't find who is famous. It reports who certain other
+    people could not stop citing.
+  </p>
+  <p>
+    <strong>Caveats:</strong> this is a Wikipedia link network, which is a measure of present-day
+    attention as much as historical influence — 20th-century analytic philosophers central to that
+    attention economy are only partially represented here, since the roster is capped at
+    pre-1900 birth years. And α<sub>ij</sub> is computed per node versus that node's own link
+    strength, so ties between low-degree nodes (our ever-present leaf triangles near the end)
+    pass the significance bar trivially — which is why we read the backbone's final fragments
+    rather than its last stragglers.
+  </p>
+
+  <p><a class="back-link" href="../index.html">&larr; Back to all weeks</a></p>
 
 </article>
 </main>
 
 <footer>
   <div class="wrap">
-    Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    Built for DTU course 02805, Social Graphs and Interactions · philosophers data: the course
+    shared playground's frozen week-4 release (philosophers on English Wikipedia, born before
+    1900), computed in <code>analysis/build_week4.py</code>
   </div>
 </footer>
 
