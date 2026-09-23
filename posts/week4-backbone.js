@@ -260,6 +260,13 @@
       }
     }
 
+    function topHubs(k) {
+      var order = [];
+      for (var i = 0; i < n; i++) { if (aliveDeg[i] > 0) order.push(i); }
+      order.sort(function (a, b) { return aliveDeg[b] - aliveDeg[a]; });
+      return order.slice(0, k);
+    }
+
     function drawHubs() {
       var hubs = topHubs(5);
       hubsList.innerHTML = hubs.length
