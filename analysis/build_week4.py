@@ -597,6 +597,104 @@ def section3(H, name_of, report):
     return result
 
 
+def section3_interactive(H, name_of):
+    """Payload for the Week 4 backbone explorable: per-edge death thresholds,
+    a frozen spring layout, and the quest answer data. Death rule must match
+    backbone()/figure3 exactly: edge (u,v) is kept at alpha iff
+    (1-p_u)^(k_u-1) < alpha OR (1-p_v)^(k_v-1) < alpha, i.e. iff
+    min(disparities) < alpha -- with the exception that a degree-1 node's
+    single link is always kept (represented as death threshold 0)."""
+    giant_nodes = sorted(H.nodes())
+    id_of = {n: i for i, n in enumerate(giant_nodes)}
+
+    pos = nx.spring_layout(H, seed=SEED, iterations=50)
+    pos_arr = [[round(float(pos[n][0]), 5), round(float(pos[n][1]), 5)]
+               for n in giant_nodes]
+
+    edge_u, edge_v, edge_d, edge_w = [], [], [], []
+    seen = set()
+    leaf = {n for n in giant_nodes if H.degree(n) <= 1}
+
+    def death(u, v):
+        if u in leaf or v in leaf:
+            return 0.0  # either endpoint's single link is always kept
+        vals = []
+        for s, t in ((u, v), (v, u)):
+            k = H.degree(s)
+            wsum = sum(H[s][x]["weight"] for x in H.neighbors(s))
+            p = H[s][t]["weight"] / wsum
+            vals.append((1 - p) ** (k - 1))
+        return min(vals)
+
+    for u in giant_nodes:
+        nbrs = list(H.neighbors(u))
+        for v in nbrs:
+            key = (min(u, v), max(u, v))
+            if key in seen:
+                continue
+            seen.add(key)
+            edge_u.append(id_of[u]); edge_v.append(id_of[v])
+            edge_d.append(death(u, v))
+            edge_w.append(H[u][v]["weight"])
+
+    # sanity: the live payload must reproduce the static backbone() exactly
+    import bisect
+    ds = sorted(edge_d)
+    for alpha in (0.2, 0.16, 0.05, 0.01, 0.005):
+        live = sum(1 for d in edge_d if d < alpha)
+        ref = backbone(H, alpha).number_of_edges()
+        if live != ref:
+            raise SystemExit(f"payload mismatch at alpha={alpha}: {live} vs {ref}")
+    print(f"  payload cross-check vs backbone(): OK ({len(edge_u)} edges)")
+
+    # breaker evidence: backbone degree of the shortlist at the panel alphas
+    shortlist = ["Aristotle", "Immanuel Kant", "Georg Wilhelm Friedrich Hegel",
+                 "Plato", "Diogenes Laertius", "David Hume", "Thomas Aquinas",
+                 "Karl Marx", "Bertrand Russell", "Baruch Spinoza"]
+    hub_evidence = []
+    for a in PANEL_ALPHAS:
+        B = backbone(H, a)
+        degs = {i: B.degree(n) for i, n in enumerate(giant_nodes)}
+        order = sorted(range(len(giant_nodes)), key=lambda i: -degs[i])
+        hub_evidence.append({
+            "alpha": a,
+            "top": [{"name": name_of[giant_nodes[i]], "n": degs[i]}
+                    for i in order[:5]],
+        })
+
+    result = {
+        "node_names": [name_of[n] for n in giant_nodes],
+        "pos": pos_arr,
+        "edge_u": edge_u,
+        "edge_v": edge_v,
+        "edge_d": edge_d,
+        "edge_w": edge_w,
+        "answer": {
+            "half": len(giant_nodes) / 2,
+            "alpha": 0.16,          # first scan alpha where giant < half
+            "alpha_band_low": 0.165,   # giant still 707 here
+            "tolerance": 0.02,
+            "breaker": "Aristotle",
+            "hub_evidence": hub_evidence,
+            "final_fragments": {
+                "hegel_marx": ["Georg Wilhelm Friedrich Hegel", "Karl Marx",
+                               "Friedrich Engels", "Bruno Bauer",
+                               "Hermann Friedrich Wilhelm Hinrichs",
+                               "Marcelino Menéndez y Pelayo"],
+                "doxographic_tail": ["Simon of Faversham", "Aristotle",
+                                     "Heraclitus", "Plutarch"],
+            },
+            "last_links": [
+                {"edge": "Bruno Bauer -- Karl Marx", "w": 11, "dies": 0.0035},
+                {"edge": "Aristotle -- Heraclitus", "w": 13, "dies": 0.00052},
+                {"edge": "Heraclitus -- Plutarch", "w": 17, "dies": 0.0001,
+                 "note": "the last link standing anywhere in the network"},
+            ],
+        },
+    }
+    return result, giant_nodes
+
+
 def figure3(H, name_of, era_of, out_path):
     """Three backbone panels (node size = backbone degree) + giant-size curve."""
     fig = plt.figure(figsize=(15, 11))
@@ -775,6 +873,9 @@ def main():
     figure3(H, name_of, era_of, ASSETS_DIR / "week4_backbone_panels.png")
     print("  figure 3 done")
 
+    print("section 3 interactive payload ...")
+    s3i, giant_nodes = section3_interactive(H, name_of)
+
     print("section 4: weighted vs unweighted ...")
     s4, lw, lu, lab_w, lab_u = section4(H, name_of, report)
     figure4(H, lw, lu, lab_w, lab_u, name_of, ASSETS_DIR / "week4_weighted_vs_unweighted.png")
@@ -791,6 +892,7 @@ def main():
         "section1": s1,
         "section2": s2,
         "section3": s3,
+        "section3_interactive": s3i,
         "section4": s4,
     }
     SUMMARY_PATH.write_text(json.dumps(summary, indent=1, ensure_ascii=False))

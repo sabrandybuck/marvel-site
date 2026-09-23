@@ -245,22 +245,118 @@
     α<sub>ij</sub>&nbsp;=&nbsp;(1&nbsp;−&nbsp;<em>p</em><sub>ij</sub>)<sup>k−1</sup>; keep an edge
     if it is significant from <em>either</em> endpoint at level α, and watch what survives.
   </p>
+  <p>
+    The explorable below lets you <strong>run the filter yourself</strong>. Drag the α slider (log
+    scale) to tighten the significance test, and watch the network — all 1,374 philosophers, a
+    frozen precomputed layout — lose its edges one by one. Two things to find: the exact α at
+    which the giant component first spans less than half the network, and the philosopher whose
+    links are still carrying everything as it comes apart. <em>Spoilers live in the reveal panel
+    below — try the quests first.</em>
+  </p>
 
 </article>
 
-<figure class="wide-figure" id="backbone-figure">
-  <img src="../assets/week4/week4_backbone_panels.png"
-       alt="Backbone at alpha 0.2, 0.05 and 0.005 in three panels: one coherent giant, then a shattering network of fragments, then six-node clusters; below, a curve of giant component size against alpha with the critical alpha and the last piece annotated">
-  <figcaption>
-    Top: the disparity-filter backbone at three significance levels — α = 0.2 (1,623 edges, one
-    giant of 871), α = 0.05 (384 edges, giant down to 130), α = 0.005 (119 edges, the largest
-    remaining piece has 6 members). Grey dots ring the outside: philosophers whose every backbone
-    link is gone. Bottom: the giant-component curve across the full α scan (tighter test to the
-    right). Computed with <code>analysis/build_week4.py</code>.
+<figure class="wide-figure explorer" id="backbone-explorer">
+  <div class="explorer-controls">
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Jump to</span>
+      <div class="hero-search-row">
+        <button type="button" class="btn" data-bb-step="0.2">α = 0.2</button>
+        <button type="button" class="btn" data-bb-step="0.05">α = 0.05</button>
+        <button type="button" class="btn" data-bb-step="0.005">α = 0.005</button>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Playback</span>
+      <div class="hero-search-row">
+        <button type="button" id="bb-play-btn" class="btn">Play</button>
+        <button type="button" id="bb-reset-btn" class="btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slider-row" style="margin-top:14px;">
+    <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">α =</span>
+    <input type="range" id="bb-alpha-slider" min="0" max="1000" step="1" value="0"
+           aria-label="Disparity-filter significance level alpha on a log scale; right is tighter">
+    <span class="slider-value" id="bb-alpha-value">α = 1</span>
+  </div>
+
+  <p class="explorer-hint">
+    Left = every link passes the test; right = so strict that only a handful of statistically
+    irreplaceable links survive. Orange nodes = the five philosophers still carrying the most
+    surviving backbone links at your α — hover any node for its live count.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="network-box" style="position:relative;">
+      <canvas id="bb-canvas" style="width:100%;height:100%;display:block;border-radius:6px;"
+              role="img" aria-label="Philosopher network with edges disappearing as the disparity-filter significance level alpha tightens"></canvas>
+      <div id="bb-tooltip" style="display:none;position:absolute;pointer-events:none;background:var(--text);color:var(--bg);font-size:12.5px;line-height:1.45;padding:8px 11px;border-radius:8px;z-index:5;box-shadow:0 4px 18px rgba(0,0,0,.35);"></div>
+    </div>
+
+    <ul class="test-readout" id="bb-readout"></ul>
+
+    <div class="figure-grid cols-2">
+      <div class="inspector">
+        <p class="inspector-name" style="font-size:15px;">Quest 1 · find the breaking α</p>
+        <p style="font-size:13.5px;color:var(--text-dim);margin:0 0 12px;">
+          Slow down around the region where the largest piece fights for its majority, and lock in
+          your answer — you're aiming within ±&nbsp;0.02 of the true break.
+        </p>
+        <button type="button" id="bb-lock-btn" class="btn">Lock in α</button>
+        <p class="bb-msg" id="bb-quest1-msg"></p>
+      </div>
+      <div class="inspector">
+        <p class="inspector-name" style="font-size:15px;">Quest 2 · whose links break it?</p>
+        <div class="hero-search-row" style="margin-bottom:12px;">
+          <input id="bb-guess-input" class="search-input" type="search" list="bb-names"
+                 placeholder="Aristotle? Kant? someone else?"
+                 aria-label="Guess the philosopher whose links keep the giant alive">
+          <button type="button" id="bb-guess-btn" class="btn">Guess</button>
+        </div>
+        <p style="font-size:13.5px;color:var(--text-dim);margin:0 0 8px;">
+          Watch the top-5 survivors as α tightens — the answer is whoever outlasts them all.
+        </p>
+        <p class="bb-msg" id="bb-quest2-msg"></p>
+      </div>
+    </div>
+
+    <div class="inspector">
+      <p class="inspector-name" style="font-size:15px;">Still carrying links &mdash; live top 5</p>
+      <ol class="rank-list" id="bb-hubs"></ol>
+    </div>
+  </div>
+
+  <datalist id="bb-names"></datalist>
+  <p class="explorer-hint" id="bb-error" style="display:none;color:var(--accent);"></p>
+
+  <figcaption class="explorer-caption">
+    Edge death thresholds come from <code>section3_interactive</code> in
+    <code>data/philosophers/week4_summary.json</code>, computed once by
+    <code>analysis/build_week4.py</code> with the exact same union-rule disparity filter as the
+    static figure below (cross-checked at five values of α). Positions are one frozen spring
+    layout, so the shape never re-wiggles; the browser only filters edges, counts components and
+    redraws.
   </figcaption>
 </figure>
 
-<article class="post wide" id="backbone-2">
+<details class="callout" id="bb-reveal" style="cursor:pointer;">
+  <summary style="font-weight:600;">Reveal &mdash; the answer, and the three-panel figure</summary>
+  <div style="margin-top:14px;cursor:auto;">
+    <figure class="wide-figure" id="backbone-figure">
+      <img src="../assets/week4/week4_backbone_panels.png"
+           alt="Backbone at alpha 0.2, 0.05 and 0.005 in three panels: one coherent giant, then a shattering network of fragments, then six-node clusters; below, a curve of giant component size against alpha with the critical alpha and the last piece annotated">
+      <figcaption>
+        Top: the disparity-filter backbone at three significance levels — α = 0.2 (1,623 edges, one
+        giant of 871), α = 0.05 (384 edges, giant down to 130), α = 0.005 (119 edges, the largest
+        remaining piece has 6 members). Grey dots ring the outside: philosophers whose every backbone
+        link is gone. Bottom: the giant-component curve across the full α scan (tighter test to the
+        right). Computed with <code>analysis/build_week4.py</code>.
+      </figcaption>
+    </figure>
+
+    <article class="post wide" id="backbone-2" style="padding:0;border:none;">
 
   <p>
     The giant doesn't shatter at one dramatic moment — it <em>erodes</em>, fast. Scanning α from
@@ -301,9 +397,12 @@
     overwhelmingly his — and the network's last heartbeat is a Plutarch–Heraclitus tie: the late
     antique doxographers, cataloguing each other from a millennium away, are the final
     statistically-irreplaceable thread in the history of philosophy.
+    statistically-irreplaceable thread in the history of philosophy.
   </div>
 
-</article>
+    </article>
+  </div>
+</details>
 
 <article class="post wide" id="weighted">
 
@@ -410,5 +509,6 @@
   </div>
 </footer>
 
+<script src="week4-backbone.js"></script>
 </body>
 </html>

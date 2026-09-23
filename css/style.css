@@ -1532,3 +1532,10 @@ body.sg-body main.sg-shell {
 .sg-debrief-actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
 
 .sg-footer { border-top: 1px solid var(--sg-line); background: var(--sg-bg); color: var(--sg-text-dim); }
+
+/* ---- Week 4 backbone explorable: quest message states (design-system tokens only) ---- */
+.bb-msg { min-height: 1.2em; margin: 12px 0 0; font-size: 13.5px; color: var(--text-dim); }
+.bb-msg.is-right { color: #0ca678; }
+.bb-msg.is-wrong { color: var(--accent); }
+.stat-card.is-broken { border-color: var(--accent); }
+.stat-card.is-broken .stat-value { color: var(--accent); }
