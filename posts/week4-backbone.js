@@ -177,6 +177,19 @@
     function X(i) { return NX[i] * rectW; }
     function Y(i) { return rectH - NY[i] * rectH; }   // flip y (y up)
 
+    // Canvas text with a panel-coloured halo behind the glyphs, so labels
+    // stay readable where the dim edge mass crosses them.
+    function haloText(ctx, txt, x, y, font, color) {
+      ctx.font = font + " -apple-system, 'Segoe UI', Roboto, sans-serif";
+      ctx.textBaseline = "alphabetic";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(20, 22, 29, 0.85)";  // var(--bg-elevated), darkened
+      ctx.strokeText(txt, x, y);
+      ctx.fillStyle = color || "#e9eaee";          // var(--text)
+      ctx.fillText(txt, x, y);
+    }
+
     function draw() {
       var dpr = window.devicePixelRatio || 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -223,7 +236,7 @@
         ctx.fill();
       }
 
-      // top-5 living hubs
+      // highlight + label the living hubs
       var hubs = topHubs(5);
       for (i = 0; i < hubs.length; i++) {
         var h = hubs[i];
@@ -231,9 +244,7 @@
         ctx.fillStyle = COLOR_HUB;
         ctx.arc(X(h), Y(h), 5.2, 0, 6.283185);
         ctx.fill();
-        ctx.fillStyle = "#e9eaee";  // var(--text): hub names on the dark panel
-        ctx.font = "600 11px -apple-system, 'Segoe UI', Roboto, sans-serif";
-        ctx.fillText(short(names[h]), X(h) + 7, Y(h) + 4);
+        haloText(ctx, short(names[h]), X(h) + 7, Y(h) + 4, "700 13.5px");
       }
 
       // highlight + label Aristotle once the guess is solved
@@ -244,9 +255,7 @@
           ctx.fillStyle = COLOR_PIN;
           ctx.arc(X(ar), Y(ar), 7, 0, 6.283185);
           ctx.fill();
-          ctx.fillStyle = COLOR_PIN;
-          ctx.font = "700 12px -apple-system, 'Segoe UI', Roboto, sans-serif";
-          ctx.fillText("Aristotle \u2605", X(ar) + 10, Y(ar) - 8);
+          haloText(ctx, "Aristotle \u2605", X(ar) + 11, Y(ar) - 9, "700 15px", COLOR_PIN);
         }
       }
 
