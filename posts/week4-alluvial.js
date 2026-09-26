@@ -46,7 +46,10 @@
 
   var MIN_RIBBON = 3;   // draw_alluvial's min_ribbon
   var GAP = 2.0;        // block gap in member units (draw_alluvial's gap)
-  var BG = "#ffffff";
+  var BG = "transparent";      // figures sit on the page's dark theme
+  var INK = "#e9eaee";         // var(--text)
+  // dark halo behind SVG glyphs so they stay crisp over the ribbons
+  var TEXT_HALO = "paint-order:stroke;stroke:rgba(12,14,20,0.9);stroke-width:5px;stroke-linejoin:round;";
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -283,7 +286,6 @@
   var FONT_L = "22px -apple-system, 'Segoe UI', Roboto, sans-serif";
   var FONT_R = "18px -apple-system, 'Segoe UI', Roboto, sans-serif";
 
-  var INK = "#212529";
   var DIM_BLOCK = 0.12;
   var DIM_RIBBON = 0.06;
 
@@ -306,7 +308,7 @@
     var el = document.createElement("div");
     el.className = "alluvial-tip";
     el.style.cssText = "display:none;position:absolute;pointer-events:none;" +
-      "background:#212529;color:#f8f9fa;font-size:12px;line-height:1.5;" +
+      "background:var(--text,#e9eaee);color:var(--bg,#0e0f13);font-size:12px;line-height:1.5;" +
       "padding:8px 11px;border-radius:8px;z-index:6;" +
       "box-shadow:0 4px 18px rgba(0,0,0,.35);max-width:260px;";
     stage.appendChild(el);
@@ -451,6 +453,46 @@
       ribEls.push({ el: p, rb: rb });
     });
 
+    // ---- label layout: halo for legibility over the ribbons, and a two-sided
+    //      packing pass so the thin Infomap column's labels never overlap.
+    function addLabel(text, x, y, fontSize, anchor) {
+      var t = el("text", {
+        x: x, y: y,
+        "text-anchor": anchor, "font-size": fontSize,
+        "font-family": "-apple-system, 'Segoe UI', Roboto, sans-serif",
+        fill: INK,
+        style: TEXT_HALO
+      });
+      t.textContent = text;
+      gLabel.appendChild(t);
+      return t;
+    }
+    // pushes {desired, ...} items apart vertically; clamps within [lo, hi]
+    // by a second backward pass so the last label can't overflow.
+    function packLabels(items, minGap, lo, hi) {
+      var prev, i;
+      for (i = 0; i < items.length; i++) {
+        var it = items[i];
+        it.final = (i === 0 ? Math.max(it.desired, lo)
+                            : Math.max(it.desired, prev + minGap));
+        prev = it.final;
+      }
+      if (items.length && items[items.length - 1].final > hi) {
+        items[items.length - 1].final = hi;
+        for (i = items.length - 2; i >= 0; i--) {
+          items[i].final = Math.min(items[i].final, items[i + 1].final - minGap);
+        }
+      }
+      return items;
+    }
+    // right column labels (25 Infomap blocks ≥ 12 members crowd the tail)
+    var packR = scene.right.filter(function (b) { return b.h >= LAY.blockLabelMin; })
+      .map(function (b) {
+        return { b: b, desired: YOf(b.y + b.h / 2, unit) };
+      });
+    packLabels(packR, 24, LAY.padTop - 10, LAY.H - 40);
+    packR.forEach(function (it) { it.b.labelY = it.final; it.b.pushed = Math.abs(it.final - it.desired) > 5; });
+
     var blockEls = [];
     function addBlock(b, x, w, fontSize, anchor, labelled, textFn) {
       var rect = el("rect", {
@@ -462,14 +504,21 @@
       blockEls.push({ el: rect, b: b });
 
       if (labelled) {
-        var t = el("text", {
-          x: textFn.x, y: YOf(b.y + b.h / 2, unit) + fontSize * 0.34,
-          "text-anchor": anchor, "font-size": fontSize,
-          "font-family": "-apple-system, 'Segoe UI', Roboto, sans-serif",
-          fill: INK
-        });
-        t.textContent = textFn.text;
-        gLabel.appendChild(t);
+        addLabel(textFn.text, textFn.x,
+                 b.labelY !== undefined ? b.labelY + fontSize * 0.55
+                                        : YOf(b.y + b.h / 2, unit) + fontSize * 0.34,
+                 fontSize, anchor);
+        if (b.pushed) {
+          // leader from the label's anchored side to the block's centre
+          var line = el("line", {
+            x1: anchor === "start" ? LAY.xL1 + 4 : LAY.xR0 - 3,
+            y1: b.labelY,
+            x2: anchor === "start" ? LAY.xL1 + LAY.labelGap + 2 : LAY.xR0 - 2,
+            y2: YOf(b.y + b.h / 2, unit),
+            stroke: "rgba(154, 157, 170, 0.5)", "stroke-width": 1
+          });
+          gLabel.appendChild(line);
+        }
       }
     }
     scene.left.forEach(function (b) {
@@ -488,14 +537,13 @@
 
     // column titles
     columnTitleData().forEach(function (c) {
-      var t = el("text", {
-        x: c.x, y: 46, "text-anchor": "middle", "font-size": 30,
-        "font-weight": 600,
-        "font-family": "-apple-system, 'Segoe UI', Roboto, sans-serif",
-        fill: INK
-      });
-      t.textContent = c.text;
-      gLabel.appendChild(t);
+      addLabel(c.text, c.x, 46, 30, "middle");
+    });
+    // titles need the heavier weight
+    Array.prototype.slice.call(gLabel.children).forEach(function (t) {
+      if (t.getAttribute && +t.getAttribute("font-size") === 30) {
+        t.setAttribute("font-weight", 600);
+      }
     });
 
     svg.appendChild(gLabel);   // labels + titles sit on top, no pointer events

@@ -28,10 +28,10 @@
     window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   var COLOR_ALIVE = "rgba(76, 110, 245, 0.30)";   // accent-2 blue
-  var COLOR_NODE = "rgba(70, 74, 84, 0.60)";
+  var COLOR_NODE = "rgba(233, 234, 238, 0.55)";   // var(--text)-lit nodes on the dark panel
   var COLOR_ZOMBIE = "rgba(150, 153, 163, 0.25)";
   var COLOR_HUB = "#F76707";                       // accent-3 amber
-  var COLOR_PIN = "#c92a2a";
+  var COLOR_PIN = "#e6353a";                       // site accent red (var(--accent))
   var COLOR_FINAL = "#0ca678";                     // last links standing
 
   var LOG_MIN = -6;                // slider right end -> alpha = 1e-6
@@ -177,11 +177,24 @@
     function X(i) { return NX[i] * rectW; }
     function Y(i) { return rectH - NY[i] * rectH; }   // flip y (y up)
 
+    // Canvas text with a panel-coloured halo behind the glyphs, so labels
+    // stay readable where the dim edge mass crosses them.
+    function haloText(ctx, txt, x, y, font, color) {
+      ctx.font = font + " -apple-system, 'Segoe UI', Roboto, sans-serif";
+      ctx.textBaseline = "alphabetic";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(20, 22, 29, 0.85)";  // var(--bg-elevated), darkened
+      ctx.strokeText(txt, x, y);
+      ctx.fillStyle = color || "#e9eaee";          // var(--text)
+      ctx.fillText(txt, x, y);
+    }
+
     function draw() {
       var dpr = window.devicePixelRatio || 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, rectW, rectH);
+      // transparent canvas: the stage's var(--bg-elevated) panel shows through
+      ctx.clearRect(0, 0, rectW, rectH);
 
       // edges, batched in one path
       ctx.beginPath();
@@ -223,7 +236,7 @@
         ctx.fill();
       }
 
-      // top-5 living hubs
+      // highlight + label the living hubs
       var hubs = topHubs(5);
       for (i = 0; i < hubs.length; i++) {
         var h = hubs[i];
@@ -231,9 +244,7 @@
         ctx.fillStyle = COLOR_HUB;
         ctx.arc(X(h), Y(h), 5.2, 0, 6.283185);
         ctx.fill();
-        ctx.fillStyle = "#212529";
-        ctx.font = "600 11px -apple-system, 'Segoe UI', Roboto, sans-serif";
-        ctx.fillText(short(names[h]), X(h) + 7, Y(h) + 4);
+        haloText(ctx, short(names[h]), X(h) + 7, Y(h) + 4, "700 13.5px");
       }
 
       // highlight + label Aristotle once the guess is solved
@@ -244,16 +255,14 @@
           ctx.fillStyle = COLOR_PIN;
           ctx.arc(X(ar), Y(ar), 7, 0, 6.283185);
           ctx.fill();
-          ctx.fillStyle = COLOR_PIN;
-          ctx.font = "700 12px -apple-system, 'Segoe UI', Roboto, sans-serif";
-          ctx.fillText("Aristotle \u2605", X(ar) + 10, Y(ar) - 8);
+          haloText(ctx, "Aristotle \u2605", X(ar) + 11, Y(ar) - 9, "700 15px", COLOR_PIN);
         }
       }
 
       // hover ring
       if (hover >= 0) {
         ctx.beginPath();
-        ctx.strokeStyle = "rgba(33, 37, 41, 0.55)";
+        ctx.strokeStyle = "rgba(233, 234, 238, 0.55)";  // hover ring lights up
         ctx.lineWidth = 1.5;
         ctx.arc(X(hover), Y(hover), 8, 0, 6.283185);
         ctx.stroke();
@@ -362,6 +371,7 @@
           "and his own chain Aristotle \u2192 Heraclitus (w = 13) \u2192 Plutarch \u2192 held by " +
           "Heraclitus \u2192 Plutarch (w = 17) \u2014 the single last link standing anywhere in the " +
           "network, dying at \u03b1 \u2248 0.0001.";
+        draw();  // show Aristotle's accent pin the moment the guess lands
         maybeReveal(false);
       } else {
         var gi = nameIndex(guessInput.value);

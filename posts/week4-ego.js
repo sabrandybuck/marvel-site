@@ -45,10 +45,10 @@
   ];
   function tab20Hex(i) { return TAB20[((i % 20) + 20) % 20]; }
 
-  var BG = "#ffffff";
-  var INK = "#212529";
+  var BG = "transparent";       // the stage div carries var(--bg-elevated)
+  var INK = "#e9eaee";          // var(--text)
   var GREY = "#8a8d96";
-  var CENTER = "#222222";
+  var CENTER = "#e9eaee";       // bright star on the dark panel
 
   // runtime-built lookup: avoids writing HTML entity strings literally,
   // which the authoring pipeline would decode back into raw characters.
@@ -188,6 +188,7 @@
       var lab = labOf[names[idx]] || 0;
       return {
         idx: idx, gi: lab,
+        ang: ang,
         x: LAY.cx + Math.cos(ang) * LAY.R,
         y: LAY.cy + Math.sin(ang) * LAY.R,
         deg: deg[idx],
@@ -265,8 +266,8 @@
       var ox = (r.width - LAYW * s) / 2;
       var oy = (r.height - LAYH * s) / 2;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = BG;
-      ctx.fillRect(0, 0, r.width, r.height);
+      // transparent canvas: the stage's var(--bg-elevated) panel shows through
+      ctx.clearRect(0, 0, r.width, r.height);
       ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
 
       var keepN = new Set(), keepInner = false;
@@ -327,20 +328,47 @@
       ctx.textAlign = "center";
       ctx.fillText("Aristotle", scene.lay.cx, scene.lay.cy + 46);
 
-      // static famous labels (dim with the nodes they belong to)
-      ctx.font = "24px -apple-system, 'Segoe UI', Roboto, sans-serif";
+      // static famous labels: placed radially OUTSIDE the ring, swept forward
+      // along the ring so consecutive labels keep a minimum arc apart (the
+      // angular step near crowded arcs is ~8 units; labels want ~34). Nodes
+      // whose label would drift too far keep no static label — hover still
+      // names them. Dim with the nodes they belong to.
+      var MIN_ARC_GAP = 34 / scene.lay.R;   // radians
+      var lastA = -Infinity;
+      var labelledDynamic = [];
       scene.ring.forEach(function (rN) {
         if (!rN.marked) return;
+        labelledDynamic.push(rN);
+      });
+      labelledDynamic.forEach(function (rN) {
+        var base = rN.ang;
+        var a = base;
+        if (lastA > -Infinity) {
+          a = Math.max(base, lastA + MIN_ARC_GAP);
+          if (a > base + 1.1) return;  // outward drift capped; skip this label
+        }
+        lastA = a;
+        var lr = scene.lay.R - 30;   // inside the ring: no stage-edge clipping
+        var lx = scene.lay.cx + Math.cos(a) * lr;
+        var ly = scene.lay.cy + Math.sin(a) * lr;
         var dimmed = active && !keepN.has(rN.idx);
         ctx.globalAlpha = dimmed ? 0.18 : 0.92;
+        var cosA = Math.cos(a);
+        ctx.textAlign = cosA > 0.15 ? "left" : (cosA < -0.15 ? "right" : "center");
+        var dy = 0;
+        if (Math.abs(cosA) <= 0.15) { dy = Math.sin(a) > 0 ? 12 : -12; }
+        else dy = Math.sin(a) * 5 + 4;
+        // halo
+        ctx.font = "600 23px -apple-system, 'Segoe UI', Roboto, sans-serif";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "rgba(12, 14, 20, 0.9)";
+        if (!dimmed) {
+          ctx.globalAlpha = 0.92;
+          ctx.strokeText(scene.shortName(scene.names[rN.idx]), lx, ly);
+        }
         ctx.fillStyle = dimmed ? GREY : INK;
-        var dx = 0, anchor = "center", dy = 0;
-        if (rN.x > scene.lay.cx + 6) { anchor = "left"; dx = 8; }
-        else if (rN.x < scene.lay.cx - 6) { anchor = "right"; dx = -8; }
-        dy = rN.y > scene.lay.cy ? 18 : -12;
-        ctx.textAlign = anchor;
-        ctx.fillText(scene.shortName(scene.names[rN.idx]),
-          rN.x + dx, rN.y + dy);
+        ctx.fillText(scene.shortName(scene.names[rN.idx]), lx, ly);
       });
       ctx.globalAlpha = 1;
       ctx.textAlign = "start";
@@ -351,7 +379,7 @@
         if (hr) {
           ctx.beginPath();
           ctx.arc(hr.x, hr.y, hr.r + 5, 0, 6.283185);
-          ctx.strokeStyle = "rgba(33,37,41,0.7)";
+          ctx.strokeStyle = "rgba(233,234,238,0.7)";  // var(--text)-lit hover ring
           ctx.lineWidth = 1.7;
           ctx.stroke();
         }
@@ -507,7 +535,7 @@
     var el = document.createElement("div");
     el.className = "ego-tip";
     el.style.cssText = "display:none;position:absolute;pointer-events:none;" +
-      "background:#212529;color:#f8f9fa;font-size:12px;line-height:1.5;" +
+      "background:var(--text,#e9eaee);color:var(--bg,#0e0f13);font-size:12px;line-height:1.5;" +
       "padding:8px 11px;border-radius:8px;z-index:6;" +
       "box-shadow:0 4px 18px rgba(0,0,0,.35);max-width:250px;";
     stage.appendChild(el);
