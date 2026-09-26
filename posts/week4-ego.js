@@ -1,7 +1,8 @@
 /*
  * Week 4 Aristotle ego explorable — "the philosopher holding the web".
  *
- * The static figure (assets/week4/week4_aristotle_ego.png) was drawn offline
+ * The original static figure (assets/week4/week4_aristotle_ego.png, since
+ * removed from the site) was drawn offline
  * by analysis/build_week4.py: Aristotle at the centre, his 300 giant-component
  * neighbours placed on a ring ordered by (Louvain community, descending
  * degree), one spoke per neighbour coloured by the neighbour's community

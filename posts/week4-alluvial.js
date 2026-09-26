@@ -1,8 +1,8 @@
 /*
  * Week 4 alluvial explorable — "Nine tribes vs sixty-seven schools".
  *
- * The static figure (assets/week4/week4_louvain_infomap_alluvial.png) was
- * drawn offline by analysis/build_week4.py: draw_alluvial() stacks Louvain's
+ * The original static figure (assets/week4/week4_louvain_infomap_alluvial.png,
+ * since removed from the site) was drawn offline by analysis/build_week4.py: draw_alluvial() stacks Louvain's
  * 9 communities (left) and Infomap's 67 modules (right) by descending size,
  * then connects them with ribbons for every (left, right) cell that shares at
  * least MIN_RIBBON members, slotted inside each block by descending shared
@@ -31,6 +31,9 @@
       return r.json();
     });
   }
+
+  var REDUCED_MOTION = !!(window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   // matplotlib tab20 as hex — the palette draw_alluvial() uses.
   var TAB20 = [

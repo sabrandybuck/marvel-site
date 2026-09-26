@@ -1,8 +1,8 @@
 /*
  * Week 4 flows explorable — "With weights vs without", as an SVG alluvial.
  *
- * The static figure (assets/week4/week4_weighted_vs_unweighted.png) was drawn
- * offline by analysis/build_week4.py with the same draw_alluvial() the
+ * The original static figure (assets/week4/week4_weighted_vs_unweighted.png,
+ * since removed from the site) was drawn offline by analysis/build_week4.py with the same draw_alluvial() the
  * Louvain-vs-Infomap figure uses: Louvain's 9 weighted communities (left)
  * against Louvain's 8 unweighted communities (right), ribbons for every
  * (left, right) cell sharing at least MIN_RIBBON members, slotted by
