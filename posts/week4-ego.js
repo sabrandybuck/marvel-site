@@ -188,6 +188,7 @@
       var lab = labOf[names[idx]] || 0;
       return {
         idx: idx, gi: lab,
+        ang: ang,
         x: LAY.cx + Math.cos(ang) * LAY.R,
         y: LAY.cy + Math.sin(ang) * LAY.R,
         deg: deg[idx],
@@ -327,20 +328,47 @@
       ctx.textAlign = "center";
       ctx.fillText("Aristotle", scene.lay.cx, scene.lay.cy + 46);
 
-      // static famous labels (dim with the nodes they belong to)
-      ctx.font = "24px -apple-system, 'Segoe UI', Roboto, sans-serif";
+      // static famous labels: placed radially OUTSIDE the ring, swept forward
+      // along the ring so consecutive labels keep a minimum arc apart (the
+      // angular step near crowded arcs is ~8 units; labels want ~34). Nodes
+      // whose label would drift too far keep no static label — hover still
+      // names them. Dim with the nodes they belong to.
+      var MIN_ARC_GAP = 34 / scene.lay.R;   // radians
+      var lastA = -Infinity;
+      var labelledDynamic = [];
       scene.ring.forEach(function (rN) {
         if (!rN.marked) return;
+        labelledDynamic.push(rN);
+      });
+      labelledDynamic.forEach(function (rN) {
+        var base = rN.ang;
+        var a = base;
+        if (lastA > -Infinity) {
+          a = Math.max(base, lastA + MIN_ARC_GAP);
+          if (a > base + 1.1) return;  // outward drift capped; skip this label
+        }
+        lastA = a;
+        var lr = scene.lay.R - 30;   // inside the ring: no stage-edge clipping
+        var lx = scene.lay.cx + Math.cos(a) * lr;
+        var ly = scene.lay.cy + Math.sin(a) * lr;
         var dimmed = active && !keepN.has(rN.idx);
         ctx.globalAlpha = dimmed ? 0.18 : 0.92;
+        var cosA = Math.cos(a);
+        ctx.textAlign = cosA > 0.15 ? "left" : (cosA < -0.15 ? "right" : "center");
+        var dy = 0;
+        if (Math.abs(cosA) <= 0.15) { dy = Math.sin(a) > 0 ? 12 : -12; }
+        else dy = Math.sin(a) * 5 + 4;
+        // halo
+        ctx.font = "600 23px -apple-system, 'Segoe UI', Roboto, sans-serif";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "rgba(12, 14, 20, 0.9)";
+        if (!dimmed) {
+          ctx.globalAlpha = 0.92;
+          ctx.strokeText(scene.shortName(scene.names[rN.idx]), lx, ly);
+        }
         ctx.fillStyle = dimmed ? GREY : INK;
-        var dx = 0, anchor = "center", dy = 0;
-        if (rN.x > scene.lay.cx + 6) { anchor = "left"; dx = 8; }
-        else if (rN.x < scene.lay.cx - 6) { anchor = "right"; dx = -8; }
-        dy = rN.y > scene.lay.cy ? 18 : -12;
-        ctx.textAlign = anchor;
-        ctx.fillText(scene.shortName(scene.names[rN.idx]),
-          rN.x + dx, rN.y + dy);
+        ctx.fillText(scene.shortName(scene.names[rN.idx]), lx, ly);
       });
       ctx.globalAlpha = 1;
       ctx.textAlign = "start";
