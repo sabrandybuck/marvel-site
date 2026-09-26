@@ -212,6 +212,46 @@
 
 </article>
 
+<figure class="wide-figure explorer" id="ego-explorer">
+  <div class="explorer-controls" style="flex-wrap:wrap;">
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Jump to</span>
+      <div class="hero-search-row">
+        <button type="button" class="btn" data-ego-jump="Boethius">Boethius</button>
+        <button type="button" class="btn" data-ego-jump="Al-Farabi">Al-Farabi</button>
+        <button type="button" class="btn" data-ego-jump="Edmund Husserl">Husserl</button>
+        <button type="button" class="btn" data-ego-jump="Karl Marx">Marx</button>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Legend &mdash; Louvain communities among his 300 neighbours (click to pin)</span>
+      <div class="hero-search-row" id="ego-chips" style="flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
+  <div class="explorer-stage">
+    <div class="network-box" id="ego-stage" style="position:relative;height:700px;"></div>
+  </div>
+
+  <p class="explorer-hint">
+    Aristotle&rsquo;s 300 links as an <strong>explorable</strong> (canvas rendering, the
+    week4-backbone house style): hover any node or spoke for the philosopher&rsquo;s name,
+    their Louvain community, giant degree and the union weight of Aristotle&rsquo;s link;
+    everything unconnected dims. Click pins (same node, Esc or the background clears); the
+    legend chips pin whole communities. The grey chords are his neighbours&rsquo; links to
+    each other &mdash; hover the centre star for Aristotle&rsquo;s own totals.
+  </p>
+  <p class="explorer-hint" id="ego-error" style="display:none;color:var(--accent);"></p>
+
+  <figcaption class="explorer-caption">
+    Built in the browser from <code>section3_interactive</code> (the frozen giant-component
+    edge list) and <code>sections 1&ndash;2</code> of
+    <code>data/philosophers/week4_summary.json</code> &mdash; ring order, community colours
+    and the chords are recomputed from the same frozen numbers the static figure below was
+    drawn from. The static PNG stays for side-by-side comparison.
+  </figcaption>
+</figure>
+
 <figure class="wide-figure" id="aristotle-figure">
   <img src="../assets/week4/week4_aristotle_ego.png"
        alt="Aristotle's ego network: 300 neighbours arranged in a circle around him, links coloured by the Louvain community of the neighbour, famous neighbours labelled">
@@ -445,6 +485,43 @@
 
 </article>
 
+<figure class="wide-figure explorer" id="flows-explorer">
+  <div class="explorer-controls" style="flex-wrap:wrap;">
+    <div class="hero-search" style="flex:1 1 auto;">
+      <span class="hero-search-label">Find a philosopher</span>
+      <div class="hero-search-row">
+        <input id="flows-search" class="search-input" type="search" list="flows-names"
+               placeholder="e.g. Darwin, Hume, Kierkegaard&hellip;" style="max-width:240px;">
+        <button type="button" id="flows-search-btn" class="btn">Find</button>
+        <datalist id="flows-names"></datalist>
+      </div>
+    </div>
+  </div>
+
+  <div class="explorer-stage">
+    <div class="network-box" id="flows-stage-svg" style="position:relative;height:700px;"></div>
+  </div>
+
+  <p class="explorer-hint">
+    Louvain&rsquo;s weighted communities against its unweighted ones as an
+    <strong>explorable</strong> (SVG, the same engine as the first figure): hover blocks for
+    community membership, ribbons for the philosophers whose community number survived the
+    weights coming off &mdash; and use the finder above to follow any of the
+    <strong>1,217 of 1,374 philosophers (88.6%)</strong> whose community number actually
+    moved (NMI 0.650).
+  </p>
+  <p class="explorer-hint" id="flows-error" style="display:none;color:var(--accent);"></p>
+
+  <figcaption class="explorer-caption">
+    Built in the browser from <code>section4</code> of
+    <code>data/philosophers/week4_summary.json</code> &mdash; block heights and ribbon widths
+    are the frozen numbers, stacked and slotted the way
+    <code>analysis/build_week4.py</code>'s <code>draw_alluvial()</code> drew the static
+    figure below, with matplotlib&rsquo;s tab20 palette in stacking order. The static PNG
+    stays for side-by-side comparison.
+  </figcaption>
+</figure>
+
 <figure class="wide-figure" id="weighted-figure">
   <img src="../assets/week4/week4_weighted_vs_unweighted.png"
        alt="Alluvial diagram of Louvain communities computed with weights on the left and without weights on the right">
@@ -535,5 +612,7 @@
 
 <script src="week4-backbone.js"></script>
 <script src="week4-alluvial.js"></script>
+<script src="week4-flows.js"></script>
+<script src="week4-ego.js"></script>
 </body>
 </html>
