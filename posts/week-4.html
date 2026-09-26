@@ -96,15 +96,39 @@
 
 </article>
 
-<figure class="wide-figure" id="alluvial-figure">
-  <img src="../assets/week4/week4_louvain_infomap_alluvial.png"
-       alt="Alluvial diagram of Louvain's nine philosopher communities on the left against Infomap's sixty-seven modules on the right, ribbons showing shared members and famous philosophers labelling the big blocks">
-  <figcaption>
-    Where Louvain and Infomap agree — and where they don't. Left: Louvain's 9 communities
-    (labelled with their most famous members). Right: Infomap's 67 modules (the ten largest
-    labelled). Ribbon width = shared philosophers; ribbon colour = the Louvain community it
-    starts from. Both produced offline by <code>analysis/build_week4.py</code> from
-    <code>data/philosophers/week4_summary.json</code>.
+<figure class="wide-figure explorer" id="alluvial-explorer">
+  <div class="explorer-controls" style="flex-wrap:wrap;">
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Focus</span>
+      <div class="hero-search-row">
+        <button type="button" class="btn" data-alluvial-jump="R17">Kant&rsquo;s module</button>
+        <button type="button" class="btn" data-alluvial-jump="R6">falsafa</button>
+        <button type="button" class="btn" data-alluvial-jump="L3">anc. & Islamic</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    The alluvial as an <strong>explorable</strong> &mdash; every block and ribbon is its own
+    SVG element, hover is dispatched natively by the browser. Hover a block for its community
+    (size, famous members) and a ribbon for the philosophers both endpoints share; hover dims
+    everything unconnected. Click pins the tooltip until you click again, press Esc, or click
+    the background.
+  </p>
+
+  <div class="explorer-stage">
+    <div class="network-box alluvial-stage" id="alluvial-stage-svg"
+         style="position:relative;height:800px;"></div>
+  </div>
+  <p class="explorer-hint" id="alluvial-error-svg" style="display:none;color:var(--accent);"></p>
+  <figcaption class="explorer-caption" style="margin-top:6px;">
+    Built in the browser from <code>section1</code> of
+    <code>data/philosophers/week4_summary.json</code> &mdash; block heights and ribbon widths
+    are the frozen numbers, stacked and slotted as the original static figure was drawn by
+    <code>analysis/build_week4.py</code>'s <code>draw_alluvial()</code>: blocks by descending
+    size, ribbons for every &ge;&nbsp;3-shared-member cell slotted by descending shared count,
+    coloured with matplotlib's tab20 palette in the same stacking order. Buttons above scroll
+    & highlight the named bits.
   </figcaption>
 </figure>
 
@@ -510,5 +534,6 @@
 </footer>
 
 <script src="week4-backbone.js"></script>
+<script src="week4-alluvial.js"></script>
 </body>
 </html>
