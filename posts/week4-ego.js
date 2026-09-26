@@ -45,10 +45,10 @@
   ];
   function tab20Hex(i) { return TAB20[((i % 20) + 20) % 20]; }
 
-  var BG = "#ffffff";
-  var INK = "#212529";
+  var BG = "transparent";       // the stage div carries var(--bg-elevated)
+  var INK = "#e9eaee";          // var(--text)
   var GREY = "#8a8d96";
-  var CENTER = "#222222";
+  var CENTER = "#e9eaee";       // bright star on the dark panel
 
   // runtime-built lookup: avoids writing HTML entity strings literally,
   // which the authoring pipeline would decode back into raw characters.
@@ -265,8 +265,8 @@
       var ox = (r.width - LAYW * s) / 2;
       var oy = (r.height - LAYH * s) / 2;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = BG;
-      ctx.fillRect(0, 0, r.width, r.height);
+      // transparent canvas: the stage's var(--bg-elevated) panel shows through
+      ctx.clearRect(0, 0, r.width, r.height);
       ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
 
       var keepN = new Set(), keepInner = false;
@@ -351,7 +351,7 @@
         if (hr) {
           ctx.beginPath();
           ctx.arc(hr.x, hr.y, hr.r + 5, 0, 6.283185);
-          ctx.strokeStyle = "rgba(33,37,41,0.7)";
+          ctx.strokeStyle = "rgba(233,234,238,0.7)";  // var(--text)-lit hover ring
           ctx.lineWidth = 1.7;
           ctx.stroke();
         }
@@ -507,7 +507,7 @@
     var el = document.createElement("div");
     el.className = "ego-tip";
     el.style.cssText = "display:none;position:absolute;pointer-events:none;" +
-      "background:#212529;color:#f8f9fa;font-size:12px;line-height:1.5;" +
+      "background:var(--text,#e9eaee);color:var(--bg,#0e0f13);font-size:12px;line-height:1.5;" +
       "padding:8px 11px;border-radius:8px;z-index:6;" +
       "box-shadow:0 4px 18px rgba(0,0,0,.35);max-width:250px;";
     stage.appendChild(el);

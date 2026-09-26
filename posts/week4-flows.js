@@ -44,8 +44,8 @@
 
   var MIN_RIBBON = 3;   // draw_alluvial's min_ribbon
   var GAP = 2.0;        // block gap in member units (draw_alluvial's gap)
-  var BG = "#ffffff";
-  var INK = "#212529";
+  var BG = "transparent";  // figures sit on the page's dark theme
+  var INK = "#e9eaee";  // var(--text)
 
   // runtime-built lookup: avoids writing entity strings literally,
   // which the authoring pipeline would decode back into raw characters.
@@ -272,7 +272,6 @@
   var FONT_TITLE = "600 30px -apple-system, 'Segoe UI', Roboto, sans-serif";
   var FONT_L = "22px -apple-system, 'Segoe UI', Roboto, sans-serif";
   var FONT_R = "18px -apple-system, 'Segoe UI', Roboto, sans-serif";
-  var INK = "#212529";
   var DIM_BLOCK = 0.12;
   var DIM_RIBBON = 0.06;
 
@@ -289,7 +288,7 @@
     var el = document.createElement("div");
     el.className = "alluvial-tip";
     el.style.cssText = "display:none;position:absolute;pointer-events:none;" +
-      "background:#212529;color:#f8f9fa;font-size:12px;line-height:1.5;" +
+      "background:var(--text,#e9eaee);color:var(--bg,#0e0f13);font-size:12px;line-height:1.5;" +
       "padding:8px 11px;border-radius:8px;z-index:6;" +
       "box-shadow:0 4px 18px rgba(0,0,0,.35);max-width:260px;";
     stage.appendChild(el);
