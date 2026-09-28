@@ -1539,3 +1539,70 @@ body.sg-body main.sg-shell {
 .bb-msg.is-wrong { color: var(--accent); }
 .stat-card.is-broken { border-color: var(--accent); }
 .stat-card.is-broken .stat-value { color: var(--accent); }
+
+/* ---- Week 4 Louvain/Infomap community lists: scannable size cards ----
+   Opt-in variant of the shared .rank-list (used as-is elsewhere on the
+   site) that turns each item into a small card with a prominent count and
+   a size bar. Text content is untouched; only the layout changes. */
+.rank-list.community-list > li {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.community-row-top {
+  line-height: 1.6;
+}
+
+.community-dot {
+  display: inline-block;
+  vertical-align: middle;
+  width: 8px;
+  height: 8px;
+  margin-bottom: 2px;
+  border-radius: 2px;
+  background: var(--accent-3);
+}
+
+.community-list--louvain .community-dot,
+.community-list--aristotle .community-dot {
+  background: var(--accent-2);
+}
+
+.community-count {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 16.5px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.community-desc {
+  color: var(--text-dim);
+  font-size: 13.5px;
+}
+
+.community-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.community-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent-2);
+}
+
+.community-list--infomap .community-bar > span {
+  background: var(--accent-3);
+}
+
+@media (max-width: 480px) {
+  .community-count { font-size: 14.5px; }
+  .community-desc { font-size: 13px; }
+}
