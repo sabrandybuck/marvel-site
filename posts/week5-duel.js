@@ -13,9 +13,10 @@
  *                        right now, computed from its frozen (idx, count)
  *                        varint pairs against the running union flags;
  *   - a text box       : name any character, add it;
- *   - auto-play        : ▶ Play adds one page per ~0.2 s using whichever
+ *   - auto-play        : ▶ Play adds one page per ~0.1 s using whichever
  *                        strategy the Zipf/Heaps toggle selects — toggle it
- *                        live mid-run to flip the chooser.
+ *                        live mid-run to flip the chooser (a full 303-page
+ *                        run costs ~30 s).
  *
  * Everything heavy is frozen (data/marvel_pages/week5_summary.json duel
  * section: the 26,952-word global vocab and per-page delta-encoded
@@ -373,7 +374,7 @@
     var bestZipfId = null, bestHeapsId = null;
 
     // ---- auto-play ------------------------------------------------------------
-    var PLAY_SECONDS = 60;                 // a full 303-page run costs ~60 s
+    var PLAY_SECONDS = 30;                 // a full 303-page run costs ~30 s
     var PER_ADD = PLAY_SECONDS * 1000 / 303;
     var playing = false;
     var strategy = "zipf";
@@ -434,6 +435,10 @@
         strategy = b.getAttribute("data-dl-strategy");
         stratBtns.forEach(function (x) {
           x.setAttribute("aria-pressed", x === b ? "true" : "false");
+          // the highlight itself is the .is-active class (aria-pressed alone
+          // is styled for .btn, not .arrow-toggle-btn) — move it explicitly
+          if (x === b) x.classList.add("is-active");
+          else x.classList.remove("is-active");
         });
       });
     });
