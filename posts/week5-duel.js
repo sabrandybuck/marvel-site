@@ -333,6 +333,7 @@
 
       // buttons: disabled state + next-best scores readout
       var remaining = Object.keys(pages).filter(function (nid) { return added.indexOf(nid) === -1; });
+      refreshDatalist(remaining);
       if (!remaining.length) {
         topZipfBtn.disabled = true;
         topHeapsBtn.disabled = true;
@@ -389,17 +390,20 @@
       charGroup.innerHTML = "";
     });
 
-    // name → id
+    // name → id (full map; the datalist itself tracks only remaining names)
     var nameToId = {};
     Object.keys(pages).forEach(function (nid) {
       nameToId[pages[nid].name.toLowerCase()] = nid;
     });
     var datalist = document.getElementById("dl-names");
-    Object.keys(pages).forEach(function (nid) {
-      var o = document.createElement("option");
-      o.value = pages[nid].name;
-      datalist.appendChild(o);
-    });
+    function refreshDatalist(remaining) {
+      while (datalist.firstChild) datalist.removeChild(datalist.firstChild);
+      remaining.forEach(function (nid) {
+        var o = document.createElement("option");
+        o.value = pages[nid].name;
+        datalist.appendChild(o);
+      });
+    }
     function doSearch() {
       var q = searchIn.value.trim().toLowerCase();
       if (nameToId[q]) {
