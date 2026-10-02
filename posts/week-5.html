@@ -355,9 +355,19 @@
 
 <figure class="wide-figure explorer" id="duel-explorer">
   <div class="explorer-controls" style="flex-wrap:wrap;">
+    <div class="hero-search" style="flex:1 1 300px;">
+      <span class="hero-search-label">Auto-play</span>
+      <div class="arrow-mode-row" id="dl-add-buttons">
+        <button type="button" class="btn" id="dl-play">&#9654; Play</button>
+        <span class="arrow-toggle">
+          <button type="button" class="arrow-toggle-btn is-active" data-dl-strategy="zipf" aria-pressed="true">Zipf</button>
+          <button type="button" class="arrow-toggle-btn" data-dl-strategy="heaps" aria-pressed="false">Heaps</button>
+        </span>
+      </div>
+    </div>
     <div class="hero-search" style="flex:1 1 260px;">
       <span class="hero-search-label">Add a page</span>
-      <div class="arrow-mode-row" id="dl-add-buttons">
+      <div class="arrow-mode-row">
         <button type="button" class="btn" id="dl-top-zipf">+ Add top-Zipf</button>
         <button type="button" class="btn" id="dl-top-heaps">+ Add top-Heaps</button>
       </div>

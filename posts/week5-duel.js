@@ -5,14 +5,17 @@
  * are added one at a time; each addition draws the page's own Zipf curve
  * (log-log rank x frequency) as well as the accumulated corpus's merged
  * curve, with the idealised Zipf curve (slope exactly -1) as the dashed
- * reference. Layers are checkbox-toggled. Three ways to add a character:
+ * reference. Layers are checkbox-toggled. Four ways to add a character:
  *   - "Add top-Zipf"   : argmax of the frozen per-page Zipf deviation
  *                        (precomputed by analysis/build_week5.py);
  *   - "Add top-Heaps"  : argmax of the LIVE marginal Heaps gain — the number
  *                        of brand-new distinct words a candidate would add
  *                        right now, computed from its frozen (idx, count)
  *                        varint pairs against the running union flags;
- *   - a text box       : name any character, add it.
+ *   - a text box       : name any character, add it;
+ *   - auto-play        : ▶ Play adds one page per ~0.2 s using whichever
+ *                        strategy the Zipf/Heaps toggle selects — toggle it
+ *                        live mid-run to flip the chooser.
  *
  * Everything heavy is frozen (data/marvel_pages/week5_summary.json duel
  * section: the 26,952-word global vocab and per-page delta-encoded
@@ -335,6 +338,8 @@
       var remaining = Object.keys(pages).filter(function (nid) { return added.indexOf(nid) === -1; });
       refreshDatalist(remaining);
       if (!remaining.length) {
+        bestZipfId = null;
+        bestHeapsId = null;
         topZipfBtn.disabled = true;
         topHeapsBtn.disabled = true;
         addBtns.classList.add("is-done");
@@ -367,6 +372,72 @@
 
     var bestZipfId = null, bestHeapsId = null;
 
+    // ---- auto-play ------------------------------------------------------------
+    var PLAY_SECONDS = 60;                 // a full 303-page run costs ~60 s
+    var PER_ADD = PLAY_SECONDS * 1000 / 303;
+    var playing = false;
+    var strategy = "zipf";
+    var nextDue = 0;
+
+    function addOneByPlay() {
+      var id = strategy === "zipf" ? bestZipfId : bestHeapsId;
+      if (!id) { stopPlay(); return; }
+      onChooseAdd(id);
+    }
+
+    function playTick(ts) {
+      if (!playing) return;
+      while (playing && ts >= nextDue) {
+        nextDue += PER_ADD;
+        var before = added.length;
+        addOneByPlay();
+        if (!playing || added.length === before) return; // full corpus or stop
+      }
+      requestAnimationFrame(playTick);
+    }
+
+    function stopPlay() {
+      playing = false;
+      playBtn.textContent = "▶ Play";
+      playBtn.setAttribute("aria-pressed", "false");
+    }
+
+    function strategyId() { return strategy === "zipf" ? bestZipfId : bestHeapsId; }
+
+    function startPlay() {
+      if (added.length >= 303 || !strategyId()) return;
+      playing = true;
+      playBtn.textContent = "❚❚ Pause";
+      playBtn.setAttribute("aria-pressed", "true");
+      msgHost.style.display = "none";
+      if (REDUCED_MOTION) {
+        // jump: add everything the current strategy would pick, in order
+        while (added.length < 303 && strategyId()) addOneByPlay();
+        stopPlay();
+        return;
+      }
+      nextDue = performance.now();
+      requestAnimationFrame(playTick);
+    }
+
+    var playBtn = document.getElementById("dl-play");
+    playBtn.addEventListener("click", function () {
+      if (playing) stopPlay();
+      else startPlay();
+    });
+
+    var stratBtns = Array.prototype.slice.call(
+      document.querySelectorAll("[data-dl-strategy]"));
+    strategy = "zipf";
+    stratBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        strategy = b.getAttribute("data-dl-strategy");
+        stratBtns.forEach(function (x) {
+          x.setAttribute("aria-pressed", x === b ? "true" : "false");
+        });
+      });
+    });
+
     function onChooseAdd(nid) {
       if (added.indexOf(nid) !== -1) {
         msgHost.textContent = pages[nid].name + " is already in the corpus.";
@@ -386,6 +457,7 @@
       if (bestHeapsId) onChooseAdd(bestHeapsId);
     });
     resetBtn.addEventListener("click", function () {
+      stopPlay();
       reset();
       charGroup.innerHTML = "";
     });
