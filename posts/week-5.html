@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Week 5: Heaps' law & the weirdest page — The Web of Heroes</title>
-  <meta name="description" content="Adding the 303 Marvel hero pages one at a time, most-linked first, while the vocabulary grows; famous vs minor pages as word suppliers; and a six-metric weirdness leaderboard over the same corpus.">
+  <title>Week 5: build the corpus yourself — The Web of Heroes</title>
+  <meta name="description" content="The 303 Marvel hero pages as a vocabulary machine: add characters one at a time — by Zipf deviation, corpus one-offs, live Heaps gain or at random — and watch the merged Zipf curve race the ideal slope −1 line, in log–log or linear axes.">
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -25,22 +25,18 @@
 <main class="wrap">
 <article class="post wide">
 
-  <div class="post-meta">Week 5 · Words, Heaps & weirdness</div>
-  <h1>Two-thirds of the vocabulary arrives with the first fifty pages &mdash; the weirdest pages own their words outright</h1>
+  <div class="post-meta">Week 5 · Build the corpus yourself</div>
+  <h1>Two-thirds of the vocabulary arrives with the first fifty pages &mdash; now build it your way</h1>
   <p class="subtitle">
     This week the playground handed us the other half of the Marvel crawl: the <em>text</em> of
-    every hero's Wikipedia page. We treat the corpus as a vocab machine &mdash; add pages one at a
-    time, most-linked character first, and watch Heaps' law unfold &mdash; then we arithmetise
-    "weird" with six this-week tools, rank all 303 pages by it, and inspect what actually
-    won. Both questions here are explorables: pull the sliders yourself.
+    every hero's Wikipedia page. We treat the corpus as a vocab machine and turn its growth into
+    a game: add characters one at a time — by Zipf deviation, corpus one-offs, live Heaps gain
+    or at random — and watch your corpus's merged word-frequency curve race the idealized
+    Zipf curve (slope −1). One explorable, log–log or linear axes, your call.
   </p>
 
   <nav class="week2-quicknav" id="top" aria-label="Section quick links">
     <a href="#intro">Intro</a>
-    <a href="#heaps">Heaps' law</a>
-    <a href="#famous-minor">Famous vs minor</a>
-    <a href="#weird">The weirdness metric</a>
-    <a href="#weird-inspect">Inspecting the winners</a>
     <a href="#duel">The duel</a>
     <a href="#conclusion">Conclusion</a>
   </nav>
@@ -73,262 +69,6 @@
     <li class="stat-card"><span class="stat-label">Distinct words</span><span class="stat-value">26,952</span></li>
     <li class="stat-card"><span class="stat-label">Median page</span><span class="stat-value">1,238 tokens</span></li>
   </ul>
-
-</article>
-
-<article class="post wide" id="heaps">
-
-  <div class="section-head">
-    <h2>Heaps' law of the Marvel universe</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
-  </div>
-  <p>
-    Heaps' law says a growing corpus keeps meeting new words at a slow, predictable decay:
-    <em>V&nbsp;&asymp;&nbsp;N<sup>&beta;</sup></em>. Fitting our linked-first curve in log–log space
-    gives <strong>&beta; ≈ 0.51</strong> &mdash; right in the classic 0.4–0.6 range expected for
-    natural text. But the exponent is only half the story; <em>the order</em> is the other half.
-    The exploration: add the pages <strong>one at a time, most-linked character first</strong>
-    (in-degree from the week&nbsp;1 network), and watch the vocabulary grow step by step.
-  </p>
-  <p>
-    Use the explorable below: pick an ordering, press play or scrub, and hover the curve to ask
-    "what did <em>this</em> page contribute?". The dashed blue band is where 24 random shuffles
-    land (10th–90th percentile); the grey ghost line is another ordering's full curve for
-    comparison.
-  </p>
-
-</article>
-
-<figure class="wide-figure explorer" id="heaps-explorer">
-  <div class="explorer-controls" id="hp-modes" style="flex-wrap:wrap;">
-    <div class="hero-search" style="flex:1 1 220px;">
-      <span class="hero-search-label">Add order</span>
-      <div class="hero-search-row">
-        <button type="button" class="btn" data-hp-mode="indegree">Most-linked first</button>
-        <button type="button" class="btn" data-hp-mode="reverse">Reverse</button>
-        <button type="button" class="btn" data-hp-mode="alpha">Alphabetical</button>
-        <button type="button" class="btn" data-hp-mode="random">Random</button>
-        <button type="button" class="btn" id="hp-random-next" style="display:none;">Random run 2/3 — reshuffle</button>
-      </div>
-    </div>
-    <div class="hero-search" style="flex:0 0 auto;">
-      <span class="hero-search-label">Build</span>
-      <div class="arrow-toggle">
-        <button type="button" class="arrow-toggle-btn" id="hp-play-btn">&#9654; Play</button>
-      </div>
-      <div class="arrow-mode-row" style="min-width:220px;">
-        <input type="range" class="search-input" id="hp-scrub" min="0" max="302" value="0" step="1" style="flex:1 1 120px;" aria-label="Scrub pages added">
-      </div>
-    </div>
-  </div>
-
-  <p class="explorer-hint">
-    One click = 303 sequential buildups of the same corpus: play it as a slow countdown of
-    famous characters or drag the slider. Hover the chart to inspect any step: the readout
-    below the chart shows the last page added, its in-degree, and how many of its words were
-    brand-new vs already seen.
-  </p>
-
-  <div class="explorer-stage" style="position:relative;">
-    <div id="hp-stage"></div>
-    <div class="hp-tooltip" id="hp-tooltip"></div>
-  </div>
-  <p class="explorer-hint" id="hp-readout"></p>
-  <p class="hp-last" id="hp-last"></p>
-  <p class="explorer-hint" id="hp-error" style="display:none;color:var(--accent);"></p>
-
-  <figcaption class="explorer-caption" style="margin-top:6px;">
-    Built in the browser from the <code>heaps</code> section of
-    <code>data/marvel_pages/week5_summary.json</code> &mdash; every point of every curve is a frozen
-    <code>(t,&nbsp;V)</code> pair from <code>analysis/build_week5.py</code>; the random band folds 24
-    shuffled orderings into percentiles the same way the analysis script did.
-  </figcaption>
-</figure>
-
-<article class="post wide" id="heaps-2">
-
-  <p>
-    <strong>Where the words actually come from.</strong> The linked-first ordering front-loads
-    everything: the very first page (Spider-Man, in-degree 106) deposits
-    <strong>10,293 brand-new words</strong> &mdash; by page&nbsp;50, 18,264 of the final 26,952
-    words (68%) already exist, even though those 50 pages are only 45% of the corpus's tokens.
-    From there the curve flattens into pure repetition: page&nbsp;20 (Iron Fist) adds 749 new words
-    out of 9,022 tokens (91.7% already seen), page&nbsp;100 adds 23 out of 806 (97.2% repeated),
-    and the very last page &mdash; Zombie, in-degree 0 &mdash; still manages
-    31 words nobody had used.
-  </p>
-  <p>
-    Playing the order <strong>in reverse</strong> answers the flip side: vocabulary starts
-    catch-up-slow (minor stub pages talk in plot-specific proper nouns) and picks up speed
-    when the network's hubs finally arrive with their army of words. Alphabetical sits
-    between &mdash; it's roughly a random semi-sorted order. The random band is tight: no shuffle
-    order changes where the curve ends, only how much the last hundred pages still have left to teach.
-  </p>
-
-  <div class="callout">
-    <strong>Our answer:</strong> Heaps' law holds (&beta; ≈ 0.51), but the interesting part is that
-    the curve's shape is an artifact of <em>who you read first</em>. Famous characters are
-    vocabulary <em>traps</em> &mdash; huge, and overwhelmingly reused later; the marginal new word
-    lives on the minor pages, in volume, all the way to the end of the corpus.
-  </div>
-
-</article>
-
-<article class="post wide" id="famous-minor">
-
-  <div class="section-head">
-    <h2>Do minor characters bring new words? Yes &mdash; at a slightly better rate</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
-  </div>
-  <p>
-    Split the corpus into <strong>famous</strong> pages (in-degree &ge;&nbsp;7 &mdash; the top
-    quartile of the week&nbsp;1 network: 77 pages) and <strong>minor</strong> ones (the other
-    226). Then ask two different questions. First, in the linked-first build: while the whole
-    corpus is being added in that order, how many brand-new words does each bucket deposit, per
-    1,000 tokens it reads out? Second, an order-independent one: how many words are
-    <em>private</em> to each bucket &mdash; found in <em>no</em> page of the other bucket?
-  </p>
-
-  <div class="explorer-stage" id="hp-bars"></div>
-  <div class="hp-bars-legend" id="hp-bars-legend"></div>
-
-  <p>
-    Same quantity, two framings, and they disagree about who "carries" the vocabulary. The famous
-    bucket is only 77 pages but carries 418k tokens (58% of the corpus), and
-    because they are added <em>first</em>, they bank a raw 37,563 new words (89.8 per 1,000 tokens)
-    vs the minor bucket's 31,880 (103.1 per 1,000). But the private-vocabulary count &mdash; which
-    depends on no ordering &mdash; says famous pages are only worth <strong>8,131 words nobody else
-    ever uses</strong>, vs <strong>6,558 for the minors</strong>; relative to bucket size the minor
-    pages punch at the same weight (21.2 private words per 1,000 tokens vs 19.4).
-  </p>
-  <p>
-    So: <strong>minor characters do mostly repeat famous vocabulary (97–98% of their tokens are
-    already-seen words once the hubs are in), but per token they still introduce just as much
-    genuinely fresh vocabulary</strong> &mdash; mostly plot nouns, place names and one-off terms the
-    famous pages never need.
-  </p>
-
-</article>
-
-<article class="post wide" id="weird">
-
-  <div class="section-head">
-    <h2>Who has the weirdest Wikipedia page?</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
-  </div>
-  <p>
-    "Weird" is undefinable in one number &mdash; so we defined it in six, using only this week's
-    toolbox, each z-scored across the 303 pages and then averaged into a composite:
-  </p>
-  <ul class="rank-list">
-    <li><div><strong>Lexical diversity (type–token ratio)</strong> — a page full of never-repeated words is leaner, louder and stranger than one leaning on "the".</div></li>
-    <li><div><strong>Hapax share</strong> — of the page's distinct words, the fraction used exactly once: the purest single-number proxy for "one-offs, never explained, never heard from again".</div></li>
-    <li><div><strong>Corpus one-off share</strong> — the corpus-aware sibling: of the page's <em>tokens</em>, the fraction sitting in words used exactly once anywhere in the 303-page corpus. Immune to page length; a page that owns its vocabulary outright scores high.</div></li>
-    <li><div><strong>Low entropy</strong> — repetitive pages are monotone and, this time round, weird; counted as &minus;z(entropy).</div></li>
-    <li><div><strong>Mean TF-IDF</strong> — average TF-IDF weight of all tokens; rewards pages written from words no other hero page uses.</div></li>
-    <li><div><strong>Zipf deviation</strong> — each page's own frequency–rank curve fitted; the distance of its slope from the ideal −1. Its companion <span class="metric">R²</span> is stored too, because fitting a power law to a 200-token page is a noisy business.</div></li>
-  </ul>
-  <p>
-    The leaderboard below sorts all pages by any single component or the composite, in either
-    direction, and any of them can be inspected: click a row (or search a character) to see all
-    numbers and its most TF-IDF-distinctive words.
-  </p>
-
-</article>
-
-<figure class="wide-figure explorer" id="weird-explorer">
-  <div class="explorer-controls" style="flex-wrap:wrap;">
-    <div class="hero-search" style="flex:1 1 320px;">
-      <span class="hero-search-label">Rank by</span>
-      <div class="wz-tabs-row" id="wz-tabs">
-        <button type="button" class="btn" data-wz-metric="composite">Composite</button>
-        <button type="button" class="btn" data-wz-metric="ttr">Diversity</button>
-        <button type="button" class="btn" data-wz-metric="hapax">One-offs</button>
-        <button type="button" class="btn" data-wz-metric="oneoff">One-offs (corpus)</button>
-        <button type="button" class="btn" data-wz-metric="entropy">Low entropy</button>
-        <button type="button" class="btn" data-wz-metric="tfidf">TF-IDF</button>
-        <button type="button" class="btn" data-wz-metric="zipf">Zipf dev</button>
-      </div>
-    </div>
-    <div class="hero-search" style="flex:1 1 170px;">
-      <span class="hero-search-label">Direction</span>
-      <div class="wz-tabs-row" id="wz-dir">
-        <button type="button" class="btn" data-wz-dir="1">Most weird</button>
-        <button type="button" class="btn" data-wz-dir="-1">Least weird</button>
-      </div>
-    </div>
-    <div class="hero-search" style="flex:1 1 240px;">
-      <span class="hero-search-label">Find a character</span>
-      <div class="hero-search-row">
-        <input type="text" class="search-input" id="wz-search" list="wz-names" placeholder="e.g. Super Rabbit" aria-label="Search character">
-        <datalist id="wz-names"></datalist>
-        <button type="button" class="btn" id="wz-go">Go</button>
-      </div>
-      <p class="search-status wz-msg" id="wz-msg">No character by that name — check the spelling.</p>
-    </div>
-  </div>
-
-  <p class="explorer-hint" id="wz-desc"></p>
-  <ul class="wz-list" id="wz-list"></ul>
-  <div class="wz-detail" id="wz-detail" style="display:none;"></div>
-  <p class="explorer-hint" id="wz-error" style="display:none;color:var(--accent);"></p>
-
-  <figcaption class="explorer-caption" style="margin-top:6px;">
-    Built in the browser from the <code>pages</code> section of
-    <code>data/marvel_pages/week5_summary.json</code>: the z-scores, the Zipf fits and the per-page
-    TF-IDF word lists are all frozen output of <code>analysis/build_week5.py</code>.
-  </figcaption>
-</figure>
-
-<article class="post wide" id="weird-inspect">
-
-  <div class="section-head">
-    <h2>Inspecting the winners — real weirdness, or just stubs and armour plating?</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
-  </div>
-  <p>
-    The composite crowns <strong>Illuminator</strong> (+1.72): a 260-token vigilante page with
-    TTR high enough to rival the best stubs and <strong>11.5% of its tokens in words used
-    exactly once anywhere in the corpus</strong>. Runners-up follow: <strong>Coldblood</strong>
-    (a cyborg army of proper nouns), <strong>Phil Grayfield</strong> (NFL bromance &rarr; hero;
-    his page is full of <span class="wz-chip">nfl</span> and
-    <span class="wz-chip">football</span>), <strong>Emrys Killebrew</strong> and
-    <strong>Happy Sam Sawyer</strong> — and then two instructive cases:
-    <strong>Baymax</strong> (+1.28), the corpus-one-off star riding a 1,553-token page
-    (9.5% isolated tokens, z +4.0 — being "weird" is <em>not</em> just for stubs), and
-    <strong>Helix</strong> (+1.28), the previous composite champion, whose within-page
-    hapax share still crushes (80%) but whose corpus-isolated share is exactly average
-    (z −0.04): its plot nouns keep reappearing in other Clone Saga pages. Genuinely weird and
-    hanging on: <strong>Super Rabbit</strong> (+1.21), a 1943 Timely Comics talking animal
-    whose most distinctive words include <span class="wz-chip">rabbit</span> and
-    <span class="wz-chip">waffles</span>. At the bottom, predictably and comfortably: Spider-Man,
-    Venom, Black Widow &mdash; long, boilerplate-thick pages whose vocabulary is half the corpus
-    already.
-  </p>
-  <p>
-    <strong>Was the metric real or artefactual?</strong> Both, honestly, and the artifact is the
-    finding: the leaderboard still prefers <em>short</em> pages (TTR and within-page hapax both
-    inflate on stubs), so most of the top-25 are 200–700-token minor characters. Two
-    anti-noise checks separate signal from artifact: the <em>One-offs (corpus)</em> tab ignores
-    page size entirely and crowns <strong>Blackwulf</strong> (12.0% of tokens in words nobody
-    else's pages ever use, z +5.5, on a fully mid-size 1,022-token page), Illuminator (z +5.2)
-    and — remarkable for its 4,381-token length — <strong>Miracleman</strong> (z +3.5);
-    and the Zipf tab's <span class="metric">R²</span> column filters the stub-noise
-    (Helix's fit R² 0.81 is the worst of the winners; Black Jack Tarr and Super Rabbit keep
-    flat, proper-noun-heavy rank curves at usable sizes, R² 0.92). None of the winners is weird
-    because of formatting or boilerplate &mdash; they're weird because a page devoted to one
-    storyline has <em>vocabulary to share with nobody</em>. The metric found real vocabulary
-    isolation; it just also rewards being short while doing so.
-  </p>
-
-  <div class="callout">
-    <strong>Our answer:</strong> even six z-scored "weirdness" statistics converge on the same
-    population &mdash; plot-noun pages no one links to &mdash; but the corpus one-off share
-    redistributes the credit toward pages that own words outright: the stub-gold of
-    Blackwulf, Illuminator, Baymax. Filter by the R² of the Zipf fit and the list becomes
-    defensible; skip the filter and you mostly learn where the corpus's happy little accidental
-    poetry lives (yes, waffles).
-  </div>
 
 </article>
 
@@ -444,18 +184,17 @@
   </div>
   <p>
     This week the Marvel data got its words back, and the corpus behaved exactly like a corpus:
-    Heaps' &beta; ≈ 0.51, two-thirds of the vocabulary banked by the 50 most-linked pages, minor
-    pages paying their share of fresh vocabulary at the same rate everyone else does. And "weird",
-    once arithmetised with six tools, turned out to mean <em>small, plot-specific, and
-    vocabulary-wise on its own</em> &mdash; the leaderboard's winners are the characters the
-    network never bothered connecting, and the corpus one-off share adds the ones that own
-    words outright: Blackwulf, Illuminator, Baymax.
+    Heaps' &beta; ≈ 0.51, and two-thirds of the vocabulary banked by the 50 most-linked pages —
+    Spider-Man's article alone arrives with 10,293 brand-new words. From there every extra page
+    adds less and less, no matter the order: the duel's live Heaps button never stops finding
+    words, but each press buys a smaller and smaller slice. The hubs are where vocabulary
+    accumulates; the margins are where it gets minted — one word at a time.
   </p>
   <p>
-    The one number that surprised us most: famous pages hold <strong>8,131</strong> words found
-    nowhere else &mdash; but the 226 minor pages still beat them on <em>rate</em> (21.2 vs 19.4
-    per-1,000 tokens). The hubs are where vocabulary accumulates. The margins are where it gets
-    minted.
+    The number that surprised us most: two-thirds of the corpus's words live in just the first
+    50 of 303 pages (45% of the tokens), so the order you read in matters less than the fact
+    that someone reads Spider-Man first. Whoever reads the whole thing ends with the same
+    26,952 words — the build is about the journey, which is exactly why it's an explorable.
   </p>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
@@ -470,8 +209,6 @@
   </div>
 </footer>
 
-<script src="week5-heaps.js"></script>
-<script src="week5-weird.js"></script>
 <script src="week5-duel.js"></script>
 
 </body>
