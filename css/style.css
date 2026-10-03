@@ -1725,3 +1725,5 @@ body.sg-body main.sg-shell {
 #dl-top-heaps[disabled] { opacity: 0.45; cursor: not-allowed; }
 
 #dl-add-buttons.is-done .btn { color: var(--text-dim); }
+
+.dl-empty { color: var(--text-dim); font-size: 13px; margin: 6px 0; }

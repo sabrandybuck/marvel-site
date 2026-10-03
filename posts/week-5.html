@@ -55,12 +55,12 @@
     2026-08-26). Tokenizing everything &mdash; lowercase, keep apostrophes, strip punctuation &mdash;
     gives <strong>727,440 tokens</strong> containing <strong>26,952 distinct words</strong>. The
     median page is only 1,238 tokens, but the corpus is front-heavy: Spider-Man's article alone
-    is 10,293 tokens, 14× the median.
+    is 10,293 tokens, over 8× the median.
   </p>
   <p>
     Everything numeric below was computed once, offline, in <code>analysis/build_week5.py</code>
     (stdlib only) and frozen into <code>data/marvel_pages/week5_summary.json</code> &mdash; the
-    browser only looks numbers up, animates them, and lets you scrub through them.
+    browser only looks numbers up and draws them.
   </p>
 
   <ul class="stats-grid" id="intro-stats">
@@ -75,16 +75,16 @@
 <article class="post wide" id="duel">
 
   <div class="section-head">
-    <h2>The duel: build a corpus by Zipf's rule, one-offs or by Heaps' rule</h2>
+    <h2>The duel: build a corpus by Zipf's rule, corpus one-offs, Heaps' gain or chance</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
   </div>
   <p>
     The metrics of this week answer different questions, so we made them race — via one
     dropdown, not a wall of buttons. It drives both the manual
-    <strong>+&nbsp;Add top-score</strong> button and auto-play at once: pick
+    <strong>+&nbsp;One step</strong> button and auto-play at once: pick
     <em>Zipf deviation</em> (the precomputed page whose rank–frequency slope bends hardest
     away from the ideal −1), <em>corpus one-offs</em> (the remaining page holding the biggest
-    share of its tokens in words used exactly once in the corpus),     <em>Heaps gain</em> (defined
+    share of its tokens in words used exactly once in the corpus), <em>Heaps gain</em> (defined
     live, the way Heaps' score must be: the number of <em>brand-new</em> words a page would
     deposit right now, which depends on everything already added), or a
     <em>random pick</em>. <strong>+&nbsp;One step</strong> adds one page by the dropdown's
@@ -92,18 +92,18 @@
     is full (switch the dropdown live mid-run); or type any character's name and add it by hand.
   </p>
   <p>
-    Each addition draws that character's own Zipf curve on the log–log chart, behind the merged
-    vocabulary curve of everything you've built so far, with the idealized Zipf curve (slope −1)
-    as the reference. The layers are checkbox toggles; the left panel summarizes the page you
-    just added, including its live marginal gain ΔV.
+    Each addition draws that character's own Zipf curve on the chart (log–log by default,
+    linear on demand), behind the merged vocabulary curve of everything you've built so far,
+    with the idealized Zipf curve (slope −1) as the dashed reference. The layers are checkbox
+    toggles; the left panel summarizes the page you just added, including its live marginal
+    gain ΔV — the words it deposits on top of everything you already own.
   </p>
   <p>
-    Watch for the signature heuristic swap: if you top up with Zipf outliers (spiky minor stubs)
-    repeatedly, the merged curve stays far below the ideal line &mdash; you keep buying
-    <em>template-stamped</em> vocabulary that is rare in the aggregate but suspiciously
-    <em>concentrated</em> in each page. The Heaps button, by contrast, buys words that already
-    show up in no other page you own &mdash; different vocabulary entirely. Which strategy pulls the
-    accumulated corpus closest to the ideal line is the duel; press the buttons and see.
+    Watch for the reversal: buying Zipf outliers (spiky minor stubs) one after another keeps
+    your merged curve far below the ideal line — you accumulate vocabulary that is rare in the
+    aggregate but strangely <em>concentrated</em> page by page. The Heaps setting, by contrast,
+    buys words that show up nowhere else in what you already own. Which strategy pulls the
+    merged curve closest to the ideal is the duel; press Play and see.
   </p>
 
 </article>
@@ -114,8 +114,8 @@
       <span class="hero-search-label">Pick by</span>
       <div class="arrow-mode-row" id="dl-add-buttons">
         <select class="search-input" id="dl-metric" style="flex:0 0 auto;min-width:190px;" aria-label="Add strategy">
-          <option value="zipf">Zipf deviation (weirdness)</option>
-          <option value="oneoff">Corpus one-offs (weirdness)</option>
+          <option value="zipf">Zipf deviation</option>
+          <option value="oneoff">Corpus one-offs</option>
           <option value="heaps">Heaps gain (live ΔV)</option>
           <option value="random">Random pick</option>
         </select>
@@ -185,16 +185,16 @@
   <p>
     This week the Marvel data got its words back, and the corpus behaved exactly like a corpus:
     Heaps' &beta; ≈ 0.51, and two-thirds of the vocabulary banked by the 50 most-linked pages —
-    Spider-Man's article alone arrives with 10,293 brand-new words. From there every extra page
-    adds less and less, no matter the order: the duel's live Heaps button never stops finding
-    words, but each press buys a smaller and smaller slice. The hubs are where vocabulary
-    accumulates; the margins are where it gets minted — one word at a time.
+    Spider-Man's article, first in the linked-first telling, arrives with 10,293 brand-new
+    words. From there every extra page adds less and less: the duel's live Heaps setting never
+    stops finding words, but each press buys a smaller and smaller slice. The hubs are where
+    vocabulary accumulates; the margins are where it gets minted — one word at a time.
   </p>
   <p>
     The number that surprised us most: two-thirds of the corpus's words live in just the first
-    50 of 303 pages (45% of the tokens), so the order you read in matters less than the fact
-    that someone reads Spider-Man first. Whoever reads the whole thing ends with the same
-    26,952 words — the build is about the journey, which is exactly why it's an explorable.
+    50 of 303 pages (45% of the tokens), and almost no reachable reading order of whom you
+    read first changes the ending — whoever reads the whole thing converges on the same
+    26,952 words. The build is about the journey, which is exactly why it's an explorable.
   </p>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>

@@ -417,7 +417,7 @@
       } else {
         stripHost.textContent = fmtInt(added.length) + " of 303 pages · " +
           fmtInt(accTokens) + " tokens · " + fmtInt(accTypes) + " distinct words";
-        usedHost.textContent = "already used: " + added.slice(-12).map(function (nid) {
+        usedHost.textContent = "in the corpus so far: " + added.slice(-12).map(function (nid) {
           return pages[nid].name;
         }).join(", ") + (added.length > 12 ? ", …" : "");
       }
