@@ -150,6 +150,7 @@
 
     function reset() {
       added = [];
+      addedColors = [];
       inUnion = new Uint8Array(NV);
       accCount = new Int32Array(NV);
       accTypes = 0;
@@ -179,14 +180,6 @@
     var M = { t: 16, r: 24, b: 46, l: 64 };
     var iw = W - M.l - M.r, ih = H - M.t - M.b;
 
-    // x: log10(rank), 0..4 (rank 1 .. 10000); y: log10(freq share), 0..-RANGE_Y
-    var X0 = 0, X1 = 4, YMAX = 0, YMIN = -(16 / 20) * RANGE_Y; // log10 of .99.. tiny
-    // y ticks at 10^-1 .. 10^-RANGE_Y
-    var Y_TICKS = []; for (var yt = 1; yt <= RANGE_Y; yt++) Y_TICKS.push(-yt);
-
-    function XL(rank) { return M.l + ((Math.log10(rank) - X0) / (X1 - X0)) * iw; }
-    function YL(f) { return M.t + (0 - (Math.log10(f) - YMAX)) / (YMAX - YMIN) * ih; }
-
     var svgNS = "http://www.w3.org/2000/svg";
     var svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
@@ -200,29 +193,110 @@
       return e;
     }
 
-    // axis frames
+    // axis frames (grid content re-drawn on mode switch, frames static)
     var gGrid = el("g", {});
     svg.appendChild(gGrid);
-    [1, 10, 100, 1000, 10000].forEach(function (r) {
-      if (Math.log10(r) > X1) return;
-      gGrid.appendChild(el("line", { x1: XL(r), y1: M.t, x2: XL(r), y2: M.t + ih, stroke: GRID, "stroke-width": 1 }));
-      var lbl = el("text", { x: XL(r), y: M.t + ih + 18, "text-anchor": "middle", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
-      lbl.textContent = String(r);
-      gGrid.appendChild(lbl);
-    });
-    [1].concat(Y_TICKS).forEach(function (e) {
-      var f = Math.pow(10, e);
-      gGrid.appendChild(el("line", { x1: M.l, y1: YL(f), x2: W - M.r, y2: YL(f), stroke: GRID, "stroke-width": 1 }));
-      var lbl = el("text", { x: M.l - 8, y: YL(f) + 4, "text-anchor": "end", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
-      lbl.textContent = e === 0 ? "1" : "1e" + e;
-      gGrid.appendChild(lbl);
-    });
     var xCap = el("text", { x: M.l + iw / 2, y: H - 6, "text-anchor": "middle", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
-    xCap.textContent = "word rank r (log)";
     svg.appendChild(xCap);
     var yCap = el("text", { x: 14, y: M.t + ih / 2, fill: DIM, "font-size": 11, "font-family": "var(--mono)", transform: "rotate(-90 14 " + (M.t + ih / 2) + ")", "text-anchor": "middle" });
-    yCap.textContent = "frequency share f(r) (log)";
     svg.appendChild(yCap);
+
+    // ---- axis modes -----------------------------------------------------------
+    // log = log–log decades (the canonical Zipf view); linear = linear both
+    // axes, where Zipf's curvature and the hub pages' dominance become
+    // dramatic. The grid, captions and every layer re-draw on a mode switch.
+    var axisMode = "log";
+    var L_X0 = 0, L_X1 = 4;      // log mode: log10 ranks 1..10000
+    var LINEAR_Y_MIN = 0.12;     // linear mode y floor before nice-scaling
+    var linYMax = 0.15;          // linear y top (nice-rounded, recomputed)
+    var linRankMax = 1000;       // linear x top (recomputed)
+    var Y_TICKS = []; for (var yt = 1; yt <= RANGE_Y; yt++) Y_TICKS.push(-yt);
+
+    function log10(x) { return Math.log(x) / Math.LN10; }
+    function XL(rank) {
+      if (axisMode === "log") return M.l + ((log10(Math.max(1, rank)) - L_X0) / (L_X1 - L_X0)) * iw;
+      return M.l + (Math.min(rank, linRankMax) / linRankMax) * iw;
+    }
+    function YL(f) {
+      if (axisMode === "log") return M.t + (0 - (log10(Math.max(f, 1e-9)) - 0)) / (0 - (-(16 / 20) * RANGE_Y)) * ih;
+      return M.t + ih - (Math.min(f, linYMax) / linYMax) * ih;
+    }
+
+    // nice step: round up to 1/2/5 x 10^k
+    function niceStep(raw) {
+      var p = Math.pow(10, Math.floor(log10(raw)));
+      for (var m = 1; m <= 2; m += 0.5) { // 1, 1.5? no: candidates 1,2,2.5..
+        if (p * m >= raw) return p * m;
+      }
+      return p * 5;
+    }
+    // round a value up to a multiple of step, step-aligned ceiling
+    function ceilTo(v, step) { return Math.max(step, Math.ceil(v / step) * step); }
+
+    function redrawAxes() {
+      while (gGrid.firstChild) gGrid.removeChild(gGrid.firstChild);
+      var i, e, lbl;
+      if (axisMode === "log") {
+        [1, 10, 100, 1000, 10000].forEach(function (r) {
+          if (log10(r) > L_X1) return;
+          gGrid.appendChild(el("line", { x1: XL(r), y1: M.t, x2: XL(r), y2: M.t + ih, stroke: GRID, "stroke-width": 1 }));
+          lbl = el("text", { x: XL(r), y: M.t + ih + 18, "text-anchor": "middle", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
+          lbl.textContent = String(r);
+          gGrid.appendChild(lbl);
+        });
+        [0].concat(Y_TICKS).forEach(function (exp) {
+          var f = Math.pow(10, exp);
+          gGrid.appendChild(el("line", { x1: M.l, y1: YL(f), x2: W - M.r, y2: YL(f), stroke: GRID, "stroke-width": 1 }));
+          lbl = el("text", { x: M.l - 8, y: YL(f) + 4, "text-anchor": "end", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
+          lbl.textContent = exp === 0 ? "1" : "1e" + exp;
+          gGrid.appendChild(lbl);
+        });
+        xCap.textContent = "word rank r (log)";
+        yCap.textContent = "frequency share f(r) (log)";
+      } else {
+        linRankMax = 1000;
+        var needRank = 0;
+        added.forEach(function (nid) {
+          needRank = Math.max(needRank, curveFor(nid).length);
+        });
+        linRankMax = ceilTo(Math.max(needRank * 1.05, 1000), niceStep(Math.max(needRank * 1.05, 1000) / 4));
+        linYMax = 0.15;
+        var needF = 0;
+        added.forEach(function (nid) {
+          var c = curveFor(nid);
+          if (c.length) needF = Math.max(needF, c[0]);
+        });
+        if (accTokens) {
+          for (i = 0; i < NV; i++) if (accCount[i] > 0) { needF = Math.max(needF, accCount[i] / accTokens); break; }
+        }
+        linYMax = ceilTo(Math.max(needF * 1.08, LINEAR_Y_MIN), niceStep(Math.max(needF * 1.08, LINEAR_Y_MIN) / 4));
+        // x ticks: 4 divisions
+        for (i = 0; i <= 4; i++) {
+          var r = i * (linRankMax / 4);
+          gGrid.appendChild(el("line", { x1: XL(r), y1: M.t, x2: XL(r), y2: M.t + ih, stroke: GRID, "stroke-width": 1 }));
+          lbl = el("text", { x: XL(r), y: M.t + ih + 18, "text-anchor": "middle", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
+          lbl.textContent = fmtInt(r);
+          gGrid.appendChild(lbl);
+        }
+        // y ticks: 4 divisions
+        for (i = 0; i <= 4; i++) {
+          var f = i * (linYMax / 4);
+          gGrid.appendChild(el("line", { x1: M.l, y1: YL(f), x2: W - M.r, y2: YL(f), stroke: GRID, "stroke-width": 1 }));
+          lbl = el("text", { x: M.l - 8, y: YL(f) + 4, "text-anchor": "end", fill: DIM, "font-size": 11, "font-family": "var(--mono)" });
+          lbl.textContent = f.toFixed(2);
+          gGrid.appendChild(lbl);
+        }
+        xCap.textContent = "word rank r";
+        yCap.textContent = "frequency share f(r)";
+      }
+    }
+
+    function setAxisMode(m) {
+      if (axisMode === m) return;
+      axisMode = m;
+      redrawAxes();
+      redrawAllLayers();
+    }
 
     // layers
     var accPath = el("path", { fill: "none", stroke: COLOR_ACC, "stroke-width": 2.5, "stroke-opacity": 0.9 });
@@ -240,6 +314,20 @@
     [cbChar, cbAcc, cbIdeal].forEach(function (cb) {
       cb.addEventListener("change", applyLayerVis);
     });
+
+    // per-add curve colours, parallel to `added` — kept so an axis-mode flip
+    // can re-draw every layer identically
+    var addedColors = [];
+
+    function redrawAllLayers() {
+      while (charGroup.firstChild) charGroup.removeChild(charGroup.firstChild);
+      addedColors.forEach(function (color, i) {
+        drawCharCurve(added[i], color);
+      });
+      drawAcc();
+      drawIdeal();
+      applyLayerVis();
+    }
 
     function drawCharCurve(nid, color, width) {
       var f = curveFor(nid);
@@ -447,6 +535,20 @@
       refreshAll(); // relabel step (remaining count is all it shows)
     });
 
+    // axis-mode toggle: log–log (default) vs linear
+    var axisBtns = Array.prototype.slice.call(
+      document.querySelectorAll("[data-dl-axis]"));
+    axisBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        setAxisMode(b.getAttribute("data-dl-axis"));
+        axisBtns.forEach(function (x) {
+          x.setAttribute("aria-pressed", x === b ? "true" : "false");
+          if (x === b) x.classList.add("is-active");
+          else x.classList.remove("is-active");
+        });
+      });
+    });
+
     function onChooseAdd(nid) {
       if (added.indexOf(nid) !== -1) {
         msgHost.textContent = pages[nid].name + " is already in the corpus.";
@@ -455,7 +557,8 @@
       }
       marginalAtAdd[nid] = marginalFor(nid);
       addPage(nid);
-      drawCharCurve(nid, TAB20[(added.length - 1) % 20]);
+      addedColors.push(TAB20[(added.length - 1) % 20]);
+      drawCharCurve(nid, addedColors[addedColors.length - 1]);
       refreshAll();
     }
 
@@ -466,7 +569,7 @@
     resetBtn.addEventListener("click", function () {
       stopPlay();
       reset();
-      charGroup.innerHTML = "";
+      redrawAllLayers();
     });
 
     // name → id (full map; the datalist itself tracks only remaining names)
@@ -498,6 +601,7 @@
       if (ev.key === "Enter") doSearch();
     });
 
+    redrawAxes();
     refreshAll();
   }
 
