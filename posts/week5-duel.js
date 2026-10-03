@@ -6,18 +6,22 @@
  * (log-log rank x frequency) as well as the accumulated corpus's merged
  * curve, with the idealised Zipf curve (slope exactly -1) as the dashed
  * reference. Layers are checkbox-toggled. Five ways to add a character:
- *   - "Add top-Zipf"   : argmax of the frozen per-page Zipf deviation
- *                        (precomputed by analysis/build_week5.py);
- *   - "Add top-Heaps"  : argmax of the LIVE marginal Heaps gain — the number
- *                        of brand-new distinct words a candidate would add
- *                        right now, computed from its frozen (idx, count)
- *                        varint pairs against the running union flags;
- *   - "Add random"     : uniform pick among the remaining characters;
- *   - a text box       : name any character, add it;
- *   - auto-play        : ▶ Play adds one page per ~0.1 s using whichever
- *                        strategy the Zipf/Heaps/Random toggle selects —
- *                        toggle it live mid-run to flip the chooser (a full
- *                        303-page run costs ~30 s).
+ *   - "Add top-Zipf"     : argmax of the frozen per-page Zipf deviation
+ *                          (precomputed by analysis/build_week5.py);
+ *   - "Add top-one-offs" : argmax of the frozen corpus-one-off share — the
+ *                          share of the page's tokens in words used exactly
+ *                          once in the whole 303-page corpus;
+ *   - "Add top-Heaps"    : argmax of the LIVE marginal Heaps gain — the
+ *                          number of brand-new distinct words a candidate
+ *                          would add right now, computed from its frozen
+ *                          (idx, count) varint pairs against the running
+ *                          union flags;
+ *   - "Add random"       : uniform pick among the remaining characters;
+ *   - a text box         : name any character, add it;
+ *   - auto-play          : ▶ Play adds one page per ~0.1 s using whichever
+ *                          strategy the Zipf/One-offs/Heaps/Random toggle
+ *                          selects — toggle it live mid-run (a full 303-page
+ *                          run costs ~30 s).
  *
  * Everything heavy is frozen (data/marvel_pages/week5_summary.json duel
  * section: the 26,952-word global vocab and per-page delta-encoded
@@ -163,6 +167,7 @@
     var stripHost = document.getElementById("dl-strip");
     var topZipfBtn = document.getElementById("dl-top-zipf");
     var topHeapsBtn = document.getElementById("dl-top-heaps");
+    var topOneoffBtn = document.getElementById("dl-top-oneoff");
     var topRandomBtn = document.getElementById("dl-top-random");
     var searchIn = document.getElementById("dl-search");
     var goBtn = document.getElementById("dl-go");
@@ -343,13 +348,16 @@
       if (!remaining.length) {
         bestZipfId = null;
         bestHeapsId = null;
+        bestOneoffId = null;
         bestRandomId = null;
         topZipfBtn.disabled = true;
         topHeapsBtn.disabled = true;
+        topOneoffBtn.disabled = true;
         topRandomBtn.disabled = true;
         addBtns.classList.add("is-done");
         topZipfBtn.textContent = "Corpus complete";
         topHeapsBtn.textContent = "Corpus complete";
+        topOneoffBtn.textContent = "Corpus complete";
         topRandomBtn.textContent = "Corpus complete";
         msgHost.textContent = "All 303 pages added — the explorer is full. Reset to play again.";
         msgHost.style.display = "block";
@@ -357,6 +365,7 @@
       }
       topZipfBtn.disabled = false;
       topHeapsBtn.disabled = false;
+      topOneoffBtn.disabled = false;
       topRandomBtn.disabled = false;
       addBtns.classList.remove("is-done");
       bestRandomId = remaining[Math.floor(Math.random() * remaining.length)];
@@ -368,6 +377,12 @@
       });
       topZipfBtn.textContent = "+ Add top-Zipf  (next: " + fmtFl(bz, 2) + ")";
 
+      var bo = -Infinity, boId = null;
+      remaining.forEach(function (nid) {
+        if (pages[nid].z_oneoff > bo) { bo = pages[nid].z_oneoff; boId = nid; }
+      });
+      topOneoffBtn.textContent = "+ Add top-one-offs  (next: " + fmtFl(bo, 2) + ")";
+
       // live marginal scan
       var bh = -1, bhId = null;
       remaining.forEach(function (nid) {
@@ -376,10 +391,12 @@
       });
       topHeapsBtn.textContent = "+ Add top-Heaps  (next ΔV: " + fmtInt(bh) + ")";
       bestZipfId = bzId;
+      bestOneoffId = boId;
       bestHeapsId = bhId;
     }
 
-    var bestZipfId = null, bestHeapsId = null, bestRandomId = null;
+    var bestZipfId = null, bestOneoffId = null;
+    var bestHeapsId = null, bestRandomId = null;
 
     // ---- auto-play ------------------------------------------------------------
     var PLAY_SECONDS = 30;                 // a full 303-page run costs ~30 s
@@ -390,6 +407,7 @@
 
     function addOneByPlay() {
       var id = strategy === "zipf" ? bestZipfId
+        : strategy === "oneoff" ? bestOneoffId
         : strategy === "random" ? bestRandomId
         : bestHeapsId;
       if (!id) { stopPlay(); return; }
@@ -413,7 +431,12 @@
       playBtn.setAttribute("aria-pressed", "false");
     }
 
-    function strategyId() { return strategy === "zipf" ? bestZipfId : bestHeapsId; }
+    function strategyId() {
+      return strategy === "zipf" ? bestZipfId
+        : strategy === "oneoff" ? bestOneoffId
+        : strategy === "random" ? bestRandomId
+        : bestHeapsId;
+    }
 
     function startPlay() {
       if (added.length >= 303 || !strategyId()) return;
@@ -470,6 +493,9 @@
     });
     topHeapsBtn.addEventListener("click", function () {
       if (bestHeapsId) onChooseAdd(bestHeapsId);
+    });
+    topOneoffBtn.addEventListener("click", function () {
+      if (bestOneoffId) onChooseAdd(bestOneoffId);
     });
     topRandomBtn.addEventListener("click", function () {
       if (bestRandomId) onChooseAdd(bestRandomId);

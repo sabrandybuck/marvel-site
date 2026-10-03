@@ -37,7 +37,8 @@
     hapax: { label: "One-offs", get: function (p) { return p.z_hapax; }, fmt: function (p) { return "z " + fmtFl(p.z_hapax, 2) + " · hapax " + fmtFl(p.hapax * 100, 1) + "%"; }, desc: "share of the page's distinct words that appear exactly once" },
     entropy: { label: "Low entropy", get: function (p) { return -(p.z_entropy); }, fmt: function (p) { return "z " + fmtFl(-p.z_entropy, 2) + " · H " + fmtFl(p.entropy, 2); }, desc: "repetitive pages have low word-order entropy; sorted most repetitive first" },
     tfidf: { label: "TF-IDF", get: function (p) { return p.z_tfidf; }, fmt: function (p) { return "z " + fmtFl(p.z_tfidf, 2) + " · mean " + fmtFl(p.tfidf, 2); }, desc: "mean TF-IDF weight — a page built from words nobody else uses" },
-    zipf: { label: "Zipf dev ↑", get: function (p) { return p.z_zipf; }, fmt: function (p) { return "z " + fmtFl(p.z_zipf, 2) + " · s " + fmtFl(p.zipf_s, 2) + " (R² " + fmtFl(p.zipf_r2, 2) + ")"; }, desc: "deviation of the page's own Zipf slope from the ideal −1" }
+    zipf: { label: "Zipf dev ↑", get: function (p) { return p.z_zipf; }, fmt: function (p) { return "z " + fmtFl(p.z_zipf, 2) + " · s " + fmtFl(p.zipf_s, 2) + " (R² " + fmtFl(p.zipf_r2, 2) + ")"; }, desc: "deviation of the page's own Zipf slope from the ideal −1" },
+    oneoff: { label: "One-offs (corpus)", get: function (p) { return p.z_oneoff; }, fmt: function (p) { return "z " + fmtFl(p.z_oneoff, 2) + " · " + fmtFl(p.oneoff * 100, 1) + "%"; }, desc: "share of the page's tokens in words used exactly once anywhere in the full corpus — its corpus-isolated vocabulary" }
   };
 
   function setup(S) {
@@ -120,7 +121,7 @@
       var m = METRICS[metric];
       var zrows = [
         ["TTR", p.z_ttr], ["Hapax share", p.z_hapax], ["Entropy", p.z_entropy],
-        ["TF-IDF", p.z_tfidf], ["Zipf deviation", p.z_zipf]
+        ["TF-IDF", p.z_tfidf], ["Zipf deviation", p.z_zipf], ["Corpus one-offs", p.z_oneoff]
       ];
       var zHtml = zrows.map(function (zr) {
         var z = zr[1];

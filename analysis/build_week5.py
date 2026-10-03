@@ -37,7 +37,7 @@ PAGES_DIR = os.path.join(DATA, "marvel_pages")
 WEEK1 = os.path.join(DATA, "week1")
 
 N_SHUFFLES = 24          # random-order ensemble size for the Heaps band
-Z_COUNT = 5              # z-scored weirdness components
+Z_COUNT = 6              # z-scored weirdness components
 TOKEN_RE = re.compile(r"[a-z]+(?:'[a-z]+)?")
 
 
@@ -274,6 +274,10 @@ def main():
         for w, c in counts.items():
             tfidf_sum += (c / total) * idf[w]
         slope, r2, dev = zipf_fit(counts)
+        # corpus one-off share: fraction of the page's TOKENS sitting in words
+        # with document frequency 1 across the whole corpus — the corpus-aware
+        # sibling of the within-page hapax share
+        oneoff_toks = sum(c for w, c in counts.items() if df[w] == 1)
         raw[nid] = {
             "tokens": total,
             "types": types,
@@ -281,6 +285,7 @@ def main():
             "hapax": hapax / types if types else 0.0,
             "entropy": entropy(counts, total),
             "tfidf": tfidf_sum,
+            "oneoff": oneoff_toks / total if total else 0.0,
             "zipf_s": slope,
             "zipf_r2": r2,
             "zipf_dev": dev,
@@ -298,9 +303,10 @@ def main():
     z_ent = zscores("entropy")
     z_tfidf = zscores("tfidf")
     z_zipf = zscores("zipf_dev")
+    z_oneoff = zscores("oneoff")
 
     composite = {
-        nid: (z_ttr[nid] + z_hapax[nid] + z_ent[nid] + z_tfidf[nid] + z_zipf[nid]) / Z_COUNT
+        nid: (z_ttr[nid] + z_hapax[nid] + z_ent[nid] + z_tfidf[nid] + z_zipf[nid] + z_oneoff[nid]) / Z_COUNT
         for nid in z_ttr
     }
 
@@ -340,6 +346,7 @@ def main():
             "hapax": round(r["hapax"], 4),
             "entropy": round(r["entropy"], 4),
             "tfidf": round(r["tfidf"], 4),
+            "oneoff": round(r["oneoff"], 4),
             "zipf_s": round(r["zipf_s"], 4),
             "zipf_r2": round(r["zipf_r2"], 4),
             "zipf_dev": round(r["zipf_dev"], 4),
@@ -348,6 +355,7 @@ def main():
             "z_entropy": round(z_ent[nid], 3),
             "z_tfidf": round(z_tfidf[nid], 3),
             "z_zipf": round(z_zipf[nid], 3),
+            "z_oneoff": round(z_oneoff[nid], 3),
             "weird": round(composite[nid], 3),
             "top_tfidf": top_words[nid],
         }
@@ -479,12 +487,12 @@ def main():
             "heaps_exponent": round(heaps_exp, 3),
             "n_shuffles": N_SHUFFLES,
             "n_z_components": Z_COUNT,
-            "weights": ["ttr", "hapax", "entropy", "tfidf", "zipf_dev"],
+            "weights": ["ttr", "hapax", "entropy", "tfidf", "zipf_dev", "oneoff"],
         },
         "pages": pages_json,
         "heaps": heaps,
         "weird": {
-            "components": ["z_ttr", "z_hapax", "z_entropy", "z_tfidf", "z_zipf"],
+            "components": ["z_ttr", "z_hapax", "z_entropy", "z_tfidf", "z_zipf", "z_oneoff"],
             "top10": [{"i": nid, "n": pages_json[nid]["name"], "s": round(composite[nid], 3)}
                       for nid, _ in weird_sorted[:10]],
             "bottom10": [{"i": nid, "n": pages_json[nid]["name"], "s": round(composite[nid], 3)}
