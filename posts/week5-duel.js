@@ -1,11 +1,12 @@
 /*
- * Week 5 duel explorable — "the Zipf vs Heaps duel": build your own corpus.
+ * Week 5 duel explorable — "build the corpus yourself": the Zipf/Heaps duel.
  *
- * A vocabulary-building explorable joining the week's two questions. Pages
- * are added one at a time; each addition draws the page's own Zipf curve
- * (log-log rank x frequency) as well as the accumulated corpus's merged
- * curve, with the idealised Zipf curve (slope exactly -1) as the dashed
- * reference. Layers are checkbox-toggled. Four ways to add a character:
+ * A vocabulary-building explorable over the plain-text Marvel hero pages.
+ * Pages are added one at a time; each addition draws the page's own Zipf
+ * curve (rank x frequency, log–log by default with a linear-axes toggle) as
+ * well as the accumulated corpus's merged curve, with the idealised Zipf
+ * curve (slope exactly -1) as the dashed reference. Layers are
+ * checkbox-toggled. Four ways to add a character:
  *   - the dropdown        : (Zipf deviation / corpus one-offs / Heaps gain /
  *                           random) drives BOTH "+ One step" and ▶ Play;
  *                           Zipf and corpus-one-offs are argmax of the frozen

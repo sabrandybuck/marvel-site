@@ -25,6 +25,9 @@ marvel-site/
 │   │                              which reads <script ... data-dataset="KEY">)
 │   ├── week-1-marvel-network.html real Week 1 content
 │   ├── week-2-marvel.html         Week 2 · Marvel (the original null-model post)
+│   ├── week-3.html, week-4.html   Week 3/4 posts (graphs, communities, backbone)
+│   ├── week-5.html                Week 5: the duel explorable (build-your-own-corpus)
+│   │                              with posts/week5-duel.js
 │   └── week-N.html                placeholders for future weeks (no dataset yet)
 ├── data/<dataset>/                crawls: nodes/edges TSVs + summary JSON per dataset;
 │                                  five plus the frozen course snapshot data/week1/
@@ -71,3 +74,31 @@ snapshot (2026-08-26) from the course data page:
 
 - https://sunelehmann.com/socialgraphs2026-web/data/week1_nodes.tsv
 - https://sunelehmann.com/socialgraphs2026-web/data/week1_edges.tsv
+
+## Week 5 — the duel explorable
+
+`posts/week-5.html` + `posts/week5-duel.js`: a build-your-own-corpus explorable over the plain
+text of the same 303 hero pages (`data/marvel_pages/*.txt`, the course's Week 5 frozen release;
+filenames are URL-encoded `node_id`s). Add pages one at a time — dropdown drives both the
+"+ One step" button and ▶ Play (a full run ≈ 30 s) — by:
+
+- **Zipf deviation** / **corpus one-offs**: argmax of frozen per-page z-scores;
+- **Heaps gain**: live marginal ΔV (brand-new distinct words), computed exactly in the browser
+  from per-page varint `(word index, count)` pairs against the running union;
+- **random**: uniform among remaining; or type a character's name.
+
+The log–log chart draws each page's own rank–frequency curve, the accumulated corpus's merged
+curve, and the ideal Zipf slope −1 reference, with log–log/linear axis toggle.
+
+Regenerate all frozen numbers:
+
+```
+cd marvel-site/analysis
+python build_week5.py
+```
+
+stdlib only; writes `data/marvel_pages/week5_summary.json`: per-page token/type counts,
+entropy, TF-IDF and Zipf fits, the six z-scored components + composite (the duel's Zipf and
+one-off strategies read the frozen z-scores; Heaps is live), Heaps-growth curves for the
+frozen and shuffled build orders, and the duel's compact `(word, count)` payload.
+It roundtrip-asserts the duel binary payloads against the raw token counters.
