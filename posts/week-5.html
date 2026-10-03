@@ -339,14 +339,17 @@
     <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
   </div>
   <p>
-    The metrics of this week answer different questions, so we made them race. One button
-    adds the remaining character with the <strong>highest Zipf score</strong> (precomputed: the
-    page whose rank–frequency slope bends hardest away from the ideal −1). A sibling button adds
-    the <strong>highest corpus one-off score</strong> — the remaining page with the biggest
-    share of its tokens in words used exactly once in the corpus. Third, the remaining character
-    with the <strong>highest Heaps score</strong> — defined live, the way Heaps' score must be:
-    the number of <em>brand-new</em> words a page would deposit right now, which depends on
-    everything already added. Or type any character's name and add it by hand.
+    The metrics of this week answer different questions, so we made them race — via one
+    dropdown, not a wall of buttons. It drives both the manual
+    <strong>+&nbsp;Add top-score</strong> button and auto-play at once: pick
+    <em>Zipf deviation</em> (the precomputed page whose rank–frequency slope bends hardest
+    away from the ideal −1), <em>corpus one-offs</em> (the remaining page holding the biggest
+    share of its tokens in words used exactly once in the corpus),     <em>Heaps gain</em> (defined
+    live, the way Heaps' score must be: the number of <em>brand-new</em> words a page would
+    deposit right now, which depends on everything already added), or a
+    <em>random pick</em>. <strong>+&nbsp;One step</strong> adds one page by the dropdown's
+    choice, <strong>&#9654;&nbsp;Play</strong> keeps adding at ~10 a second until the corpus
+    is full (switch the dropdown live mid-run); or type any character's name and add it by hand.
   </p>
   <p>
     Each addition draws that character's own Zipf curve on the log–log chart, behind the merged
@@ -367,25 +370,22 @@
 
 <figure class="wide-figure explorer" id="duel-explorer">
   <div class="explorer-controls" style="flex-wrap:wrap;">
-    <div class="hero-search" style="flex:1 1 300px;">
-      <span class="hero-search-label">Auto-play</span>
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Pick by</span>
       <div class="arrow-mode-row" id="dl-add-buttons">
+        <select class="search-input" id="dl-metric" style="flex:0 0 auto;min-width:190px;" aria-label="Add strategy">
+          <option value="zipf">Zipf deviation (weirdness)</option>
+          <option value="oneoff">Corpus one-offs (weirdness)</option>
+          <option value="heaps">Heaps gain (live ΔV)</option>
+          <option value="random">Random pick</option>
+        </select>
         <button type="button" class="btn" id="dl-play">&#9654; Play</button>
-        <span class="arrow-toggle">
-          <button type="button" class="arrow-toggle-btn is-active" data-dl-strategy="zipf" aria-pressed="true">Zipf</button>
-          <button type="button" class="arrow-toggle-btn" data-dl-strategy="oneoff" aria-pressed="false">One-offs</button>
-          <button type="button" class="arrow-toggle-btn" data-dl-strategy="heaps" aria-pressed="false">Heaps</button>
-          <button type="button" class="arrow-toggle-btn" data-dl-strategy="random" aria-pressed="false">Random</button>
-        </span>
       </div>
     </div>
     <div class="hero-search" style="flex:1 1 260px;">
       <span class="hero-search-label">Add a page</span>
       <div class="arrow-mode-row">
-        <button type="button" class="btn" id="dl-top-zipf">+ Add top-Zipf</button>
-        <button type="button" class="btn" id="dl-top-oneoff">+ Add top-one-offs</button>
-        <button type="button" class="btn" id="dl-top-heaps">+ Add top-Heaps</button>
-        <button type="button" class="btn" id="dl-top-random">+ Add random</button>
+        <button type="button" class="btn" id="dl-step">+ One step</button>
       </div>
     </div>
     <div class="hero-search" style="flex:1 1 240px;">

@@ -5,23 +5,19 @@
  * are added one at a time; each addition draws the page's own Zipf curve
  * (log-log rank x frequency) as well as the accumulated corpus's merged
  * curve, with the idealised Zipf curve (slope exactly -1) as the dashed
- * reference. Layers are checkbox-toggled. Five ways to add a character:
- *   - "Add top-Zipf"     : argmax of the frozen per-page Zipf deviation
- *                          (precomputed by analysis/build_week5.py);
- *   - "Add top-one-offs" : argmax of the frozen corpus-one-off share — the
- *                          share of the page's tokens in words used exactly
- *                          once in the whole 303-page corpus;
- *   - "Add top-Heaps"    : argmax of the LIVE marginal Heaps gain — the
- *                          number of brand-new distinct words a candidate
- *                          would add right now, computed from its frozen
- *                          (idx, count) varint pairs against the running
- *                          union flags;
- *   - "Add random"       : uniform pick among the remaining characters;
- *   - a text box         : name any character, add it;
- *   - auto-play          : ▶ Play adds one page per ~0.1 s using whichever
- *                          strategy the Zipf/One-offs/Heaps/Random toggle
- *                          selects — toggle it live mid-run (a full 303-page
- *                          run costs ~30 s).
+ * reference. Layers are checkbox-toggled. Four ways to add a character:
+ *   - the dropdown        : (Zipf deviation / corpus one-offs / Heaps gain /
+ *                           random) drives BOTH "+ One step" and ▶ Play;
+ *                           Zipf and corpus-one-offs are argmax of the frozen
+ *                           per-page z-scores (precomputed by
+ *                           analysis/build_week5.py), Heaps is argmax of the
+ *                           LIVE marginal ΔV, random is uniform among the
+ *                           remaining characters;
+ *   - "+ One step"        : adds one page using the dropdown's strategy;
+ *   - a text box          : name any character, add it;
+ *   - ▶ Play              : adds one page per ~0.1 s using the dropdown's
+ *                           strategy — switch it live mid-run (a full
+ *                           303-page run costs ~30 s).
  *
  * Everything heavy is frozen (data/marvel_pages/week5_summary.json duel
  * section: the 26,952-word global vocab and per-page delta-encoded
@@ -165,10 +161,7 @@
     var svgHost = document.getElementById("dl-stage");
     var leftHost = document.getElementById("dl-summary");
     var stripHost = document.getElementById("dl-strip");
-    var topZipfBtn = document.getElementById("dl-top-zipf");
-    var topHeapsBtn = document.getElementById("dl-top-heaps");
-    var topOneoffBtn = document.getElementById("dl-top-oneoff");
-    var topRandomBtn = document.getElementById("dl-top-random");
+    var stepBtn = document.getElementById("dl-step");
     var searchIn = document.getElementById("dl-search");
     var goBtn = document.getElementById("dl-go");
     var msgHost = document.getElementById("dl-msg");
@@ -350,38 +343,24 @@
         bestHeapsId = null;
         bestOneoffId = null;
         bestRandomId = null;
-        topZipfBtn.disabled = true;
-        topHeapsBtn.disabled = true;
-        topOneoffBtn.disabled = true;
-        topRandomBtn.disabled = true;
+        stepBtn.disabled = true;
         addBtns.classList.add("is-done");
-        topZipfBtn.textContent = "Corpus complete";
-        topHeapsBtn.textContent = "Corpus complete";
-        topOneoffBtn.textContent = "Corpus complete";
-        topRandomBtn.textContent = "Corpus complete";
+        stepBtn.textContent = "Corpus complete";
         msgHost.textContent = "All 303 pages added — the explorer is full. Reset to play again.";
         msgHost.style.display = "block";
         return;
       }
-      topZipfBtn.disabled = false;
-      topHeapsBtn.disabled = false;
-      topOneoffBtn.disabled = false;
-      topRandomBtn.disabled = false;
+      stepBtn.disabled = false;
       addBtns.classList.remove("is-done");
-      bestRandomId = remaining[Math.floor(Math.random() * remaining.length)];
-      topRandomBtn.textContent = "+ Add random · " + fmtInt(remaining.length) + " left";
 
       var bz = -Infinity, bzId = null;
       remaining.forEach(function (nid) {
         if (pages[nid].z_zipf > bz) { bz = pages[nid].z_zipf; bzId = nid; }
       });
-      topZipfBtn.textContent = "+ Add top-Zipf  (next: " + fmtFl(bz, 2) + ")";
-
       var bo = -Infinity, boId = null;
       remaining.forEach(function (nid) {
         if (pages[nid].z_oneoff > bo) { bo = pages[nid].z_oneoff; boId = nid; }
       });
-      topOneoffBtn.textContent = "+ Add top-one-offs  (next: " + fmtFl(bo, 2) + ")";
 
       // live marginal scan
       var bh = -1, bhId = null;
@@ -389,10 +368,13 @@
         var dv = marginalFor(nid);
         if (dv > bh) { bh = dv; bhId = nid; }
       });
-      topHeapsBtn.textContent = "+ Add top-Heaps  (next ΔV: " + fmtInt(bh) + ")";
       bestZipfId = bzId;
       bestOneoffId = boId;
       bestHeapsId = bhId;
+      bestRandomId = remaining[Math.floor(Math.random() * remaining.length)];
+
+      // one button does one pick: whatever the dropdown points at
+      stepBtn.textContent = "+ One step · " + fmtInt(remaining.length) + " left";
     }
 
     var bestZipfId = null, bestOneoffId = null;
@@ -405,11 +387,15 @@
     var strategy = "zipf";
     var nextDue = 0;
 
-    function addOneByPlay() {
-      var id = strategy === "zipf" ? bestZipfId
+    function strategyPick() {
+      return strategy === "zipf" ? bestZipfId
         : strategy === "oneoff" ? bestOneoffId
         : strategy === "random" ? bestRandomId
         : bestHeapsId;
+    }
+
+    function addOneByPlay() {
+      var id = strategyPick();
       if (!id) { stopPlay(); return; }
       onChooseAdd(id);
     }
@@ -431,22 +417,15 @@
       playBtn.setAttribute("aria-pressed", "false");
     }
 
-    function strategyId() {
-      return strategy === "zipf" ? bestZipfId
-        : strategy === "oneoff" ? bestOneoffId
-        : strategy === "random" ? bestRandomId
-        : bestHeapsId;
-    }
-
     function startPlay() {
-      if (added.length >= 303 || !strategyId()) return;
+      if (added.length >= 303 || !strategyPick()) return;
       playing = true;
       playBtn.textContent = "❚❚ Pause";
       playBtn.setAttribute("aria-pressed", "true");
       msgHost.style.display = "none";
       if (REDUCED_MOTION) {
         // jump: add everything the current strategy would pick, in order
-        while (added.length < 303 && strategyId()) addOneByPlay();
+        while (added.length < 303 && strategyPick()) addOneByPlay();
         stopPlay();
         return;
       }
@@ -460,20 +439,12 @@
       else startPlay();
     });
 
-    var stratBtns = Array.prototype.slice.call(
-      document.querySelectorAll("[data-dl-strategy]"));
-    strategy = "zipf";
-    stratBtns.forEach(function (b) {
-      b.addEventListener("click", function () {
-        strategy = b.getAttribute("data-dl-strategy");
-        stratBtns.forEach(function (x) {
-          x.setAttribute("aria-pressed", x === b ? "true" : "false");
-          // the highlight itself is the .is-active class (aria-pressed alone
-          // is styled for .btn, not .arrow-toggle-btn) — move it explicitly
-          if (x === b) x.classList.add("is-active");
-          else x.classList.remove("is-active");
-        });
-      });
+    // the metric select drives BOTH the "+ One step" button and auto-play
+    var metricSel = document.getElementById("dl-metric");
+    strategy = metricSel.value || "zipf";
+    metricSel.addEventListener("change", function () {
+      strategy = metricSel.value;
+      refreshAll(); // relabel step (remaining count is all it shows)
     });
 
     function onChooseAdd(nid) {
@@ -488,17 +459,9 @@
       refreshAll();
     }
 
-    topZipfBtn.addEventListener("click", function () {
-      if (bestZipfId) onChooseAdd(bestZipfId);
-    });
-    topHeapsBtn.addEventListener("click", function () {
-      if (bestHeapsId) onChooseAdd(bestHeapsId);
-    });
-    topOneoffBtn.addEventListener("click", function () {
-      if (bestOneoffId) onChooseAdd(bestOneoffId);
-    });
-    topRandomBtn.addEventListener("click", function () {
-      if (bestRandomId) onChooseAdd(bestRandomId);
+    stepBtn.addEventListener("click", function () {
+      var id = strategyPick();
+      if (id) onChooseAdd(id);
     });
     resetBtn.addEventListener("click", function () {
       stopPlay();
