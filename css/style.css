@@ -1727,3 +1727,41 @@ body.sg-body main.sg-shell {
 #dl-add-buttons.is-done .btn { color: var(--text-dim); }
 
 .dl-empty { color: var(--text-dim); font-size: 13px; margin: 6px 0; }
+
+/* duel explorable: header row (label left, reset right) and inline
+   control names used in the prose above it */
+.dl-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -4px 0 12px;
+}
+
+.ctl {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+/* week 5 investigation charts */
+.inv-figure { margin-top: 12px; margin-bottom: 8px; }
+.inv-info {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 12px 2px 0;
+  min-height: 8.5em;
+  line-height: 1.6;
+}
+.inv-info strong { color: var(--text); }
+.inv-title { color: var(--text); font-weight: 600; font-size: 14px; }
+
+/* week 5 takeaways */
+.takeaways { margin: 0 0 20px; padding-left: 20px; }
+.takeaways li { margin: 0 0 10px; }
+.takeaways li strong { color: var(--text); }

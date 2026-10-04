@@ -1,5 +1,5 @@
 /*
- * Week 5 duel explorable — "build the corpus yourself": the Zipf/Heaps duel.
+ * Week 5 explorable — "build the corpus yourself": five page-selection strategies.
  *
  * A vocabulary-building explorable over the plain-text Marvel hero pages.
  * Pages are added one at a time; each addition draws the page's own Zipf
@@ -8,11 +8,14 @@
  * curve (slope exactly -1) as the dashed reference. Layers are
  * checkbox-toggled. Four ways to add a character:
  *   - the dropdown        : (Zipf deviation / corpus one-offs / Heaps gain /
- *                           random) drives BOTH "+ One step" and ▶ Play;
+ *                           most-linked first / random) drives BOTH
+ *                           "+ One step" and ▶ Play;
  *                           Zipf and corpus-one-offs are argmax of the frozen
  *                           per-page z-scores (precomputed by
  *                           analysis/build_week5.py), Heaps is argmax of the
- *                           LIVE marginal ΔV, random is uniform among the
+ *                           LIVE marginal ΔV, most-linked first follows the
+ *                           frozen heaps.indegree.order (a fixed sequence),
+ *                           random is uniform among the
  *                           remaining characters;
  *   - "+ One step"        : adds one page using the dropdown's strategy;
  *   - a text box          : name any character, add it;
@@ -432,6 +435,7 @@
         bestHeapsId = null;
         bestOneoffId = null;
         bestRandomId = null;
+        bestLinkedId = null;
         stepBtn.disabled = true;
         addBtns.classList.add("is-done");
         stepBtn.textContent = "Corpus complete";
@@ -461,13 +465,15 @@
       bestOneoffId = boId;
       bestHeapsId = bhId;
       bestRandomId = remaining[Math.floor(Math.random() * remaining.length)];
+      bestLinkedId = linkedOrder.filter(function (nid) { return added.indexOf(nid) === -1; })[0] || null;
 
       // one button does one pick: whatever the dropdown points at
       stepBtn.textContent = "+ One step · " + fmtInt(remaining.length) + " left";
     }
 
     var bestZipfId = null, bestOneoffId = null;
-    var bestHeapsId = null, bestRandomId = null;
+    var bestHeapsId = null, bestRandomId = null, bestLinkedId = null;
+    var linkedOrder = S.heaps.indegree.order;   // linked-first (most-linked page first)
 
     // ---- auto-play ------------------------------------------------------------
     var PLAY_SECONDS = 30;                 // a full 303-page run costs ~30 s
@@ -480,6 +486,7 @@
       return strategy === "zipf" ? bestZipfId
         : strategy === "oneoff" ? bestOneoffId
         : strategy === "random" ? bestRandomId
+        : strategy === "indegree" ? bestLinkedId
         : bestHeapsId;
     }
 
