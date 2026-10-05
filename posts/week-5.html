@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 5 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 5: build the corpus yourself — The Web of Heroes</title>
+  <meta name="description" content="The 303 Marvel hero pages as a vocabulary machine: add characters one at a time — by Zipf deviation, corpus one-offs, live Heaps gain, most-linked first or at random — and watch the merged Zipf curve against the ideal slope −1 line, in log–log or linear axes.">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
@@ -22,17 +23,231 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 5</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 5 · Build the corpus yourself</div>
+  <h1>Heaps&rsquo; law of the Marvel universe: how fast does the vocabulary grow?</h1>
+  <p class="subtitle">
+    This week the playground handed us the other half of the Marvel crawl: the <em>text</em> of
+    every hero's Wikipedia page. We add those pages to a corpus one at a time and ask how the
+    vocabulary grows &mdash; then let you pick the order and watch the merged word-frequency
+    curve against the idealized Zipf curve (slope &minus;1).
+  </p>
 
-  <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Intro</a>
+    <a href="#duel">Build the corpus</a>
+    <a href="#who-weird">Who is weird</a>
+    <a href="#novelty-weird">New words vs weirdness</a>
+    <a href="#conclusion">Conclusion</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>A corpus instead of a graph</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
   </div>
+  <p>
+    <strong>The question.</strong> If we add the prepared Wikipedia pages one at a time, most-linked
+    character first, how quickly does Marvel's vocabulary grow? Do the famous, well-connected
+    heroes supply most of the words, or do minor characters keep contributing genuinely new
+    vocabulary instead of repeating what we've already met? And does the order we read in change
+    the path of that growth, even though everyone who reads all the pages ends up with the same
+    vocabulary? That relationship between corpus size and vocabulary size is
+    <em>Heaps' law</em>.
+  </p>
+  <p>
+    The week&nbsp;1 network told us <em>who mentions whom</em>; the week&nbsp;5 release is the actual
+    prose &mdash; the full plain text of the same 303 Wikipedia articles (4.5&nbsp;MB frozen on
+    2026-08-26). Tokenizing everything &mdash; lowercase, keep apostrophes, strip punctuation &mdash;
+    gives <strong>727,440 tokens</strong> containing <strong>26,952 distinct words</strong>. The
+    median page is only 1,238 tokens, but the corpus is front-heavy: Spider-Man's article alone
+    is 10,293 tokens, over 8× the median.
+  </p>
+  <p>
+    Everything numeric below was computed once, offline, in <code>analysis/build_week5.py</code>
+    (stdlib only) and frozen into <code>data/marvel_pages/week5_summary.json</code> &mdash; the
+    browser only looks numbers up and draws them.
+  </p>
+
+  <ul class="stats-grid" id="intro-stats">
+    <li class="stat-card"><span class="stat-label">Pages</span><span class="stat-value">303</span></li>
+    <li class="stat-card"><span class="stat-label">Tokens</span><span class="stat-value">727,440</span></li>
+    <li class="stat-card"><span class="stat-label">Distinct words</span><span class="stat-value">26,952</span></li>
+    <li class="stat-card"><span class="stat-label">Median page</span><span class="stat-value">1,238 tokens</span></li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="duel">
+
+  <div class="section-head">
+    <h2>Build the corpus</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
+  </div>
+  <p>
+    The metrics of this week answer different questions, so we turned them into ways of
+    building the corpus &mdash; via one dropdown, not a wall of buttons. The <span class="ctl">Pick by</span> dropdown drives both the manual
+    <span class="ctl">+&nbsp;One step</span> button and auto-play at once. Pick one of five strategies:
+  </p>
+  <ul class="takeaways">
+    <li><strong><em>Zipf deviation</em></strong> &mdash; the precomputed page whose rank–frequency slope bends hardest away from the ideal −1.</li>
+    <li><strong><em>Corpus one-offs</em></strong> &mdash; the remaining page holding the biggest share of its tokens in words used exactly once in the corpus.</li>
+    <li><strong><em>Heaps gain</em></strong> &mdash; defined live: the number of <em>brand-new</em> words a page would deposit right now, which depends on everything already added.</li>
+    <li><strong><em>Most-linked first</em></strong> &mdash; the fixed linked-first order, with the most-linked page first.</li>
+    <li><strong><em>Random pick</em></strong> &mdash; choose a remaining page at random.</li>
+  </ul>
+  <p>
+    <span class="ctl">+&nbsp;One step</span> adds one page by the dropdown's
+    choice, <span class="ctl">&#9654;&nbsp;Play</span> keeps adding at ~10 a second until the corpus
+    is full (switch the dropdown live mid-run); or type any character's name in the
+    <span class="ctl">Or type a character</span> box and press <span class="ctl">Add</span> to add it by hand.
+  </p>
+  <p>
+    Each addition draws that character's own Zipf curve on the chart (<span class="ctl">Axes</span>:
+    <span class="ctl">Log&ndash;log</span> by default, <span class="ctl">Linear</span> on demand), behind the merged vocabulary curve of everything you've built so far,
+    with the idealized Zipf curve (slope −1) as the dashed reference. The layers are checkbox
+    toggles; the left panel summarizes the page you just added, including its live marginal
+    gain ΔV — the words it deposits on top of everything you already own.
+  </p>
+  <p>
+    Watch for the reversal: buying Zipf outliers (spiky minor stubs) one after another keeps
+    your merged curve far below the ideal line — you accumulate vocabulary that is rare in the
+    aggregate but strangely <em>concentrated</em> page by page. The Heaps setting, by contrast,
+    buys words that show up nowhere else in what you already own. Which strategy pulls the
+    merged curve closest to the ideal? Press Play and see.
+  </p>
+
+</article>
+
+<figure class="wide-figure explorer" id="duel-explorer">
+  <div class="dl-hud">
+    <span class="hero-search-label">Explorable &middot; build a corpus</span>
+    <button type="button" class="btn" id="dl-reset">↺ Reset corpus</button>
+  </div>
+  <div class="explorer-controls" style="flex-wrap:wrap;">
+    <div class="hero-search" style="flex:0 0 auto;">
+      <span class="hero-search-label">Pick by</span>
+      <div class="arrow-mode-row" id="dl-add-buttons">
+        <select class="search-input" id="dl-metric" style="flex:0 0 auto;min-width:190px;" aria-label="Add strategy">
+          <option value="zipf">Zipf deviation</option>
+          <option value="oneoff">Corpus one-offs</option>
+          <option value="heaps">Heaps gain (live ΔV)</option>
+          <option value="indegree">Most-linked first</option>
+          <option value="random">Random pick</option>
+        </select>
+        <button type="button" class="btn" id="dl-play">&#9654; Play</button>
+      </div>
+      <div class="arrow-mode-row" style="margin-top:8px;">
+        <span class="hero-search-label" style="margin-right:2px;">Axes</span>
+        <span class="arrow-toggle">
+          <button type="button" class="arrow-toggle-btn is-active" data-dl-axis="log" aria-pressed="true">Log&ndash;log</button>
+          <button type="button" class="arrow-toggle-btn" data-dl-axis="linear" aria-pressed="false">Linear</button>
+        </span>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:1 1 260px;">
+      <span class="hero-search-label">Add a page</span>
+      <div class="arrow-mode-row">
+        <button type="button" class="btn" id="dl-step">+ One step</button>
+      </div>
+    </div>
+    <div class="hero-search" style="flex:1 1 240px;">
+      <span class="hero-search-label">Or type a character</span>
+      <div class="hero-search-row">
+        <input type="text" class="search-input" id="dl-search" list="dl-names" placeholder="e.g. Blade" aria-label="Search character to add">
+        <datalist id="dl-names"></datalist>
+        <button type="button" class="btn" id="dl-go">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint" id="dl-strip"></p>
+
+  <div class="duel-grid">
+    <div class="duel-left">
+      <span class="hero-search-label">Last added</span>
+      <div id="dl-summary"></div>
+      <p class="dl-used" id="dl-used"></p>
+      <p class="search-status" id="dl-msg" style="display:none;"></p>
+    </div>
+    <div class="duel-right">
+      <div class="arrow-mode-row" style="gap:14px;">
+        <span class="hero-search-label">Layers</span>
+        <label class="dl-check"><input type="checkbox" id="dl-layer-char" checked> per-character curves</label>
+        <label class="dl-check"><input type="checkbox" id="dl-layer-acc" checked> accumulated corpus</label>
+        <label class="dl-check"><input type="checkbox" id="dl-layer-ideal" checked> ideal Zipf (slope −1)</label>
+      </div>
+      <div id="dl-stage"></div>
+      <p class="explorer-hint" id="dl-error" style="display:none;color:var(--accent);"></p>
+      <p class="explorer-caption" style="margin-top:6px;">
+        Built in the browser from the <code>duel</code> section of
+        <code>data/marvel_pages/week5_summary.json</code>: the global vocabulary and per-page
+        (word,&nbsp;count) pairs are frozen output of <code>analysis/build_week5.py</code>; the
+        marginal Heaps gain is computed live, exactly, for every remaining candidate on each add.
+      </p>
+    </div>
+  </div>
+</figure>
+
+<article class="post wide" id="who-weird">
+
+  <div class="section-head">
+    <h2>Which pages are the weird ones?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
+  </div>
+  <p>
+    Weird doesn't mean funny, obscure, or badly written. Here, weird has a precise meaning:
+    <strong>a page is weird when an unusually large share of its words are words that rarely appear
+    elsewhere in the Marvel corpus.</strong> A word is <em>rare</em> if it occurs in at most 3 of the
+    303 pages (about 1%); a page's weirdness is the fraction of its running text made of such words.
+    Dividing by the page's own length keeps long pages from being weird just for being long. It is a
+    statement about words only, not about the character or the quality of the writing.
+  </p>
+  <figure class="wide-figure inv-figure">
+    <div id="inv-chart-b"></div>
+    <p class="inv-info" id="inv-info-b"></p>
+    <p class="explorer-caption">Share of each page's words that occur in at most 3 of the 303 pages; the dashed line is the median page. Click a page to see its rare words.</p>
+  </figure>
+  <p class="explorer-hint" id="inv-error" style="display:none;color:var(--accent);"></p>
+
+</article>
+
+<article class="post wide" id="novelty-weird">
+
+  <div class="section-head">
+    <h2>Does adding lots of new vocabulary make a page weird?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
+  </div>
+  <p>
+    Every page, once. Horizontally: the <em>new words</em> it contributes, meaning the distinct
+    words no earlier page had used when the pages are read linked-first (most-linked page first),
+    so the number belongs to that order. Vertically: weirdness. Look for pages that add many
+    words but are not weird, and for short pages that add few words yet are very weird. The
+    selection is shared with the chart above.
+  </p>
+  <figure class="wide-figure inv-figure">
+    <div id="inv-chart-c"></div>
+    <p class="inv-info" id="inv-info-c"></p>
+  </figure>
+
+</article>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>What we take away</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 5 navigation">&uarr;</a>
+  </div>
+  <ul class="takeaways">
+    <li><strong>Vocabulary grows fast, then slows.</strong> Early pages bring a flood of unseen words; later ones mostly repeat what we have. Heaps' &beta; is about <span data-k="beta">…</span>, below 1, so vocabulary grows more slowly than the text does.</li>
+    <li><strong>Network importance and vocabulary gain are different.</strong> Most-linked first follows the network (it starts with <span data-k="first-name">…</span>, adding <span data-k="first-dv">…</span> new words); Heaps gain actively searches for the page that adds the most unseen words at each step.</li>
+    <li><strong>For this analysis, we define &ldquo;weirdness&rdquo; using rare-word share.</strong> It highlights pages whose vocabulary is unusually concentrated in words that occur in at most <span data-k="rare-max">…</span> Marvel pages &mdash; a useful lens on unusual vocabulary, not the only meaning of &ldquo;weird&rdquo;. By this measure the weirdest page is <span data-k="weird-name">…</span>, at <span data-k="weird-pct">…</span> rare-word tokens.</li>
+    <li><strong>New words vs weirdness is a question, not a result.</strong> The scatterplot lets you check whether pages that introduce many new words also tend to be weird, or whether the two are unrelated; read it yourself.</li>
+  </ul>
 
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
 
@@ -45,6 +260,9 @@
     <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
   </div>
 </footer>
+
+<script src="week5-duel.js"></script>
+<script src="week5-investigation.js"></script>
 
 </body>
 </html>
