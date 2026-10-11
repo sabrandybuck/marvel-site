@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6.6: the analogy slot machine — The Web of Heroes</title>
+  <meta name="description" content="Marvel as the king−man+woman arithmetic: pick a character, subtract a word, add another, and watch all 303 heroes re-rank around the new direction — with the actual sentences that prove (or embarrass) the machine's answer.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 6 · The toy that earned its keep</div>
+  <h1>The analogy slot machine</h1>
+  <p class="subtitle">
+    The week's most famous demonstration is word arithmetic:
+    <code>king &minus; man + woman &approx; queen</code>. Does the same trick work one
+    level up &mdash; start from a <strong>character</strong>, subtract a word, add a word,
+    and let the machine name the closest superhero? Pull the lever:
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#how">How a character becomes a vector</a>
+    <a href="#game">The lever</a>
+    <a href="#found">What the machine gets right (and wrong)</a>
+    <a href="#limits">Limitation</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="how">
+  <div class="section-head">
+    <h2>How a character becomes a vector</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Same recipe as the <a href="week-6-3.html">Marvel map</a>: a character's position is
+    the TF-IDF-weighted average of their <em>fingerprint words</em> (names removed) in our
+    Marvel-trained Word2Vec space. Trade a word and the traded vectors have to be
+    vocabulary the machine actually knows &mdash; 3,791 shipped words, everything else
+    gets bounced. The new direction is scored against all 303 character positions, and
+    the podium is who's closest. Nothing is precomputed; every spin is live arithmetic.
+  </p>
+</article>
+
+<article class="post wide" id="game">
+  <div class="section-head">
+    <h2>The lever</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+
+  <div id="w66-controls">
+    <div class="w66-eq">
+      <select id="w66-from" aria-label="Starting character"></select>
+      <input id="w66-from-name" list="w66-from-datalist" class="search-input" placeholder="…or type a name" autocomplete="off">
+      <datalist id="w66-from-datalist"></datalist>
+      <span class="w66-op">&minus;</span>
+      <input id="w66-minus" list="w66-minus-datalist" class="search-input" placeholder="subtract word" autocomplete="off">
+      <datalist id="w66-minus-datalist"></datalist>
+      <span class="w66-op">+</span>
+      <input id="w66-plus" list="w66-plus-datalist" class="search-input" placeholder="add word" autocomplete="off">
+      <datalist id="w66-plus-datalist"></datalist>
+      <button class="btn" id="w66-lever" type="button">Pull the lever</button>
+      <p class="cos-note" id="w66-error" style="color:var(--accent);width:100%;margin:0;"></p>
+    </div>
+
+    <div class="w6-chips" id="w66-presets"></div>
+    <div id="w66-results"></div>
+  </div>
+</article>
+
+<article class="post wide" id="found">
+  <div class="section-head">
+    <h2>What the machine gets right (and wrong)</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <ul>
+    <li><strong>The biology round works.</strong> The default preset,
+      Spider&#8202;&minus;&#8202;man&#8202;+&#8202;woman, puts <strong>Spider-Girl</strong>
+      right at the top of the family (with Wild Child, the machine's own punchline, at
+      #1) &mdash; and the moved-words row shows why: <code>man</code>-carrying
+      fingerprints pushed out, <code>woman</code>-adjacent ones pulled in.</li>
+    <li><strong>Some rounds land in the right family.</strong>
+      Luke&#8202;Cage&#8202;&minus;&#8202;street&#8202;+&#8202;magic crowns
+      <strong>Doctor Druid</strong> &mdash; not the Doctor you ordered, but a real
+      sorcerer from the same neighborhood of the space, with Doctor Strange himself
+      close behind. The analogies rarely name the exact hero; they reliably name the
+      right <em>kind</em> of hero.</li>
+    <li><strong>And some rounds are honest failures.</strong> The echo trap:
+      Venom&#8202;&minus;&#8202;aliens&#8202;+&#8202;technology returns
+      <strong>Eddie Brock</strong> &mdash; the direction barely escapes the symbiote and
+      re-lands on its host, because Venom's fingerprint is <em>about</em> being a
+      symbiote wearing a man. Storm&#8202;&minus;&#8202;weather&#8202;+&#8202;mind
+      drifts to Satana, a mystic, instead of a telepath. The evidence drawer under each
+      spin is there exactly for rounds like these.</li>
+  </ul>
+</article>
+
+<article class="post wide" id="limits">
+  <div class="section-head">
+    <h2>Limitation</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    A character is reduced to a dozen weighted words, the space to 100 dimensions learned
+    from 727k tokens, and every round inherits the corpus's biases &mdash; the
+    war&harr;home lean that the map post caught. Treat the machine as a comedy writer
+    with a statistics degree: sometimes strangely right, always worth auditing.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+  </div>
+</footer>
+
+<script src="week66.js"></script>
+</body>
+</html>

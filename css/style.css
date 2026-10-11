@@ -1245,6 +1245,31 @@ article.post blockquote {
   text-align: right;
 }
 
+/* ---- Week 6-6: the analogy slot machine ---- */
+
+.w66-eq {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 14px 0;
+}
+
+.w66-eq .search-input { max-width: 200px; }
+.w66-eq .w66-op {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.w66-podium { margin: 10px 0; }
+.w66-podium .w66-win {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.w66-podium .w66-win .w6-nname { font-weight: 700; }
+
 /* ranked list, e.g. "top 5 by in-degree" */
 .rank-list {
   list-style: none;
