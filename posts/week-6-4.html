@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6.4: one-character deep dives — The Web of Heroes</title>
+  <meta name="description" content="A zoomable fingerprint explorer around a single Marvel page: its TF-IDF fingerprint, its own LDA topic mixture, three rings of neighbors (TF-IDF, raw counts, topic mixtures), a Word2Vec neighborhood scatter with a live PCA, and the actual sentences.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 6 · Bonus explorable III</div>
+  <h1>One-character deep dives</h1>
+  <p class="subtitle">
+    The last of our 6.11 roadmap: instead of asking one question of the whole corpus, this
+    page turns the lens around and asks <strong>everything week 6 can tell us about a
+    single page</strong> &mdash; its fingerprint, its topic mixture, its three rings of
+    textual neighbors, the Word2Vec neighborhood of each of its words, and the sentences
+    underneath. All of it frozen, none of it live-modelled: a reader, not a trainer.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#explorable">The deep dive</a>
+    <a href="#rings">Reading the rings</a>
+    <a href="#found">What a deep dive is good for</a>
+    <a href="#limitation">Limits</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="explorable">
+  <div class="section-head">
+    <h2>The deep dive</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Start on <strong>Spider-Man</strong> and pick the word <code>venom</code> in the word
+    inspector. Then try the constellation's rings: click any neighbor dot to dive into
+    that character next. Wheel zooms, drag pans, double-click resets.
+  </p>
+
+  <div id="w64-app">
+    <div id="w64-topbar" class="w6-picker">
+      <select id="w64-select" aria-label="Pick a character"></select>
+      <input id="w64-input" list="w64-datalist" class="search-input" placeholder="type a character name…" autocomplete="off">
+      <datalist id="w64-datalist"></datalist>
+      <button class="btn" id="w64-random" type="button">Random character</button>
+      <label class="cos-note" for="w64-no-names" style="display:inline-flex;gap:6px;align-items:center;margin-left:auto;">
+        <input type="checkbox" id="w64-no-names"> topics without names
+      </label>
+    </div>
+
+    <div class="w64-grid">
+      <div class="w64-col w64-col-first">
+        <div id="w64-idcard" class="w6-doc-col"></div>
+        <div id="w64-topic-col" class="w6-doc-col"></div>
+        <div id="w64-fp-col" class="w6-doc-col"></div>
+      </div>
+      <div class="w64-col">
+        <div class="w6-doc-col" id="w64-ring-col">
+          <div class="w6-doc-head">The neighborhood constellation</div>
+          <p class="w64-ring-hint">
+            Three rings of top-10 text neighbors: <span style="color:#e6353a">TF-IDF</span>
+            (inner), <span style="color:#4d7cff">raw counts</span> (middle),
+            <span style="color:#9c6ade">topic mixtures</span> (outer). A
+            <span style="color:#0ca678">green line</span> means the pair is really linked
+            on Wikipedia. Click a dot to dive into it.
+          </p>
+          <svg id="w64-ring-svg" class="w64-ring-svg-display" aria-label="Character neighborhood constellation"></svg>
+        </div>
+        <div id="w64-word-col" class="w6-doc-col"></div>
+        <div id="w64-sent-col" class="w6-doc-col"></div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<article class="post wide" id="rings">
+  <div class="section-head">
+    <h2>Reading the rings</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The same three representations on one picture, and the overlap is the story. For
+    Spider-Man, the inner TF-IDF ring is nearly all <span style="color:#0ca678">green-lined</span>
+    &mdash; Venom, Mary Jane Watson, May Parker are linked and textually unmistakable. The
+    middle raw-counts ring dissolves into the generic Wikipedia dialect again (note how
+    few green lines it earns), and the outer topic ring is a reminder that mixture
+    similarity finds <em>page archetypes</em>, not partners.
+  </p>
+  <p>
+    The word inspector is the same lesson one level down. <code>venom</code>'s PPMI column
+    is all symbiote business (<em>symbiote, host, bond</em>); its Word2Vec column adds the
+    people who touch the symbiote (<em>eddie, brock</em>) &mdash; and then a few confident
+    non-sequiturs, because a 727k-token corpus buys you that much. The live PCA scatter
+    shows the two neighborhoods overlapping: the PPMI ring and the W2V ring are different
+    views of the same context, not rival truths.
+  </p>
+  <p>
+    And the concordance strip underneath is the audit the week keeps asking for: click
+    any fingerprint word and read the actual sentences that produced its weight.
+  </p>
+</article>
+
+<article class="post wide" id="found">
+  <div class="section-head">
+    <h2>What a deep dive turns up</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <ul>
+    <li><strong>Spider-Man, without his name, is Wikipedia boilerplate.</strong> With the
+      proper-name filter on, his page's topic mixture is 99.97% the
+      <em>media-boilerplate</em> topic &mdash; the most Spider-Man thing about the
+      Spider-Man page, once you can't say &ldquo;Spider-Man&rdquo;, is the movie-and-game
+      section at the bottom of it.</li>
+    <li><strong>Near-duplicate pages are a one-click discovery here.</strong> Dive into
+      Wolverine and the green-lined rim of the TF-IDF ring holds Ultimate Wolverine;
+      the constellation makes the Wikipedia self-similarity visible in a way rank lists
+      never did.</li>
+    <li><strong>Isolates look different before you read them.</strong> Characters with no
+      links draw no green lines at all &mdash; and their rings are usually the only
+      evidence about them in the whole site.</li>
+  </ul>
+</article>
+
+<article class="post wide" id="limitation">
+  <div class="section-head">
+    <h2>What it can't tell you</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Three frozen fits, one per representation &mdash; the constellation is one sample of
+    each method, not the method. The PCA scatter is a 2-D shadow of a 100-d space, good
+    for neighborhoods, not for reading off angles. And the concordance only sees sentences
+    that still exist after our sentence splitter &mdash; tables and infoboxes dissolve.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+  </div>
+</footer>
+
+<script src="week64.js"></script>
+</body>
+</html>

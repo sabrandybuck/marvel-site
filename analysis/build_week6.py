@@ -411,7 +411,7 @@ def main():
 
     # ---- pages payload --------------------------------------------------------
     pages_payload = {}
-    for nid in node_ids:
+    for i, nid in enumerate(node_ids):
         pages_payload[nid] = {
             "name": names[nid],
             "in_degree": int(sum(1 for s, t in edges if t == nid)),
@@ -420,6 +420,10 @@ def main():
             "links": links[nid],
             "fp": fp_named[nid][:8],
             "fpn": fp_noname[nid][:8],
+            # document-topic mixtures (rows sum to 1) for the deep-dive page;
+            # _n = the fit with proper names removed
+            "theta": [round(float(x), 4) for x in theta_with[i]],
+            "theta_n": [round(float(x), 4) for x in theta_wo[i]],
         }
 
     stats = {

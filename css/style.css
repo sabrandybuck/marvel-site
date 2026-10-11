@@ -1119,6 +1119,65 @@ article.post blockquote {
   color: var(--text-dim);
 }
 
+/* ---- Week 6-4: one-character deep dive ---- */
+
+.w64-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+
+@media (min-width: 1050px) {
+  .w64-grid { grid-template-columns: 400px 1fr; align-items: start; }
+}
+
+.w64-col > * + * { margin-top: 14px; }
+.w64-col-first > * + * { margin-top: 14px; }
+
+.w64-ring-svg-display {
+  width: 100%;
+  height: 470px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: grab;
+}
+
+.w64-ring-svg-display:active { cursor: grabbing; }
+
+.w64-ring-hint {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin: 4px 0 10px;
+}
+
+.w64-wordcols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .w64-wordcols { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.w64-wordcol {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.w64-vecmap-svg {
+  width: 100%;
+  height: 280px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
 /* ranked list, e.g. "top 5 by in-degree" */
 .rank-list {
   list-style: none;
