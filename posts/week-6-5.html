@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6.5: living between topics — The Web of Heroes</title>
+  <meta name="description" content="The 6.11 question: which Marvel characters live BETWEEN topics? All 303 pages as stacked LDA-mixture bars (names removed), sorted by ambiguity, with the minority-topic sentences underneath as evidence.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 6 · Go-nuts question</div>
+  <h1>Which characters live between topics?</h1>
+  <p class="subtitle">
+    One of the 6.11 openers asks: <strong>find the pages with unusually mixed LDA topic
+    proportions &mdash; do those characters really bridge themes, or is the model
+    confused?</strong> We asked, we drew one figure, and we dragged the actual sentences
+    in underneath as evidence.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#how">The ask</a>
+    <a href="#figure">The figure</a>
+    <a href="#found">What it said</a>
+    <a href="#limits">Limitation</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="how">
+  <div class="section-head">
+    <h2>The ask</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Representation: the week-6 names-removed LDA fit (8 topics, seed 0) &mdash; in that
+    fit every page is a mixture of <em>themes</em>: <em>mutant life</em>,
+    <em>symbiotes &amp; hosts</em>, <em>media boilerplate</em>, and friends. A page that
+    is 98% one theme is an easy label. A page at 47%/28% is the interesting one. We
+    measured each page's mixture <strong>entropy</strong> (how evenly its topic shares
+    are spread) and sorted all 303 pages by it.
+  </p>
+</article>
+
+<article class="post wide" id="figure">
+  <div class="section-head">
+    <h2>The figure</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    One row per character: the 8 topic shares as a stacked bar (topic colors below the
+    panel), sorted most-ambiguous first; the number at the right is the entropy, of a
+    maximum of 3.00. Pure pages are a single solid block. The colored dot is the week-4
+    community &mdash; watch what the straddlers' dots do. Click a row for the page's top
+    topics and the <em>actual sentences that carry its minority topic</em>.
+  </p>
+
+  <div class="w6-picker">
+    <input id="w65-input" list="w65-list" class="search-input" placeholder="find a character in the ranking…" autocomplete="off">
+    <datalist id="w65-list"></datalist>
+  </div>
+
+  <div class="w65-panel" id="w65-panel" aria-live="polite"></div>
+
+  <div class="legend-grid">
+    <div class="legend-row">
+      <span class="w65-seg" style="display:inline-block;width:14px;height:12px;background:#e6353a;"></span> media boilerplate
+    </div>
+    <div class="legend-row">
+      <span class="w65-seg" style="display:inline-block;width:14px;height:12px;background:#0ca678;"></span> mutant life
+    </div>
+    <div class="legend-row">
+      <span class="w65-seg" style="display:inline-block;width:14px;height:12px;background:#9c6ade;"></span> gods &amp; vampires
+    </div>
+    <div class="legend-row">
+      …full topic names in each row's tooltip
+    </div>
+  </div>
+
+  <div id="w65-drawer" aria-live="polite" style="margin-top:14px;"></div>
+</article>
+
+<article class="post wide" id="found">
+  <div class="section-head">
+    <h2>What it said</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <ul>
+    <li><strong>Almost half the corpus refuses a single label.</strong> 146 of the 303
+      pages put at least a fifth of their mass on a second topic. The purest pages are
+      the satisfying ones &mdash; Eddie Brock, Morbius, Spider-Man, Venom, Black Cat
+      &mdash; franchises the fit recognises instantly.</li>
+    <li><strong>The straddlers sit at the borders of the graph, too.</strong> Of the 20
+      most ambiguous pages, 14 have at least 5 of their top-10 <em>TF-IDF neighbors</em>
+      outside their own Louvain community. Ricochet, the Crippler, the Caretaker and
+      friends are textually ambiguous <em>and</em> structurally on the fence &mdash; two
+      independent lenses agreeing on who belongs nowhere cleanly.</li>
+    <li><strong>But the model has a bias worth knowing.</strong> In 12 of those top 20,
+      one of the two top topics is <em>media boilerplate</em> &mdash; the
+      <em>voiced, playable, film, list</em> mixture that popular pages end with. Some
+      crossings are real (Ghost Rider &mdash; <em>screen-and-sword</em> mysticism,
+      check the drawer); some are just Wikipedia's infoboxes in topic clothing.</li>
+  </ul>
+</article>
+
+<article class="post wide" id="limits">
+  <div class="section-head">
+    <h2>Limitation</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    One frozen fit. Change the seed and the top-20 straddler list reshuffles; the
+    boilerplate topic's grip on popular pages is the fit's signature, not the corpus's
+    law. The ranking tells you <em>where to look</em> &mdash; the drawer's sentences are
+    as far as it can take you, and the verdict stays human.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+  </div>
+</footer>
+
+<script src="week65.js"></script>
+</body>
+</html>

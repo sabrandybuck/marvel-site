@@ -1178,6 +1178,71 @@ article.post blockquote {
   border-radius: 8px;
 }
 
+/* ---- Week 6-5: living between topics ---- */
+
+.w65-panel {
+  max-height: 620px;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 4px;
+}
+
+.w65-row {
+  display: grid;
+  grid-template-columns: 2.2em 11px minmax(9.5em, 14.5em) 1fr 3.2em;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  min-width: 0;
+}
+
+.w65-row:hover { background: rgba(255, 255, 255, 0.05); }
+.w65-row.w65-active { background: var(--accent-soft); outline: 1px solid var(--accent); }
+.w65-top20 .w65-name { color: var(--text); font-weight: 600; }
+
+.w65-rank {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.w65-cdot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.w65-name {
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.w65-barrow { min-width: 0; }
+
+.w65-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.w65-seg { display: inline-block; height: 100%; }
+
+.w65-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+}
+
 /* ranked list, e.g. "top 5 by in-degree" */
 .rank-list {
   list-style: none;
