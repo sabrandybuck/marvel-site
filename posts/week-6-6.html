@@ -99,6 +99,16 @@
     <div class="w66-map" id="w66-map"></div>
     <div id="w66-results"></div>
   </div>
+  <div class="callout" style="margin:12px 0 6px;">
+      <strong>Why does a dot that looks closest not have the highest number?</strong>
+      The map is a 2D projection — a PCA shadow — of the 100-dimensional space the
+      machine actually lives in: the x-axis runs along the traded direction, but the
+      y-axis squeezes the other 98 dimensions into one, and the cosine ranking also
+      rescales each character's length in a way the projection does not. So
+      &ldquo;looks nearest&rdquo; is not &ldquo;is nearest&rdquo;: the thin dashed
+      white line from the arrowhead points at the machine&rsquo;s <em>true</em> #1,
+      and the numbers on the podium above are always the full-space truth.
+    </div>
 </article>
 
 <article class="post wide" id="try">
