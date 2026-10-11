@@ -1270,6 +1270,17 @@ article.post blockquote {
 }
 .w66-podium .w66-win .w6-nname { font-weight: 700; }
 
+.w66-verdict {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 10px 0;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
 /* ranked list, e.g. "top 5 by in-degree" */
 .rank-list {
   list-style: none;

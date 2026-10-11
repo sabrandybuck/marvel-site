@@ -54,7 +54,9 @@
     Marvel-trained Word2Vec space. Trade a word and the traded vectors have to be
     vocabulary the machine actually knows &mdash; 3,791 shipped words, everything else
     gets bounced. The new direction is scored against all 303 character positions, and
-    the podium is who's closest. Nothing is precomputed; every spin is live arithmetic.
+    the podium is who's closest. If you already know the hero you <em>expected</em>,
+    pick them too &mdash; the machine reports their exact rank, cosine, and who got in
+    the way. Nothing is precomputed; every spin is live arithmetic.
   </p>
 </article>
 
@@ -75,6 +77,8 @@
       <span class="w66-op">+</span>
       <input id="w66-plus" list="w66-plus-datalist" class="search-input" placeholder="add word" autocomplete="off">
       <datalist id="w66-plus-datalist"></datalist>
+      <span class="w66-op">→</span>
+      <select id="w66-expect" aria-label="The hero you expected (optional)"></select>
       <button class="btn" id="w66-lever" type="button">Pull the lever</button>
       <p class="cos-note" id="w66-error" style="color:var(--accent);width:100%;margin:0;"></p>
     </div>

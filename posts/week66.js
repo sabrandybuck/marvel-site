@@ -52,6 +52,8 @@
     nid: null,
     minus: "man",
     plus: "woman",
+    expect: null,       // the hero the player expected (optional)
+    podium: null,       // last spin's filtered ranking
     winner: null,
   };
 
@@ -125,6 +127,13 @@
                  c: cos(dir, fpAvg(nid)), community: MAP.pages[nid].community };
       })
       .sort(function (a, b) { return b.c - a.c; });
+    // the unfiltered list backs the "expected hero" verdict (self included)
+    state.scoredAll = Object.keys(MAP.pages)
+      .map(function (nid) {
+        return { nid: nid, name: MAP.pages[nid].name, c: cos(dir, fpAvg(nid)) };
+      })
+      .sort(function (a, b) { return b.c - a.c; });
+    state.podium = results;
     state.winner = results[0];
 
     // which fingerprint words moved the needle, toward each traded pole
@@ -160,6 +169,7 @@
       (moves.filter(function (m) { return m.d > 0; }).slice(0, 3).map(function (m) {
         return "<code>" + esc(m.w) + "</code>";
       }).join(", ") || "—") + "</p>" +
+      '<div id="w66-verdict"></div>' +
       '<div id="w66-evidence"></div>';
 
     root.querySelectorAll("[data-nid]").forEach(function (row) {
@@ -168,7 +178,43 @@
       });
     });
 
+    computeVerdict();
     showEvidence(winner);
+  }
+
+  // the "expected hero" verdict: rank, cosine, and who got in the way
+  function computeVerdict() {
+    var box = document.getElementById("w66-verdict");
+    if (!box) return;
+    if (!state.expect || !state.scoredAll) { box.innerHTML = ""; return; }
+    if (state.expect === state.nid) {
+      box.innerHTML = '<div class="w66-verdict"><strong>' +
+        esc(MAP.pages[state.expect].name) + "</strong> is the page you started from — " +
+        "you can't subtract your way out of your own fingerprint. Pick someone else " +
+        "to see how far the traded words carry them.</div>";
+      return;
+    }
+    var pool = state.scoredAll.filter(function (r) { return r.nid !== state.nid; });
+    var idx = pool.findIndex(function (r) { return r.nid === state.expect; });
+    if (idx < 0) { box.innerHTML = ""; return; }
+    var mine = pool[idx];
+    var blockers = pool.slice(0, idx).slice(0, 3);
+    var selfWas = state.scoredAll[0].nid === state.nid ? 1 : 0;
+    var dupeNote;
+    if (MAP.pages[state.expect].name.indexOf("Ultimate") >= 0) {
+      dupeNote = " (a near-duplicate page of an already-listed hero — its text is essentially the same article)";
+    }
+    box.innerHTML = '<div class="w66-verdict"><strong>You expected ' +
+      esc(MAP.pages[state.expect].name) + '</strong>: <strong>#' + (idx + 1) +
+      " of " + pool.length + "</strong> (cosine " + mine.c.toFixed(2) +
+      (dupeNote || "") + ")" +
+      (blockers.length
+        ? ". In the way: " + blockers.map(function (b) {
+            return esc(b.name) + " <span style='font-family:var(--mono);font-size:11px'>" +
+              b.c.toFixed(2) + "</span>";
+          }).join(", ") + "…"
+        : " — the machine agrees.") +
+      "</div>";
   }
 
   function showEvidence(winner) {
@@ -274,6 +320,20 @@
         state[slot] = this.value.trim().toLowerCase();
         spin();
       });
+    });
+
+    // the expected target: rank + blockers on every spin, no new arithmetic
+    var ex = root.querySelector("#w66-expect");
+    ex.innerHTML = '<option value="">— the hero you expected (optional) —</option>' +
+      Object.keys(MAP.pages).sort(function (a, b) {
+        return MAP.pages[a].name.localeCompare(MAP.pages[b].name);
+      }).map(function (nid) {
+        return '<option value="' + esc(nid) + '">' + esc(MAP.pages[nid].name) + "</option>";
+      }).join("");
+    ex.value = state.expect || "";
+    ex.addEventListener("change", function () {
+      state.expect = this.value || null;
+      computeVerdict();
     });
 
     root.querySelector("#w66-lever").addEventListener("click", spin);
