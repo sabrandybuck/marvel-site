@@ -42,6 +42,7 @@
   var VECS = null;    // quantized word vectors
   var SENTS = null;   // lazy
   var SENTS_DUE = false;
+  var MEAN = null;    // mean fingerprint vector (map origin)
 
   var V = {};         // word -> Float32Array
   var FP = {};        // nid -> Float32Array
@@ -55,6 +56,8 @@
     expect: null,       // the hero the player expected (optional)
     podium: null,       // last spin's filtered ranking
     winner: null,
+    base: null,         // the spin's start vector (map before)
+    dir: null,          // the spin's after-trade vector (map after)
   };
 
   function fetchJson(url) {
@@ -118,6 +121,8 @@
     var base = fpAvg(state.nid);
     var dir = new Float32Array(dims);
     for (var j = 0; j < dims; j++) dir[j] = base[j] - vm[j] + vp[j];
+    state.base = base;
+    state.dir = dir;
 
     var results = Object.keys(MAP.pages)
       .filter(function (nid) { return nid !== state.nid; })
@@ -180,6 +185,7 @@
 
     computeVerdict();
     showEvidence(winner);
+    drawMap(results);
   }
 
   // the "expected hero" verdict: rank, cosine, and who got in the way
@@ -255,6 +261,160 @@
     box.innerHTML = out.length
       ? out.map(function (s) { return '<p class="w6-sent">' + s + "</p>"; }).join("")
       : '<p class="cos-note">The winner&rsquo;s page never mentions the traded words — the match is pure fingerprint geometry. Suspicious? Good.</p>';
+  }
+
+  // ---------- the spin map ------------------------------------------------------
+  // x-axis is exactly this spin's trade: the direction from the data's center
+  // to "char − minus + plus", so everyone the answer "points at" lines up on
+  // the right in (roughly) rank order. y is the widest spread of the residual
+  // (one power iteration on its covariance) — the tribes, for context.
+
+  function vsub(a, b) {
+    var r = new Float32Array(dims);
+    for (var j = 0; j < dims; j++) r[j] = a[j] - b[j];
+    return r;
+  }
+
+  function vdot(a, b) {
+    var d = 0;
+    for (var j = 0; j < dims; j++) d += a[j] * b[j];
+    return d;
+  }
+
+  function buildMean() {
+    var nids = Object.keys(MAP.pages);
+    nids.forEach(function (nid) { fpAvg(nid); });
+    var m = new Float32Array(dims);
+    nids.forEach(function (nid) {
+      var v = FP[nid];
+      for (var j = 0; j < dims; j++) m[j] += v[j];
+    });
+    for (var j = 0; j < dims; j++) m[j] /= nids.length;
+    MEAN = m;
+  }
+
+  function drawMap(results) {
+    var root = document.getElementById("w66-map");
+    if (!root || !MEAN || !state.base || !state.dir || !results || !results.length) return;
+    var c = MEAN, cu, cw;
+
+    var u = vsub(state.dir, c);
+    var un = Math.sqrt(vdot(u, u)) || 1;
+    for (var j = 0; j < dims; j++) u[j] /= un;
+    cu = vdot(c, u);
+
+    // dominant direction of the residual covariance (orthogonal to the trade)
+    var nids = Object.keys(MAP.pages);
+    var res = [], i, k, r;
+    for (i = 0; i < nids.length; i++) {
+      r = vsub(FP[nids[i]], c);
+      var du = vdot(r, u);
+      for (var j = 0; j < dims; j++) r[j] -= du * u[j];
+      res.push(r);
+    }
+    var w = new Float32Array(dims); w[0] = 1;
+    for (var it = 0; it < 40; it++) {
+      var nw = new Float32Array(dims);
+      for (i = 0; i < res.length; i++) {
+        var p = res[i], d = vdot(p, w);
+        for (k = 0; k < dims; k++) nw[k] += d * p[k];
+      }
+      var nwn = Math.sqrt(vdot(nw, nw)) || 1;
+      for (k = 0; k < dims; k++) nw[k] /= nwn;
+      w = nw;
+    }
+    // deterministic orientation: the largest component points positive
+    var bigj = 0;
+    for (k = 1; k < dims; k++) if (Math.abs(w[k]) > Math.abs(w[bigj])) bigj = k;
+    if (w[bigj] < 0) for (k = 0; k < dims; k++) w[k] = -w[k];
+    cw = vdot(c, w);
+
+    var P = {}, minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+    for (i = 0; i < nids.length; i++) {
+      var v = FP[nids[i]];
+      var vx = vdot(v, u) - cu, vy = vdot(v, w) - cw;
+      P[nids[i]] = { x: vx, y: vy };
+      if (vx < minx) minx = vx; if (vx > maxx) maxx = vx;
+      if (vy < miny) miny = vy; if (vy > maxy) maxy = vy;
+    }
+    var bx = vdot(state.base, u) - cu, by = vdot(state.base, w) - cw;
+    var ax = vdot(state.dir, u) - cu, ay = vdot(state.dir, w) - cw;
+
+    // a trade that flies far off the hull is clamped just past the edge
+    var hx = maxx - minx, hy = maxy - miny;
+    if (ax > maxx + 0.5 * hx) ax = maxx + 0.5 * hx;
+    if (ax < minx - 0.5 * hx) ax = minx - 0.5 * hx;
+    if (ay > maxy + 0.5 * hy) ay = maxy + 0.5 * hy;
+    if (ay < miny - 0.5 * hy) ay = miny - 0.5 * hy;
+
+    var d0x = Math.min(minx, ax, bx) - 0.07 * hx, d1x = Math.max(maxx, ax, bx) + 0.07 * hx;
+    var d0y = Math.min(miny, ay, by) - 0.07 * hy, d1y = Math.max(maxy, ay, by) + 0.07 * hy;
+
+    var W = 760, H = 430, m = 16, tmb = 8;
+    function sxx(x) { return m + (x - d0x) / ((d1x - d0x) || 1) * (W - 2 * m); }
+    function syy(y) { return H - m - (y - d0y) / ((d1y - d0y) || 1) * (H - tmb - m); }
+
+    var topHat = {};
+    results.slice(0, 5).forEach(function (rw, i) { topHat[rw.nid] = i + 1; });
+
+    var dots = nids.map(function (nid) {
+      var p = P[nid], rank = topHat[nid];
+      return '<circle data-nid="' + esc(nid) + '" cx="' + sxx(p.x).toFixed(1) +
+        '" cy="' + syy(p.y).toFixed(1) + '" r="' + (rank ? 4.5 : 3) +
+        '" fill="' + commColor(MAP.pages[nid].community) + '" opacity="' + (rank ? 1 : 0.45) +
+        '"><title>' + esc(MAP.pages[nid].name) + "</title></circle>";
+    }).join("");
+
+    var rings = results.slice(0, 5).map(function (rw, i) {
+      var p = P[rw.nid];
+      return '<circle cx="' + sxx(p.x).toFixed(1) + '" cy="' + syy(p.y).toFixed(1) +
+        '" r="7.5" fill="none" stroke="#fff" stroke-width="1.3" opacity="0.85"/>' +
+        '<text x="' + sxx(p.x).toFixed(1) + '" y="' + (syy(p.y) - 10).toFixed(1) +
+        '" font-size="11" font-family="monospace" font-weight="bold" fill="#fff" text-anchor="middle">' + (i + 1) + "</text>";
+    }).join("");
+
+    var startDot = '<circle cx="' + sxx(bx).toFixed(1) + '" cy="' + syy(by).toFixed(1) +
+      '" r="6" fill="none" stroke="#fff" stroke-width="2"/>' +
+      '<text x="' + sxx(bx).toFixed(1) + '" y="' + (syy(by) - 11).toFixed(1) +
+      '" font-size="10.5" fill="#fff" text-anchor="middle">started here</text>';
+
+    var afterPart = '<line x1="' + sxx(bx).toFixed(1) + '" y1="' + syy(by).toFixed(1) +
+      '" x2="' + sxx(ax).toFixed(1) + '" y2="' + syy(ay).toFixed(1) +
+      '" stroke="#e6353a" stroke-width="2.4" marker-end="url(#w66-arrh)" opacity="0.9"/>' +
+      '<circle cx="' + sxx(ax).toFixed(1) + '" cy="' + syy(ay).toFixed(1) +
+      '" r="5.5" fill="#e6353a" stroke="#fff" stroke-width="1.2"/>';
+
+    var expectPart = "";
+    if (state.expect && P[state.expect]) {
+      var e = P[state.expect];
+      expectPart =
+        '<line x1="' + sxx(ax).toFixed(1) + '" y1="' + syy(ay).toFixed(1) +
+        '" x2="' + sxx(e.x).toFixed(1) + '" y2="' + syy(e.y).toFixed(1) +
+        '" stroke="#e6353a" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.55"/>' +
+        '<circle cx="' + sxx(e.x).toFixed(1) + '" cy="' + syy(e.y).toFixed(1) +
+        '" r="10" fill="none" stroke="#e6353a" stroke-width="1.6" stroke-dasharray="3 3">' +
+        "<title>expected: " + esc(MAP.pages[state.expect].name) + "</title></circle>";
+    }
+
+    root.innerHTML =
+      '<svg viewBox="0 0 760 430" role="img" aria-label="Map of the spin: every character projected so the traded direction is the x-axis">' +
+      '<defs><marker id="w66-arrh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
+      '<path d="M0 0L10 5L0 10z" fill="#e6353a"/></marker></defs>' +
+      dots + expectPart + afterPart + rings + startDot + "</svg>" +
+      '<div class="w66-legend">' +
+      '<span><i class="lg-dot"></i>all 303 characters</span>' +
+      '<span><b>1–5</b> the podium</span>' +
+      '<span><i class="lg-start"></i>started here</span>' +
+      '<span><i class="lg-after"></i>after the trade</span>' +
+      '<span><i class="lg-expect"></i>hero you expected</span>' +
+      "</div>" +
+      '<p class="cos-note w66-cap">x is exactly this spin&rsquo;s trade direction — the closer a dot sits to the arrowhead, the more the machine&rsquo;s answer points at it; y is the widest leftover spread (the tribes). Dots reshuffle every spin. Positions are projections: the podium above is ranked in the full 100-D space.</p>';
+
+    root.querySelectorAll("[data-nid]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        setFrom(el.getAttribute("data-nid"));
+      });
+    });
   }
 
   // ---------- controls ----------------------------------------------------------
@@ -334,6 +494,7 @@
     ex.addEventListener("change", function () {
       state.expect = this.value || null;
       computeVerdict();
+      drawMap(state.podium);
     });
 
     root.querySelector("#w66-lever").addEventListener("click", spin);
@@ -374,6 +535,7 @@
   ]).then(function (r) {
     MAP = r[0]; VECS = r[1];
     decode(VECS);
+    buildMean();
     state.nid = Object.keys(MAP.pages).find(function (nid) {
       return MAP.pages[nid].name === "Spider-Man";
     });
