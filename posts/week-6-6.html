@@ -31,12 +31,15 @@
     The week's most famous demonstration is word arithmetic:
     <code>king &minus; man + woman &approx; queen</code>. Does the same trick work one
     level up &mdash; start from a <strong>character</strong>, subtract a word, add a word,
-    and let the machine name the closest superhero? Pull the lever:
+    and let the machine name the closest superhero? This is the week's play round: all
+    the TF-IDF, PPMI and topic-mixing the pages built gets compressed into one toy with
+    a lever. Pull the lever:
   </p>
 
   <nav class="week2-quicknav" id="top" aria-label="Section quick links">
     <a href="#how">How a character becomes a vector</a>
     <a href="#game">The lever</a>
+    <a href="#try">How to read a spin</a>
     <a href="#found">What the machine gets right (and wrong)</a>
     <a href="#limits">Limitation</a>
   </nav>
@@ -51,12 +54,21 @@
   <p>
     Same recipe as the <a href="week-6-3.html">Marvel map</a>: a character's position is
     the TF-IDF-weighted average of their <em>fingerprint words</em> (names removed) in our
-    Marvel-trained Word2Vec space. Trade a word and the traded vectors have to be
-    vocabulary the machine actually knows &mdash; 3,791 shipped words, everything else
-    gets bounced. The new direction is scored against all 303 character positions, and
-    the podium is who's closest. If you already know the hero you <em>expected</em>,
-    pick them too &mdash; the machine reports their exact rank, cosine, and who got in
-    the way. Nothing is precomputed; every spin is live arithmetic.
+    Marvel-trained Word2Vec space. A fingerprint is just the handful of highest-TF-IDF
+    words on a single page, and names are dropped so the machine can't shortcut through
+    people's titles. Trade a word and the traded vectors have to come from the 3,791
+    words we shipped &mdash; anything outside the vocabulary would silently poison the
+    arithmetic, so those inputs get bounced with an error instead. The space itself was
+    trained on the full week's corpus, 727,440 tokens across all 303 pages, which is why
+    words like <code>magic</code> or <code>hammer</code> carry real Marvel meaning inside it.
+  </p>
+  <p>
+    The new direction is scored against all 303 character positions by
+    <strong>cosine</strong> &mdash; read it as a similarity dial, where 1 means "same
+    direction" and 0 means "unrelated"; it is not a percentage. The podium is who's
+    closest. If you already know the hero you <em>expected</em>, pick them too &mdash;
+    the machine reports their exact rank, cosine, and who got in the way. Nothing is
+    precomputed; every spin is live arithmetic.
   </p>
 </article>
 
@@ -86,6 +98,42 @@
     <div class="w6-chips" id="w66-presets"></div>
     <div id="w66-results"></div>
   </div>
+</article>
+
+<article class="post wide" id="try">
+  <div class="section-head">
+    <h2>How to read a spin &mdash; and three to try</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Every spin reads the same way. The podium is the machine's top five, with its best
+    guess highlighted. Beneath it, the <em>moved-words</em> line shows which of the
+    starting fingerprint words pulled toward each pole &mdash; the trade's geometry in
+    one sentence. If you named an expected hero, the verdict card reports their exact
+    rank out of 302, their cosine, and up to three pages that got in the way; that
+    ranking deliberately includes near-duplicate pages, so you can see the corpus's
+    own copy problem in the numbers. Click any podium row to recenter the whole
+    equation on that hero, and audit anything suspicious with the sentence drawer
+    underneath.
+  </p>
+  <ul>
+    <li><strong>The obvious answer, measured.</strong> Run the default
+      Spider&#8202;&minus;&#8202;man&#8202;+&#8202;woman round and set the expected hero
+      to <strong>Spider-Woman</strong>: she lands at <strong>#16 of 302</strong>
+      (cosine 0.49) &mdash; Wild Child, Spider-Girl and Father Time got there first,
+      and the blockers list puts the machine's excuse right in front of you.</li>
+    <li><strong>Family is not a ranking.</strong> Spin
+      Hulk&#8202;&minus;&#8202;man&#8202;+&#8202;woman and expect
+      <strong>She-Hulk</strong> &mdash; the canonical answer in family terms &mdash;
+      yet she comes in at <strong>#42</strong>, with Wild Child, Northstar and Jean
+      Grey standing in the way. The traded pole is one of a dozen fingerprint words;
+      family resemblance in this space has to be earned.</li>
+    <li><strong>Then build your own round.</strong> Start from your favorite
+      character, trade a word for its conceptual opposite, and use the sentence
+      drawer to decide whether the machine was strange-right or strange-wrong. The
+      preset chips under the lever are safe starts; every other combination is
+      yours.</li>
+  </ul>
 </article>
 
 <article class="post wide" id="found">
