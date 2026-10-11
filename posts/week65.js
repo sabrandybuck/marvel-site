@@ -151,6 +151,7 @@
       " linked neighbors · entropy " + entropy(p.theta_n).toFixed(2) + " / 3.00</p>" +
       '<div style="margin-bottom:10px"><span class="inspector-group">Topics (names removed)</span></div>' +
       '<ul class="w6-bar-list" style="max-width:520px">' + topicsHtml + "</ul>" +
+      '<p class="cos-note" style="margin:-4px 0 8px">Bar = share of the page (topics sum to 100%).</p>' +
       '<div class="w6-chips" style="margin-top:12px">' +
       (minority.length
         ? minority.map(function (t) {
