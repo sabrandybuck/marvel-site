@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6.3: the Marvel map — The Web of Heroes</title>
+  <meta name="description" content="A map of the Marvel universe from week-6 representations: every character projected onto word-embedding axes you can change live (science↔magic, body↔mind, war↔home, or your own poles), plus a Scattertext-style term-rate contrast between communities.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 6 · Bonus explorable II</div>
+  <h1>The Marvel map</h1>
+  <p class="subtitle">
+    The course page ends week 6 with a map: characters as dots, axes made of
+    <em>word lists</em> &mdash; the average embedding of <em>science</em>, <em>technology</em>
+    minus the average of <em>magic</em>, <em>spell</em>, <em>sorcerer</em> &mdash; and one
+    honest warning: <strong>none of these positions is a fact about the characters.</strong>
+    So we shipped the vectors into the browser and let you draw your own axes. Plus the
+    second half of the week's toolkit: a Scattertext-style term-rate contrast between
+    communities.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#how">How the map works</a>
+    <a href="#explorable">The map</a>
+    <a href="#terms">Term contrasts</a>
+    <a href="#reading">Reading the axes</a>
+    <a href="#limitation">Limits</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="how">
+  <div class="section-head">
+    <h2>How a dot gets its place</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The recipe is the course page's, run on our own Marvel-trained skip-gram vectors
+    (100 dims, window 5, seed 0 &mdash; no GloVe download needed):
+  </p>
+  <ol>
+    <li>Every character keeps a <strong>fingerprint</strong> &mdash; the words with the highest
+      TF-IDF weight once proper names are removed, shipped with their weights
+      (top&#8202;12 per character).</li>
+    <li>An <strong>axis</strong> is a direction in embedding space: the average vector of the
+      <em>positive pole</em>'s word list minus the average of the <em>negative pole</em>'s,
+      normalized.</li>
+    <li>A character's <strong>projection</strong> is the TF-IDF-weighted average of their
+      fingerprint vectors, dotted with the axis direction. The map plots two such axes,
+      X and Y &mdash; presets or any two words you type.</li>
+  </ol>
+  <p>
+    The vectors themselves ship to your browser quantized to int8 &mdash; that's what makes
+    the <em>type your own axis</em> box possible without pre-baking anything.
+  </p>
+</article>
+
+<article class="post wide" id="explorable">
+  <div class="section-head">
+    <h2>The map</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+
+  <div id="w63-map-controls" class="w62-toolbar">
+    <label class="w62-field">X axis
+      <select id="w63-x-axis" aria-label="X axis"></select>
+    </label>
+    <div class="w62-field" id="w63-x-custom" style="display:none;flex-direction:row;gap:6px;">
+      <input id="w63-x-neg" class="search-input" placeholder="left pole" style="width:110px;" autocomplete="off">
+      <span class="w62-val">↔</span>
+      <input id="w63-x-pos" class="search-input" placeholder="right pole" style="width:110px;" autocomplete="off">
+    </div>
+    <label class="w62-field">Y axis
+      <select id="w63-y-axis" aria-label="Y axis"></select>
+    </label>
+    <div class="w62-field" id="w63-y-custom" style="display:none;flex-direction:row;gap:6px;">
+      <input id="w63-y-neg" class="search-input" placeholder="bottom pole" style="width:110px;" autocomplete="off">
+      <span class="w62-val">↕</span>
+      <input id="w63-y-pos" class="search-input" placeholder="top pole" style="width:110px;" autocomplete="off">
+    </div>
+    <label class="w62-field">find a character
+      <input id="w63-char-input" list="w63-char-list" class="search-input" placeholder="type a name…" autocomplete="off">
+      <datalist id="w63-char-list"></datalist>
+    </label>
+    <div class="w62-field">reset
+      <button type="button" id="w63-map-reset" class="btn">Reset</button>
+    </div>
+    <div class="w62-field">
+      <span class="w62-val" id="w63-map-note"></span>
+    </div>
+  </div>
+
+  <div class="explorer-stage">
+    <svg id="w63-map-svg" class="chart-box" style="height:520px;width:100%;" aria-label="Marvel character map"></svg>
+    <div id="w63-char-panel" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Click a dot to see which fingerprint words pull it toward each pole.</p>
+    </div>
+  </div>
+
+  <div class="legend-grid">
+    <div class="legend-row">Size — bigger dots are linked more (in-degree)</div>
+    <div class="legend-row">Color — the week-4 Louvain communities, same palette as the other weeks</div>
+  </div>
+</article>
+
+<article class="post wide" id="terms">
+  <div class="section-head">
+    <h2>The term contrast</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The Scattertext panel: pick any two of the eight largest Louvain communities and look
+    at their word rates side by side. Each dot is a term; the axes are
+    <strong>uses per 10,000 tokens</strong> on a log-log scale; the dashed diagonal is
+    <em>equal rates</em>. Red dots are relatively distinctive of the X-community, blue of
+    the Y-community.
+  </p>
+
+  <div id="w63-terms-controls" class="w62-toolbar">
+    <label class="w62-field">community A (X)
+      <select id="w63-comm-a" aria-label="Community A"></select>
+    </label>
+    <label class="w62-field">community B (Y)
+      <select id="w63-comm-b" aria-label="Community B"></select>
+    </label>
+    <label class="w62-field">min uses in either
+      <input type="range" id="w63-mincount" min="0" max="60" step="1" value="5">
+      <span class="w62-val"><span id="w63-mincount-val">5</span></span>
+    </label>
+    <div class="w62-field">label
+      <div class="w62-checks">
+        <label><input type="checkbox" id="w63-label" checked> top distinctive terms</label>
+      </div>
+    </div>
+    <div class="w62-field">
+      <span class="w62-val" id="w63-terms-status"></span>
+    </div>
+  </div>
+
+  <div class="explorer-stage">
+    <svg id="w63-terms-svg" class="chart-box" style="height:480px;width:100%;" aria-label="Community term-rate contrast"></svg>
+    <div id="w63-term-panel" class="inspector" aria-live="polite">
+      <p class="inspector-empty">Click a dot to see both communities' counts and rates.</p>
+    </div>
+  </div>
+</article>
+
+<article class="post wide" id="reading">
+  <div class="section-head">
+    <h2>Reading the axes — what we found</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    <strong>science ↔ magic works.</strong> Doctor Strange lands deep in the magic end
+    (his <code>magic</code>, <code>mystical</code> and <code>ancient</code> do the pulling)
+    while Machine Man, Supreme Intelligence-adjacent tech characters, and gadget heroes
+    hold the science end; Spider-Man drifts somewhere in the middle &mdash; a street kid
+    with a lab and a magic-adjacent rogues' gallery.
+  </p>
+  <p>
+    <strong>war ↔ home is the bias axis, exactly as the course page warned.</strong>
+    The home end collects female-gendered pulls &mdash; female-titled pages, the women of
+    Wakanda, the Shuris and Maris of the list &mdash; while the war end is almost all
+    soldiers. It's GloVe's Wikipedia fingerprint re-negotiated on a much smaller corpus:
+    the bias is in <em>how the pages are written</em>, not in the embedding tool.
+  </p>
+  <p>
+    <strong>Term contrasts answer a different question.</strong> Between the Wolverine-led
+    and Spider-Man-led communities, the diagonal catches the shared Wikipedia dialect
+    (<em>series, character, team</em>), Wolverine's corner floats <em>x-men, logan,
+    adamantium</em>-family words toward its end, and the Spider-corner pulls
+    <em>spider, peter, venom</em>. The same words the embeddings turn into geometry show
+    up here as raw rates &mdash; two lenses, one landscape.
+  </p>
+</article>
+
+<article class="post wide" id="limitation">
+  <div class="section-head">
+    <h2>What it can't tell you</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    One fitted Word2Vec run (seed frozen); change the seed and dot positions drift. Axes
+    made of single words are noisier than the 5-word presets; a pole word that is also a
+    character name behaves differently than an abstract pole. And 727k tokens is small:
+    every position carries corpus noise the course page's GloVe map hid behind a
+    128&#8202;MB training set. The point of the page is exactly that difference &mdash;
+    check both, believe neither.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+  </div>
+</footer>
+
+<script src="week63.js"></script>
+</body>
+</html>

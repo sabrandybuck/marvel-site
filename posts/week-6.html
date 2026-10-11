@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 6 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6: five ways to say "close" — The Web of Heroes</title>
+  <meta name="description" content="Pick a Marvel character and watch their text neighbors re-rank under TF-IDF and topic mixtures, check every match against the actual sentences, flip one fingerprint word between raw counts and PPMI — and meet the corpus's closest structurally-unlinked pairs.">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
@@ -22,20 +23,100 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 6</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 6 · From counts to meaning</div>
+  <h1>Who is close &mdash; and why?</h1>
+  <p class="subtitle">
+    Week 6 gave every page numbers that describe <em>language</em> &mdash; TF-IDF weights,
+    topic mixtures, PPMI &mdash; and one recurring warning: a cosine without a close reading
+    proves nothing. So we ask one question one character at a time: <strong>which pages
+    look closest, are they actually linked, and what do the sentences say?</strong>
+    Start on Storm and see for yourself.
+  </p>
 
-  <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#explorable">The explorable</a>
+    <a href="#words">One word, two weightings</a>
+    <a href="#strangers">The closest strangers</a>
+    <a href="#limits">Limits</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="explorable">
+  <div class="section-head">
+    <h2>The explorable</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <div class="w6-picker">
+    <select id="w6l-select" aria-label="Pick a character"></select>
+    <input id="w6l-input" list="w6l-datalist" class="search-input" placeholder="type a character name…" autocomplete="off">
+    <datalist id="w6l-datalist"></datalist>
   </div>
 
-  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+  <div class="w6-docs" id="w6l-docs" aria-live="polite"></div>
+  <div id="w6l-drawer" aria-live="polite"></div>
 
+  <p class="explorer-caption">
+    Click a row for the shared fingerprint words and the actual sentences behind the
+    match; click a <em>name</em> to make that character the subject. The green ✓ badge is
+    the week-1 Wikipedia link &mdash; the one piece of ground truth in the picture.
+  </p>
+</article>
+
+<article class="post wide" id="words">
+  <div class="section-head">
+    <h2>One word, two weightings</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The same trick, one level down. The subject's TF-IDF <em>fingerprint</em> &mdash; their
+    most distinctive words, names removed &mdash; is a row of chips. Click one: the same
+    word-context matrix, one column weighted by raw counts, one by PPMI. Watch
+    <code>hammer</code> trade <em>power, to, with</em> for <em>thor, asgard</em>.
+  </p>
+
+  <div class="w6-chips" id="w6l-chips"></div>
+  <div id="w6l-wordpanel"></div>
+</article>
+
+<article class="post wide" id="strangers">
+  <div class="section-head">
+    <h2>The closest strangers</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Click any pair to put it in the drawer. #1 is the week's favorite: <strong>Emma Frost
+    &harr; Jack Frost</strong>, pulled together almost entirely by the surname
+    <em>frost</em>. Below it sit the <em>Strikeforce: Morituri</em> teammates &mdash; pages
+    that share a comic, its creators and rare vocabulary, and simply never got links
+    between them. The vector suggests; the reader decides which it means.
+  </p>
+  <div id="w6l-strangers"></div>
+</article>
+
+<article class="post wide" id="limits">
+  <div class="section-head">
+    <h2>Limits</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    One frozen run of each representation: change the LDA seed and the topic column
+    reshuffles; our Word2Vec is trained on 727k tokens and its neighbor lists drift
+    between library versions. Every number here is one sample of a method &mdash; and the
+    sentence drawer gets you to the evidence, not to the verdict.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+  <p class="cos-note" style="margin-top:6px;">
+    Want a wider lens? The same week, less leanness: the
+    <a href="week-6-2.html">similarity cascade</a>, the
+    <a href="week-6-3.html">Marvel map</a> and
+    <a href="week-6-4.html">one-character deep dives</a>.
+  </p>
 </article>
 </main>
 
@@ -46,5 +127,6 @@
   </div>
 </footer>
 
+<script src="week6-lean.js"></script>
 </body>
 </html>

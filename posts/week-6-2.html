@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6.2: the similarity cascade — The Web of Heroes</title>
+  <meta name="description" content="Two networks over the same 303 Marvel characters: the week-1 Wikipedia link graph and the week-6 TF-IDF text-similarity graph, drawn as one network and edge-by-edge classified — linked-and-textually-close, structural-only, and the red cascade of textually-close-but-structurally-unrelated pairs.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 6 · Bonus explorable</div>
+  <h1>The similarity cascade</h1>
+  <p class="subtitle">
+    Week 1 built a network out of <em>links</em>. Week 6 built similarity out of
+    <em>language</em>. Question three from the 6.11 list:
+    <strong>who is textually close but structurally far away?</strong> Instead of rank
+    lists, we draw both networks on top of each other and classify every edge &mdash;
+    the disagreements light up in red.
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Two networks</a>
+    <a href="#explorable">The cascading overlay</a>
+    <a href="#reading">How to read it</a>
+    <a href="#counts">Raw counts vs TF-IDF</a>
+    <a href="#limitation">Limits</a>
+    <a href="#next">Still to come</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+  <div class="section-head">
+    <h2>Two networks, one universe</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Both layers live over the same 303 characters, colored by their week-4 Louvain
+    community and sized by in-degree:
+  </p>
+  <div>
+    <ul>
+      <li>
+        <strong>Structural</strong> (dashed gray): the undirected week-1 link graph &mdash;
+        1,434 edges. Ground truth decided by Wikipedia contributors.
+      </li>
+      <li>
+        <strong>Textual</strong>: week-6 TF-IDF cosine top-k per character, unique pairs &mdash;
+        2,256 edges at k&nbsp;=&nbsp;10.
+      </li>
+    </ul>
+  </div>
+  <p>
+    Every edge is then put in one of three classes:
+  </p>
+  <ul>
+    <li><strong style="color:#0ca678;">both</strong> &mdash; linked on Wikipedia <em>and</em> textually close: 782 edges. The two lenses agree.</li>
+    <li><strong>dashed gray</strong> &mdash; a structural link the text doesn't rank in its
+      top-k: 652 edges. Weak ties the vector doesn't reward.</li>
+    <li><strong style="color:#e6353a;">text-only (red)</strong> &mdash; textually close but structurally unrelated: the cascade, 1,474 edges. Where representation and structure part ways.</li>
+  </ul>
+</article>
+
+<article class="post wide" id="explorable">
+  <div class="section-head">
+    <h2>The cascading overlay</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Start in <strong>all characters</strong> with just <em>text-only</em> visible and the
+    network dissolves into a red halo around every community; re-add <em>both</em> and the
+    structural skeleton reappears inside each halo. Shots worth trying:
+  </p>
+
+  <figure class="wide-figure explorer">
+    <div id="w62-controls" class="w62-toolbar">
+      <label class="w62-field">representation
+        <select id="w62-mode" aria-label="Which representation builds the textual layer">
+          <option value="tfidf">TF-IDF cosine</option>
+          <option value="counts">raw counts</option>
+        </select>
+      </label>
+      <label class="w62-field">textual top-k
+        <input type="range" id="w62-k" min="3" max="10" step="1" value="10">
+        <span class="w62-val"><span id="w62-k-val">10</span></span>
+      </label>
+      <label class="w62-field">min cosine
+        <input type="range" id="w62-mincos" min="0" max="0.45" step="0.01" value="0">
+        <span class="w62-val"><span id="w62-mincos-val">0.00</span></span>
+      </label>
+      <label class="w62-field">show
+        <select id="w62-community" aria-label="Filter by community"></select>
+      </label>
+      <div class="w62-field">edge classes
+        <div class="w62-checks">
+          <label><input type="checkbox" id="w62-t-textonly" checked>
+            text-only <span class="w62-count" id="w62-c-textonly"></span></label>
+          <label><input type="checkbox" id="w62-t-structonly" checked>
+            structural-only <span class="w62-count" id="w62-c-structonly"></span></label>
+          <label><input type="checkbox" id="w62-t-both" checked>
+            both <span class="w62-count" id="w62-c-both"></span></label>
+        </div>
+      </div>
+      <label class="w62-field">find a hero
+        <input id="w62-input" list="w62-datalist" class="search-input" placeholder="type a name…" autocomplete="off">
+        <datalist id="w62-datalist"></datalist>
+      </label>
+      <div class="w62-field">reset
+        <button type="button" id="w62-reset" class="btn">Reset view</button>
+      </div>
+    </div>
+
+    <p class="explorer-hint">
+      Drag to move, scroll to zoom. Click a node for its two neighborhood lists; click an
+      edge for its class, cosine and shared words. The legend counters update live.
+    </p>
+
+    <div class="explorer-stage">
+      <div id="w62-network" class="network-box" aria-label="Similarity cascade network"></div>
+      <div id="w62-inspector" class="inspector" aria-live="polite"></div>
+    </div>
+  </figure>
+</article>
+
+<article class="post wide" id="reading">
+  <div class="section-head">
+    <h2>How to read the red</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Not every red edge is scandal. Zooming into the picture, the 1,474 text-only edges sort
+    into three familiar families &mdash; exactly the ones week 6 taught us to diagnose:
+  </p>
+  <ol>
+    <li><strong>Surname matches.</strong> <code>storm</code> links Storm to the Human Torch;
+      <code>frost</code> ties Emma Frost ↔ Jack Frost &mdash; the #1 unlinked pair of the
+      main week-6 post, cos&#8202;=&#8202;0.44.</li>
+    <li><strong>Unlinked teammates.</strong> The <em>Strikeforce: Morituri</em> cluster sits
+      as its own community with text everywhere and links only inbound:
+      606 of the 1,817 directed text-only edges (33%) join characters inside the
+      <em>same</em> Louvain community &mdash; the network already knows they belong
+      together; the link layer just never wired the pages up.</li>
+    <li><strong>Shared boilerplate.</strong> The she/her pronoun edges that made
+      <em>Jean Grey</em>, <em>Scarlet Witch</em> and <em>She-Hulk</em> each other's textual
+      mirrors &mdash; the same artifact the course page warned about with
+      <code>the</code> and <code>Marvel</code>.</li>
+  </ol>
+</article>
+
+<article class="post wide" id="counts">
+  <div class="section-head">
+    <h2>Raw counts vs TF-IDF, edges instead of ranks</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Switch the representation to <strong>raw counts</strong> and the collapse is dramatic:
+    the textual layer grows to 2,712 pairs but agreement with structure falls from
+    782 to just <strong>418</strong> &mdash; stopwords generate similarity the real network
+    never needed. That is the same 1.9&nbsp;&rarr;&nbsp;4.0 jump as rank lists &mdash; now
+    visible as the ring between the text halo and the structural skeleton.
+  </p>
+</article>
+
+<article class="post wide" id="limitation">
+  <div class="section-head">
+    <h2>What it can't tell you</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The textual layer is still only each page's top-k &mdash; weaker true similarities
+    never enter, so <em>structural-only</em> under states how much structure the text
+    misses (also note these are cosine ranks, not statistical tests). And a classified
+    edge is a hypothesis, not a verdict: the sentence drawer in the
+    <em>main week-6 explorable</em> is where that verdict gets made.
+  </p>
+</article>
+
+<article class="post wide" id="next">
+  <div class="section-head">
+    <h2>Still to come on this roadmap</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <ol class="rank-list">
+    <li><span class="rank">2</span><span class="name"><strong>The Marvel map</strong> &mdash;
+      the science&#8202;&harr;&#8202;magic / body&#8202;&harr;&#8202;mind axis playground,
+      with scattertext-style term contrasts per community.</span></li>
+    <li><span class="rank">3</span><span class="name"><strong>One-character deep dives</strong> &mdash;
+      a zoomable fingerprint explorer: TF-IDF, topic mixture and embedding neighborhood
+      around a single page.</span></li>
+  </ol>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/vis-network@10.1.2/standalone/umd/vis-network.min.js"></script>
+<script src="week62.js"></script>
+</body>
+</html>
