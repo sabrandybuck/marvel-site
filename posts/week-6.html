@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Week 6: five ways to say "close" — The Web of Heroes</title>
-  <meta name="description" content="One Marvel character in, five definitions of 'close' out: raw counts, TF-IDF, LDA topic mixtures, PPMI context vectors and Word2Vec — with the Wikipedia links and Louvain communities of week 1–4 as the structural ground truth, and a concordance drawer so you can check every match against the actual pages.">
+  <meta name="description" content="Pick a Marvel character and watch their text neighbors re-rank under TF-IDF and topic mixtures, check every match against the actual sentences, flip one fingerprint word between raw counts and PPMI — and meet the corpus's closest structurally-unlinked pairs.">
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -26,51 +26,22 @@
 <article class="post wide">
 
   <div class="post-meta">Week 6 · From counts to meaning</div>
-  <h1>Five ways to say &ldquo;close&rdquo;</h1>
+  <h1>Who is close &mdash; and why?</h1>
   <p class="subtitle">
-    Week 6 gave us five representations of language and, therefore, five definitions of
-    <em>close</em>: raw counts, TF-IDF, topic mixtures, PPMI context vectors and Word2Vec.
-    This week's <em>go nuts</em> post asks one question &mdash; <strong>how much does the
-    representation change the answer?</strong> &mdash; and lets you watch it change, one
-    Marvel character at a time, with the actual sentences underneath to keep you honest.
+    Week 6 gave every page numbers that describe <em>language</em> &mdash; TF-IDF weights,
+    topic mixtures, PPMI &mdash; and one recurring warning: a cosine without a close reading
+    proves nothing. So we ask one question one character at a time: <strong>which pages
+    look closest, are they actually linked, and what do the sentences say?</strong>
+    Start on Storm and see for yourself.
   </p>
 
   <nav class="week2-quicknav" id="top" aria-label="Section quick links">
-    <a href="#intro">The question</a>
     <a href="#explorable">The explorable</a>
-    <a href="#what-we-saw">What we saw</a>
-    <a href="#words">The word half</a>
-    <a href="#lookalikes">The closest strangers</a>
-    <a href="#limitation">What it can't do</a>
-    <a href="#roadmap">Roadmap</a>
+    <a href="#words">One word, two weightings</a>
+    <a href="#strangers">The closest strangers</a>
+    <a href="#limits">Limits</a>
   </nav>
 
-</article>
-
-<article class="post wide" id="intro">
-  <div class="section-head">
-    <h2>The question</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
-  </div>
-  <p>
-    The course page splits the day cleanly: <strong>documents are represented by their
-    words</strong> (TF-IDF, topic mixtures), and later <strong>words are represented by
-    their contexts</strong> (PPMI, Word2Vec). Each representation ranks neighbors, but no
-    two of them rank alike &mdash; and the week's recurring warning is that a cosine without
-    a close reading proves nothing. So instead of five figures, we want one interface that
-    asks the same question of every representation and shows its paperwork:
-  </p>
-  <p><em>
-    Pick a character. <strong>Who is closest to them</strong> &mdash; under counts, under
-    TF-IDF, under topic mixtures, under PPMI, under Word2Vec &mdash; and is each match
-    driven by a shared <em>name</em>, shared <em>boilerplate</em>, or a shared
-    <em>story</em>?
-  </em></p>
-  <p>
-    Structural truth is never farther than a badge: the week-1 Wikipedia links and the
-    week-4 Louvain communities ride along, so the classic mismatch &mdash;
-    <em>textually close, structurally far</em> &mdash; is visible at a glance.
-  </p>
 </article>
 
 <article class="post wide" id="explorable">
@@ -78,197 +49,74 @@
     <h2>The explorable</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
-  <p>
-    Start where the course page ends: <strong>Storm</strong>. Her TF-IDF lookalike is the
-    Human Torch &mdash; they have almost nothing in common except a surname. Now switch
-    columns, click a couple of rows, and read the sentences.
-  </p>
-
-  <div id="w6-explorable">
-    <div class="w6-picker">
-      <select id="w6-select" aria-label="Pick a character"></select>
-      <input id="w6-input" list="w6-datalist" placeholder="type a character name…" autocomplete="off">
-      <datalist id="w6-datalist"></datalist>
-      <button class="btn" id="w6-random" type="button">Random character</button>
-      <label class="cos-note" for="w6-no-names" style="margin-left:auto;display:inline-flex;gap:6px;align-items:center;">
-        <input type="checkbox" id="w6-no-names"> remove proper names from topics
-      </label>
-    </div>
-
-    <div class="w6-legend" id="w6-legend"><span id="w6-legend-swatches"></span></div>
-
-    <div class="w6-docs" id="w6-docs" aria-live="polite"></div>
-    <div id="w6-drawer" aria-live="polite"></div>
-
-    <h3 style="margin-top:34px;">The word half</h3>
-    <p class="subtitle" style="margin-bottom:4px;">
-      The character's TF-IDF <em>fingerprint</em> (proper names removed) becomes a set of
-      entry points into the word-level world. Each chip shows the same word as a row of the
-      word&ndash;context matrix under raw counts, PPMI, and a Marvel-trained Word2Vec &mdash;
-      read the three columns top-to-bottom and watch <code>hammer</code> travel from
-      <em>power, to, with</em> to <em>thor, asgard</em>.
-    </p>
-    <div class="w6-chips" id="w6-chips"></div>
-    <div class="w6-picker">
-      <input id="w6-word-input" list="w6-word-list" placeholder="search any word in the week-6 vocabulary…" autocomplete="off">
-      <datalist id="w6-word-list"></datalist>
-    </div>
-    <div class="w6-word-cols" id="w6-wordcols"></div>
+  <div class="w6-picker">
+    <select id="w6l-select" aria-label="Pick a character"></select>
+    <input id="w6l-input" list="w6l-datalist" class="search-input" placeholder="type a character name…" autocomplete="off">
+    <datalist id="w6l-datalist"></datalist>
   </div>
 
-  <p class="explorer-caption" style="margin-top:14px;">
-    Data: 303 Marvel Wikipedia pages (727k tokens). Document neighbors: cosine under each
-    representation, top 10. Word2Vec: gensim skip-gram, 100&#8202;dims, window&#8202;5,
-    min_count&#8202;5, seed&#8202;0. PPMI: contexts within &#177;5 sentence words,
-    log&#8322; of observed vs. expected. Topics: LDA, 8 topics, seed&#8202;0
-    (CountVectorizer, min_df&#8202;5, max_df&#8202;0.5). Community overlay: week-4 Louvain
-    (seed&#8202;42). Everything was computed once offline and frozen into three JSON
-    payloads; the page is a pure reader.
-  </p>
-</article>
+  <div class="w6-docs" id="w6l-docs" aria-live="polite"></div>
+  <div id="w6l-drawer" aria-live="polite"></div>
 
-<article class="post wide" id="what-we-saw">
-  <div class="section-head">
-    <h2>What we saw, with the text as referee</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
-  </div>
-
-  <h3>Counts are desperate measures</h3>
-  <p>
-    Ask <strong>Wolverine</strong> for raw-count neighbors and you get the X-corner:
-    Cyclops, Quicksilver, Hellion &mdash; every character page talks the same Wikipedia
-    dialect of <em>was</em>, <em>series</em>, <em>character</em> and <em>team</em>, so raw
-    cosine mostly measures page style. On average only <strong>1.9 of every character's
-    ten</strong> raw-count neighbors are actually linked in the week-1 network
-    (&asymp;0.3 for ten random pages).
-  </p>
-
-  <h3>TF-IDF sharpens the answer &mdash; and finds the Frost problem</h3>
-  <p>
-    Switch to TF-IDF and the network agreement jumps to <strong>4.0 of 10</strong> &mdash;
-    with <em>no stopword list at all</em>. The ranking also gets sharper sentences behind
-    it: Wolverine's top neighbors share <code>logan</code>, <code>adamantium</code>,
-    <code>mutant</code> &mdash; and the pattern that <strong>near-duplicate pages top the
-    list</strong> (Ultimate Wolverine) is real structure Wikipedia itself created.
-  </p>
-  <p>
-    But TF-IDF has a famous failure mode, and Storm shows it: her closest page is the
-    <strong>Human Torch</strong>, whose point of contact is the surname
-    <em>storm</em> &mdash; and who she is not linked to, while 8 of her 9 other top-10
-    neighbors are real links. A rare word is, by definition, informative
-    &mdash; and a surname is a rare word. It's the course's own caution, reproduced in our
-    numbers: the vector knows frequency, not meaning.
-  </p>
-
-  <h3>Topic mixtures: structure without sentences</h3>
-  <p>
-    LDA agrees with the network far less than TF-IDF does (<strong>1.3 of 10</strong>),
-    and that's not a bug: a mixture similarity measures <em>what kind of page</em> the
-    neighbor is, not which exact words it uses. Toggle <em>remove proper names</em> and the topics
-    turn from name lists into themes (<em>symbiotes & hosts</em>, <em>gods &
-    vampires</em>, and the honest <em>media boilerplate</em>). Whether that's more
-    &ldquo;meaning&rdquo; than a name list is exactly the judgment call we want readers
-    to make with the sentence drawer open.
+  <p class="explorer-caption">
+    Click a row for the shared fingerprint words and the actual sentences behind the
+    match; click a <em>name</em> to make that character the subject. The green ✓ badge is
+    the week-1 Wikipedia link &mdash; the one piece of ground truth in the picture.
   </p>
 </article>
 
 <article class="post wide" id="words">
   <div class="section-head">
-    <h2>The word half: same lemma, three stories</h2>
+    <h2>One word, two weightings</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
   <p>
-    The word panel riffs on the week's dog/puppy/democracy demo with corpus-sized words.
-    For <code>hammer</code> (87 occurrences):
+    The same trick, one level down. The subject's TF-IDF <em>fingerprint</em> &mdash; their
+    most distinctive words, names removed &mdash; is a row of chips. Click one: the same
+    word-context matrix, one column weighted by raw counts, one by PPMI. Watch
+    <code>hammer</code> trade <em>power, to, with</em> for <em>thor, asgard</em>.
   </p>
-  <div class="stats-grid">
-    <div class="stat-card"><span class="stat-label">counts neighbors</span>
-      <span class="stat-value">power, to, with</span></div>
-    <div class="stat-card"><span class="stat-label">PPMI neighbors</span>
-      <span class="stat-value">thor, falls, bill</span></div>
-    <div class="stat-card"><span class="stat-label">Word2Vec neighbors</span>
-      <span class="stat-value">odinson, truck, weaken</span></div>
-  </div>
-  <p>
-    Raw counts put the furniture of every sentence next to it. PPMI removes the
-    furniture and leaves the myth &mdash; Mj&ouml;lnir's household (<em>thor</em>,
-    <em>bill</em>, <em>asgard</em>). Word2Vec lands <code>odinson</code> at the top and
-    then, with the confidence a 727k-token corpus deserves, adds <code>truck</code> and
-    <code>weaken</code> &mdash; every neighbor list this week ends the same way:
-    <strong>back to the text.</strong>
-  </p>
-  <p>
-    And PPMI has its own vice: <code>the</code>'s top context dimensions are junk rare
-    words (<code>kommander</code>, <code>diff</code>&hellip;). Discounting common pairs
-    rewards <em>any</em> unexpected co-occurrence, including editorial crumbs. These
-    sparse vectors are the same argument from the document half, now at word level: no
-    representation is telling you the truth about <em>meaning</em>; every one is
-    plausible machinery that you have to audit.
-  </p>
+
+  <div class="w6-chips" id="w6l-chips"></div>
+  <div id="w6l-wordpanel"></div>
 </article>
 
-<article class="post wide" id="lookalikes">
+<article class="post wide" id="strangers">
   <div class="section-head">
     <h2>The closest strangers</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
   <p>
-    The list below the explorable ranks the pairs with the <strong>highest TF-IDF cosine
-    of any unlinked pair</strong> &mdash; our corpus's best candidates for
-    <em>textually close, structurally far</em>:
+    Click any pair to put it in the drawer. #1 is the week's favorite: <strong>Emma Frost
+    &harr; Jack Frost</strong>, pulled together almost entirely by the surname
+    <em>frost</em>. Below it sit the <em>Strikeforce: Morituri</em> teammates &mdash; pages
+    that share a comic, its creators and rare vocabulary, and simply never got links
+    between them. The vector suggests; the reader decides which it means.
   </p>
-  <div id="w6-unlinked"></div>
-  <p>
-    #1 is the jackpot: <strong>Emma Frost &harr; Jack Frost</strong>, cos&#8202;=&#8202;0.44,
-    driven almost entirely by <code>frost</code> and <code>frost's</code> &mdash; the week's
-    favorite example, reproduced in our numbers. #2&#8211;#5 are the
-    <em>Strikeforce: Morituri</em> cluster: teammates who share a comic, its creators and
-    rare vocabulary, and simply never got links between their pages. That family is
-    <em>real</em> structure, detectable only from text &mdash; the split between surname
-    matches and teammate matches is one a cosine can suggest but only a reader can make.
-  </p>
+  <div id="w6l-strangers"></div>
 </article>
 
-<article class="post wide" id="limitation">
+<article class="post wide" id="limits">
   <div class="section-head">
-    <h2>What this explorable can't do</h2>
+    <h2>Limits</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
   <p>
-    One question of one corpus, with one frozen run of every model. The LDA solution
-    depends on seed and topic count; Word2Vec on our 727k tokens is small enough that
-    neighbor lists reshuffle between library versions; the one-fit-per-representation
-    framing is precisely the lesson we keep drumming &mdash; these are <em>instances</em>,
-    not the method. And a frozen page can take you to the sentences, but it cannot take
-    the final step for you: deciding, with your own eyes, which matches are names,
-    which are boilerplate, and which are real.
+    One frozen run of each representation: change the LDA seed and the topic column
+    reshuffles; our Word2Vec is trained on 727k tokens and its neighbor lists drift
+    between library versions. Every number here is one sample of a method &mdash; and the
+    sentence drawer gets you to the evidence, not to the verdict.
   </p>
-</article>
-
-<article class="post wide" id="roadmap">
-  <div class="section-head">
-    <h2>What's next on this site</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
-  </div>
-  <p>
-    Three more week-6 questions queued as future explorables (the permission to dream is
-    section 6.11's):
-  </p>
-  <ol class="rank-list">
-    <li><span class="rank">1</span><span class="name"><strong>The similarity cascade</strong> &mdash;
-      a glyph network that overlays the TF-IDF neighborhood graph on the Wikipedia link
-      graph, per community.</span></li>
-    <li><span class="rank">2</span><span class="name"><strong>The Marvel map</strong> &mdash;
-      the science&#8202;&harr;&#8202;magic / body&#8202;&harr;&#8202;mind axis playground,
-      with scattertext-style term contrasts per community.</span></li>
-    <li><span class="rank">3</span><span class="name"><strong>One-character deep dives</strong> &mdash;
-      a zoomable fingerprint explorer: TF-IDF, topic mixture and embedding neighborhood
-      around a single page.</span></li>
-  </ol>
 </article>
 
 <article class="post">
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+  <p class="cos-note" style="margin-top:6px;">
+    Want a wider lens? The same week, less leanness: the
+    <a href="week-6-2.html">similarity cascade</a>, the
+    <a href="week-6-3.html">Marvel map</a> and
+    <a href="week-6-4.html">one-character deep dives</a>.
+  </p>
 </article>
 </main>
 
@@ -279,6 +127,6 @@
   </div>
 </footer>
 
-<script src="week6.js"></script>
+<script src="week6-lean.js"></script>
 </body>
 </html>
