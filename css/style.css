@@ -1341,6 +1341,7 @@ article.post blockquote {
 .w66-legend .lg-dot { background: var(--text-dim); opacity: 0.7; }
 .w66-legend .lg-start { background: none; border: 2px solid #fff; box-sizing: border-box; }
 .w66-legend .lg-after { background: var(--accent); }
+.w66-legend .lg-winner { background: none; border: 2px dashed #fff; opacity: 0.8; box-sizing: border-box; }
 .w66-legend .lg-expect { background: none; border: 2px dashed var(--accent); box-sizing: border-box; }
 .w66-cap {
   margin: 4px 2px 8px;

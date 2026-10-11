@@ -396,16 +396,27 @@
         "<title>expected: " + esc(MAP.pages[state.expect].name) + "</title></circle>";
     }
 
+    // the true #1, connected from the arrowhead — a 100-D "nearest" can lose
+    // to a lookalike dot once the other 98 dimensions are folded away
+    var winPart = "";
+    if (results.length && P[results[0].nid]) {
+      var t = P[results[0].nid];
+      winPart = '<line x1="' + sxx(ax).toFixed(1) + '" y1="' + syy(ay).toFixed(1) +
+        '" x2="' + sxx(t.x).toFixed(1) + '" y2="' + syy(t.y).toFixed(1) +
+        '" stroke="#fff" stroke-width="1.1" stroke-dasharray="2 3" opacity="0.5"/>';
+    }
+
     root.innerHTML =
       '<svg viewBox="0 0 760 430" role="img" aria-label="Map of the spin: every character projected so the traded direction is the x-axis">' +
       '<defs><marker id="w66-arrh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
       '<path d="M0 0L10 5L0 10z" fill="#e6353a"/></marker></defs>' +
-      dots + expectPart + afterPart + rings + startDot + "</svg>" +
+      dots + expectPart + winPart + afterPart + rings + startDot + "</svg>" +
       '<div class="w66-legend">' +
       '<span><i class="lg-dot"></i>all 303 characters</span>' +
       '<span><b>1–5</b> the podium</span>' +
       '<span><i class="lg-start"></i>started here</span>' +
       '<span><i class="lg-after"></i>after the trade</span>' +
+      '<span><i class="lg-winner"></i>true winner</span>' +
       '<span><i class="lg-expect"></i>hero you expected</span>' +
       "</div>" +
       '<p class="cos-note w66-cap">x is exactly this spin&rsquo;s trade direction — the closer a dot sits to the arrowhead, the more the machine&rsquo;s answer points at it; y is the widest leftover spread (the tribes). Dots reshuffle every spin. Positions are projections: the podium above is ranked in the full 100-D space.</p>';
