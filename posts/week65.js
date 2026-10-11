@@ -141,7 +141,7 @@
       return '<li class="w6-bar-row"><span class="w6-bar-word" style="font-size:11.5px">' +
         esc(labels[t.k]) + "</span>" +
         '<span class="w6-bar-track"><span class="w6-bar-fill" style="background:' +
-        TOPIC_COLOR[t.k] + ';width:' + Math.round(100 * t.p / st[0].p) +
+        TOPIC_COLOR[t.k] + ';width:' + (100 * t.p).toFixed(1) +
         '%"></span></span><span class="w6-bar-val">' + (100 * t.p).toFixed(1) + "%</span></li>";
     }).join("");
 
