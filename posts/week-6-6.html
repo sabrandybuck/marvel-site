@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Week 6.6: the analogy slot machine — The Web of Heroes</title>
-  <meta name="description" content="Marvel as the king−man+woman arithmetic: pick a character, subtract a word, add another, and watch all 303 heroes re-rank around the new direction — with the actual sentences that prove (or embarrass) the machine's answer.">
+  <title>Week 6.6: five ways to say 'close' — The Web of Heroes</title>
+  <meta name="description" content="Pick a Marvel character and watch their text neighbors re-rank under TF-IDF and topic mixtures, check every match against the actual sentences, flip one fingerprint word between raw counts and PPMI — and meet the corpus's closest structurally-unlinked pairs.">
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -25,182 +25,97 @@
 <main class="wrap">
 <article class="post wide">
 
-  <div class="post-meta">Week 6 · The toy that earned its keep</div>
-  <h1>The analogy slot machine</h1>
+  <div class="post-meta">Week 6 · From counts to meaning</div>
+  <h1>Who is close &mdash; and why?</h1>
   <p class="subtitle">
-    The week's most famous demonstration is word arithmetic:
-    <code>king &minus; man + woman &approx; queen</code>. Does the same trick work one
-    level up &mdash; start from a <strong>character</strong>, subtract a word, add a word,
-    and let the machine name the closest superhero? This is the week's play round: all
-    the TF-IDF, PPMI and topic-mixing the pages built gets compressed into one toy with
-    a lever. Pull the lever:
+    Week 6 gave every page numbers that describe <em>language</em> &mdash; TF-IDF weights,
+    topic mixtures, PPMI &mdash; and one recurring warning: a cosine without a close reading
+    proves nothing. So we ask one question one character at a time: <strong>which pages
+    look closest, are they actually linked, and what do the sentences say?</strong>
+    Start on Storm and see for yourself.
   </p>
 
   <nav class="week2-quicknav" id="top" aria-label="Section quick links">
-    <a href="#how">How a character becomes a vector</a>
-    <a href="#game">The lever</a>
-    <a href="#try">How to read a spin</a>
-    <a href="#found">What the machine gets right (and wrong)</a>
-    <a href="#limits">Limitation</a>
+    <a href="#explorable">The explorable</a>
+    <a href="#words">One word, two weightings</a>
+    <a href="#strangers">The closest strangers</a>
+    <a href="#limits">Limits</a>
   </nav>
 
 </article>
 
-<article class="post wide" id="how">
+<article class="post wide" id="explorable">
   <div class="section-head">
-    <h2>How a character becomes a vector</h2>
+    <h2>The explorable</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
-  <p>
-    Same recipe as the <a href="week-6-3.html">Marvel map</a>: a character's position is
-    the TF-IDF-weighted average of their <em>fingerprint words</em> (names removed) in our
-    Marvel-trained Word2Vec space. A fingerprint is just the handful of highest-TF-IDF
-    words on a single page, and names are dropped so the machine can't shortcut through
-    people's titles. Trade a word and the traded vectors have to come from the 3,791
-    words we shipped &mdash; anything outside the vocabulary would silently poison the
-    arithmetic, so those inputs get bounced with an error instead. The space itself was
-    trained on the full week's corpus, 727,440 tokens across all 303 pages, which is why
-    words like <code>magic</code> or <code>hammer</code> carry real Marvel meaning inside it.
-  </p>
-  <p>
-    The new direction is scored against all 303 character positions by
-    <strong>cosine</strong> &mdash; read it as a similarity dial, where 1 means "same
-    direction" and 0 means "unrelated"; it is not a percentage. The podium is who's
-    closest. If you already know the hero you <em>expected</em>, pick them too &mdash;
-    the machine reports their exact rank, cosine, and who got in the way. Nothing is
-    precomputed; every spin is live arithmetic.
+  <div class="w6-picker">
+    <select id="w6l-select" aria-label="Pick a character"></select>
+    <input id="w6l-input" list="w6l-datalist" class="search-input" placeholder="type a character name…" autocomplete="off">
+    <datalist id="w6l-datalist"></datalist>
+  </div>
+
+  <div class="w6-docs" id="w6l-docs" aria-live="polite"></div>
+  <div id="w6l-drawer" aria-live="polite"></div>
+
+  <p class="explorer-caption">
+    Click a row for the shared fingerprint words and the actual sentences behind the
+    match; click a <em>name</em> to make that character the subject. The green ✓ badge is
+    the week-1 Wikipedia link &mdash; the one piece of ground truth in the picture.
   </p>
 </article>
 
-<article class="post wide" id="game">
+<article class="post wide" id="words">
   <div class="section-head">
-    <h2>The lever</h2>
-    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
-  </div>
-
-  <div id="w66-controls" class="w66-panel">
-    <div class="w66-eq">
-      <select id="w66-from" aria-label="Starting character"></select>
-      <input id="w66-from-name" list="w66-from-datalist" class="search-input" placeholder="…or type a name" autocomplete="off">
-      <datalist id="w66-from-datalist"></datalist>
-      <span class="w66-op">&minus;</span>
-      <input id="w66-minus" list="w66-minus-datalist" class="search-input" placeholder="subtract word" autocomplete="off">
-      <datalist id="w66-minus-datalist"></datalist>
-      <span class="w66-op">+</span>
-      <input id="w66-plus" list="w66-plus-datalist" class="search-input" placeholder="add word" autocomplete="off">
-      <datalist id="w66-plus-datalist"></datalist>
-      <span class="w66-op">→</span>
-      <select id="w66-expect" aria-label="The hero you expected (optional)"></select>
-      <button class="btn" id="w66-lever" type="button">Pull the lever</button>
-      <p class="cos-note" id="w66-error" style="color:var(--accent);width:100%;margin:0;"></p>
-    </div>
-
-    <div class="w6-chips" id="w66-presets"></div>
-    <div class="w66-map" id="w66-map"></div>
-    <div id="w66-results"></div>
-  </div>
-  <div class="callout" style="margin:12px 0 6px;">
-      <strong>Why does a dot that looks closest not have the highest number?</strong>
-      The map is a 2D projection — a PCA shadow — of the 100-dimensional space the
-      machine actually lives in: the x-axis runs along the traded direction, but the
-      y-axis squeezes the other 98 dimensions into one, and the cosine ranking also
-      rescales each character's length in a way the projection does not. So
-      &ldquo;looks nearest&rdquo; is not &ldquo;is nearest&rdquo;: the thin dashed
-      white line from the arrowhead points at the machine&rsquo;s <em>true</em> #1,
-      and the numbers on the podium above are always the full-space truth.
-    </div>
-</article>
-
-<article class="post wide" id="try">
-  <div class="section-head">
-    <h2>How to read a spin &mdash; and three to try</h2>
+    <h2>One word, two weightings</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
   <p>
-    Every spin reads the same way. The podium is the machine's top five, with its best
-    guess highlighted. Beneath it, the <em>moved-words</em> line shows which of the
-    starting fingerprint words pulled toward each pole &mdash; the trade's geometry in
-    one sentence. If you named an expected hero, the verdict card reports their exact
-    rank out of 302, their cosine, and up to three pages that got in the way; that
-    ranking deliberately includes near-duplicate pages, so you can see the corpus's
-    own copy problem in the numbers. Click any podium row to recenter the whole
-    equation on that hero, and audit anything suspicious with the sentence drawer
-    underneath. The map above the podium redraws once per spin: its x-axis
-    <em>is</em> the traded direction, so the podium's dots herd toward the
-    arrowhead (in roughly rank order &mdash; cosines and projections disagree a
-    little), y is the widest spread left over. It is a projection, not a
-    ruler &mdash; the podium above, computed in the full 100-D space, is the ground
-    truth.
+    The same trick, one level down. The subject's TF-IDF <em>fingerprint</em> &mdash; their
+    most distinctive words, names removed &mdash; is a row of chips. Click one: the same
+    word-context matrix, one column weighted by raw counts, one by PPMI. Watch
+    <code>hammer</code> trade <em>power, to, with</em> for <em>thor, asgard</em>.
   </p>
-  <ul>
-    <li><strong>The obvious answer, measured.</strong> Run the default
-      Spider&#8202;&minus;&#8202;man&#8202;+&#8202;woman round and set the expected hero
-      to <strong>Spider-Woman</strong>: she lands at <strong>#16 of 302</strong>
-      (cosine 0.49) &mdash; Wild Child, Spider-Girl and Father Time got there first,
-      and the blockers list puts the machine's excuse right in front of you.</li>
-    <li><strong>Family is not a ranking.</strong> Spin
-      Hulk&#8202;&minus;&#8202;man&#8202;+&#8202;woman and expect
-      <strong>She-Hulk</strong> &mdash; the canonical answer in family terms &mdash;
-      yet she comes in at <strong>#42</strong>, with Wild Child, Northstar and Jean
-      Grey standing in the way. The traded pole is one of a dozen fingerprint words;
-      family resemblance in this space has to be earned.</li>
-    <li><strong>Then build your own round.</strong> Start from your favorite
-      character, trade a word for its conceptual opposite, and use the sentence
-      drawer to decide whether the machine was strange-right or strange-wrong. The
-      preset chips under the lever are safe starts; every other combination is
-      yours.</li>
-  </ul>
+
+  <div class="w6-chips" id="w6l-chips"></div>
+  <div id="w6l-wordpanel"></div>
 </article>
 
-<article class="post wide" id="found">
+<article class="post wide" id="strangers">
   <div class="section-head">
-    <h2>What the machine gets right (and wrong)</h2>
+    <h2>The closest strangers</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
-  <ul>
-    <li><strong>The biology round works.</strong> The default preset,
-      Spider&#8202;&minus;&#8202;man&#8202;+&#8202;woman, puts <strong>Spider-Girl</strong>
-      right at the top of the family (with Wild Child, the machine's own punchline, at
-      #1) &mdash; and the moved-words row shows why: <code>man</code>-carrying
-      fingerprints pushed out, <code>woman</code>-adjacent ones pulled in.</li>
-    <li><strong>Some rounds land in the right family.</strong>
-      Luke&#8202;Cage&#8202;&minus;&#8202;street&#8202;+&#8202;magic crowns
-      <strong>Doctor Druid</strong> &mdash; not the Doctor you ordered, but a real
-      sorcerer from the same neighborhood of the space, with Doctor Strange himself
-      close behind. The analogies rarely name the exact hero; they reliably name the
-      right <em>kind</em> of hero.</li>
-    <li><strong>And some rounds are honest failures.</strong> The echo trap:
-      Venom&#8202;&minus;&#8202;aliens&#8202;+&#8202;technology returns
-      <strong>Eddie Brock</strong> &mdash; the direction barely escapes the symbiote and
-      re-lands on its host, because Venom's fingerprint is <em>about</em> being a
-      symbiote wearing a man. Storm&#8202;&minus;&#8202;weather&#8202;+&#8202;mind
-      drifts to Satana, a mystic, instead of a telepath. The evidence drawer under each
-      spin is there exactly for rounds like these.</li>
-  </ul>
+  <p>
+    Click any pair to put it in the drawer. #1 is the week's favorite: <strong>Emma Frost
+    &harr; Jack Frost</strong>, pulled together almost entirely by the surname
+    <em>frost</em>. Below it sit the <em>Strikeforce: Morituri</em> teammates &mdash; pages
+    that share a comic, its creators and rare vocabulary, and simply never got links
+    between them. The vector suggests; the reader decides which it means.
+  </p>
+  <div id="w6l-strangers"></div>
 </article>
 
 <article class="post wide" id="limits">
   <div class="section-head">
-    <h2>Limitation</h2>
+    <h2>Limits</h2>
     <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
   </div>
   <p>
-    A character is reduced to a dozen weighted words, the space to 100 dimensions learned
-    from 727k tokens, and every round inherits the corpus's biases &mdash; the
-    war&harr;home lean that the map post caught. Treat the machine as a comedy writer
-    with a statistics degree: sometimes strangely right, always worth auditing.
+    One frozen run of each representation: change the LDA seed and the topic column
+    reshuffles; our Word2Vec is trained on 727k tokens and its neighbor lists drift
+    between library versions. Every number here is one sample of a method &mdash; and the
+    sentence drawer gets you to the evidence, not to the verdict.
   </p>
 </article>
 
 <article class="post">
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
   <p class="cos-note" style="margin-top:6px;">
-    More from week 6 (kept around, just not on the home page): the
-    <a href="week-6.html">neighbor re-ranker</a>, the
+    Want a wider lens? The same week, less leanness: the
     <a href="week-6-2.html">similarity cascade</a>, the
-    <a href="week-6-3.html">Marvel map</a>,
-    <a href="week-6-4.html">one-character deep dives</a> and the
-    <a href="week-6-5.html">between-topics ranking</a>.
+    <a href="week-6-3.html">Marvel map</a> and
+    <a href="week-6-4.html">one-character deep dives</a>.
   </p>
 </article>
 </main>
@@ -212,6 +127,6 @@
   </div>
 </footer>
 
-<script src="week66.js"></script>
+<script src="week6-lean.js"></script>
 </body>
 </html>
