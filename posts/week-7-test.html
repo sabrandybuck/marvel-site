@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 7 test: links vs. meaning — The Web of Heroes</title>
+<meta name="description" content="Test post for week 7: the Marvel supervillains link network next to the same 370 characters wired by MiniLM document-embedding similarity instead of Wikipedia links.">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 7 · test post</div>
+  <h1>Links vs. meaning</h1>
+  <p class="subtitle">The Marvel supervillain network next to the same 370 characters wired by
+  all-MiniLM-L6-v2 document similarity instead of Wikipedia links.</p>
+
+  <h2>What we asked</h2>
+  <p>
+    Week 1 built the Marvel network out of what pages <em>point at</em>: a directed edge exists
+    when one article's wiki-source links to another. Week 7 of the course turns pages into
+    <em>meaning</em>: a pretrained encoder maps every page to a vector, and two pages belong
+    together when those vectors are close. Those are two very different notions of "near", and
+    they do not have to draw the same picture.
+  </p>
+  <p>
+    So on this test page we asked the simplest comparative question we could think of: take the
+    <a href="posts/week-2-marvel-supervillains.html">Marvel Comics supervillains</a> dataset —
+    370 characters crawled from Wikipedia's supervillain category — and draw it twice. Once as
+    the hyperlink network it actually is. Once as a "skeleton": the same 370 nodes, but with
+    each character connected to its nearest neighbours in embedding space, as if
+    text similarity had replaced Wikipedia's linking decisions. What survives both drawings —
+    and what only makes sense in one of them — is the whole story.
+  </p>
+
+  <h2>What we did</h2>
+  <p>
+    We fetched the plain text of all 370 villain pages from Wikipedia's extracts API
+    (522,110 words total, median page 795 words — more than the encoder's whole window). Each page was embedded with
+    <code>all-MiniLM-L6-v2</code> (384 dimensions). The encoder cuts input at
+    <code>max_seq_length = 256</code> word pieces, which would silently throw away most of every
+    page — the course's week 7 page warns about exactly this truncation trap. Following the
+    corpus atlas, we cut each page into passages of at most 180 words along sentence boundaries,
+    embedded every passage, and took the normalized mean of the passage vectors
+    (3,281 passages across the corpus). "Nearest neighbours" below is always cosine
+    similarity in that original 384-d space, never the 2D drawings. Node colors in both graphs
+    below are Louvain communities of the <em>link</em> network, so you can watch one grouping
+    fall out of the other representation.
+  </p>
+
+  <ul class="stats-grid">
+    <li class="stat-card"><span class="stat-label">Villains (nodes)</span><span class="stat-value">370</span></li>
+    <li class="stat-card"><span class="stat-label">Directed link edges</span><span class="stat-value">1,136</span></li>
+    <li class="stat-card"><span class="stat-label">Isolated nodes (links)</span><span class="stat-value">43</span></li>
+    <li class="stat-card"><span class="stat-label">Embedding dimensions</span><span class="stat-value">384</span></li>
+    <li class="stat-card"><span class="stat-label">Passages embedded</span><span class="stat-value">3,281</span></li>
+    <li class="stat-card"><span class="stat-label">PCA variance (2 axes)</span><span class="stat-value">7.9%</span></li>
+  </ul>
+
+  <h2>The two explorables</h2>
+  <p>
+    Card one is the real thing: a character's article links to another's, so there is an edge.
+    Card two is a construction, not a network in the wild: each edge means "one of the k nearest
+    pages by cosine similarity in embedding space". Green edges in card two are pairs that are
+    <em>also</em> linked on Wikipedia either way; red edges exist only in meaning.
+  </p>
+
+</article>
+
+<p class="lede-connector">
+  Every node below is one of the 370 Marvel supervillains; a directed edge means one character's
+  Wikipedia article links to another's. It's the crawl snapshot from 2026-09-13 (Category:Marvel
+  Comics supervillains on live Wikipedia). Hover for a tooltip; click a node — or find one above —
+  to see its full profile below the graph.
+</p>
+
+<figure class="wide-figure explorer">
+  <h3>Explorer 1 — the link network</h3>
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a villain</span>
+      <form id="wk7t-link-search-form" class="hero-search-row">
+        <input id="wk7t-link-search-input" class="search-input" type="search"
+               list="wk7t-link-datalist" placeholder="Type a name…"
+               aria-label="Find a villain by name">
+        <datalist id="wk7t-link-datalist"></datalist>
+        <button type="button" id="wk7t-link-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="wk7t-link-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+    <div class="network-toggles">
+      <span class="network-toggles-label">Nodes</span>
+      <div class="network-toggles-row">
+        <button type="button" id="wk7t-isolate-btn" class="btn" aria-pressed="true">Show isolates</button>
+        <button type="button" id="wk7t-color-btn" class="btn" aria-pressed="false">Color by component</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Drag a node to move it, scroll to zoom, drag empty space to pan. Node size scales with
+    in-degree; the colors group characters that week-4 style community detection found in the link
+    network.
+  </p>
+
+  <div class="explorer-stage">
+    <div id="wk7t-link-network" class="network-box" aria-label="Interactive supervillain link network"></div>
+    <div id="wk7t-link-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No villain selected yet — click a node or find one above.</p>
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    The Wikipedia link network: <span id="wk7t-link-note"></span>
+  </figcaption>
+</figure>
+
+<div class="callout">
+  🔎 Worth clicking on: the biggest nodes — in a <em>villains</em> category, the two biggest
+  targets are heroes: <strong>Hulk</strong> (58 in-links) and <strong>Deadpool</strong> (25), because
+  villain articles constantly record who fought whom. The biggest <em>villain</em> hub is
+  <strong>Norman Osborn</strong> (50 in, 24 out — he also pushes the most links out). Then remember
+  this picture — the second explorer re-uses the same characters and colors.
+</div>
+
+<p class="lede-connector">
+  Same 370 nodes again — but now an edge means "this page is one of the k most similar pages under
+  the MiniLM encoder", not "this article links to that one". Node colors are the same link-network
+  communities as above, so you can ask whether the communities stay together when links disappear.
+</p>
+
+<figure class="wide-figure explorer">
+  <h3>Explorer 2 — the MiniLM skeleton</h3>
+  <div class="explorer-controls">
+    <div class="hero-search">
+      <span class="hero-search-label">Find a villain</span>
+      <form id="wk7t-sem-search-form" class="hero-search-row">
+        <input id="wk7t-sem-search-input" class="search-input" type="search"
+               list="wk7t-sem-datalist" placeholder="Type a name…"
+               aria-label="Find a villain by name">
+        <datalist id="wk7t-sem-datalist"></datalist>
+        <button type="button" id="wk7t-sem-clear-btn" class="btn">Clear</button>
+      </form>
+      <p id="wk7t-sem-search-status" class="search-status" aria-live="polite"></p>
+    </div>
+    <div class="network-toggles">
+      <span class="network-toggles-label">Edges</span>
+      <div class="slider-row" style="margin-top:8px;">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">k =</span>
+        <input id="wk7t-sem-k" type="range" min="1" max="10" step="1" value="5" aria-label="number of neighbours per page">
+        <span class="slider-value" id="wk7t-k-val">5</span>
+      </div>
+      <div class="slider-row" style="margin-top:6px;">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-dim);">cosine &ge;</span>
+        <input id="wk7t-sem-mincos" type="range" min="0" max="0.9" step="0.05" value="0" aria-label="minimum cosine similarity">
+        <span class="slider-value" id="wk7t-mincos-val">0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="explorer-hint">
+    Every edge is a cosine-similarity edge from the 384-dimensional embedding space
+    (nearest neighbours computed in the original space, never on the 2D drawing). Green edges are
+    pairs that are <em>also</em> linked on Wikipedia either way; red edges are meaning-only.
+  </p>
+
+  <div class="explorer-stage">
+    <div id="wk7t-sem-network" class="network-box" aria-label="Interactive MiniLM similarity skeleton"></div>
+    <div id="wk7t-sem-inspector" class="inspector" aria-live="polite">
+      <p class="inspector-empty">No villain selected yet — click a node or find one above.</p>
+    </div>
+  </div>
+
+  <div class="legend-grid">
+    <div class="legend-row">
+      <span class="legend-swatch" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#0ca678;"></span>
+      also linked on Wikipedia (either direction)
+    </div>
+    <div class="legend-row">
+      <span class="legend-swatch" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#e6353a;"></span>
+      meaning-only — close in embedding space, unlinked on Wikipedia
+    </div>
+  </div>
+
+  <figcaption class="explorer-caption">
+    The MiniLM skeleton: <span id="wk7t-sem-note"></span>
+  </figcaption>
+</figure>
+
+<div class="callout">
+  📎 Reproducing this: <code>analysis/fetch_week7_pages.py</code> fetches the villain page text,
+  <code>analysis/build_week7_test.py</code> embeds it with <code>all-MiniLM-L6-v2</code> (180-word
+  passage chunking) and writes <code>data/week7/week7_supervillains.json</code> — this page is a
+  pure reader over that file.
+</div>
+
+<article class="post wide">
+  <h2>What surprised us</h2>
+  <p>
+    The two pictures disagree, and not at the margins. Take every villain's five nearest pages by
+    cosine similarity in the original 384-dimensional space: that produces 1,519 semantic edges, of
+    which only 218 (14.4%) also exist as a Wikipedia link in either direction. Flip it around and
+    the link network is even more different: 604 of the 910 link pairs (66%) never show up in
+    either node's top-10 semantic neighbours. Only 195 of 370 villains (52.7%) have even one
+    top-5 meaning neighbour that is also a link neighbour. The half that do — and the green edges
+    in explorer 2 — are mostly the hub-and-spin-off families: Spider-family, Hulk-family,
+    X-adjacent names.
+  </p>
+  <p>
+    What the encoder finds that the links never wired is the fun part. It reconstructs whole
+    corners of the universe from nothing but prose: the Spider-cosmos
+    (<em>Scarlet&nbsp;Spider ↔ Spider-Woman</em> 0.81, <em>Scarlet&nbsp;Spider ↔ Spider-Girl</em>
+    0.80, <em>Blood&nbsp;Spider ↔ Scarlet&nbsp;Spider</em> 0.74 — none of these pairs link to each
+    other), and the name-twins the linker never had reason to connect
+    (<em>Sentry&nbsp;(Kree) ↔ Sentry&nbsp;(Robert&nbsp;Reynolds)</em> 0.76, the zodiac pairs
+    <em>Leo ↔ Libra</em> 0.76, <em>Aries ↔ Gemini</em> 0.73). Some "meaning-only" pairs are
+    genuinely about-ness rather than story connection: <em>Leader ↔ Maestro</em> (0.79) are both
+    Hulk-derived archetypes, and the tiny stub pages <em>Naga ↔ Tundra</em> (0.80) are the same
+    <em>kind</em> of article even though they have nothing to do with each other.
+  </p>
+  <p>
+    What the links find that the encoder does not is the flip side: most hyperlink edges exist for
+    reasons the prose statistics barely register — "this villain's current story arc fights the
+    Hulk this month", event-crossover cross-references, navigate-here editorial choices. An edge
+    built from links measures who a page <em>discusses</em>; an edge built from MiniLM measures
+    what a page is <em>like</em>. Neither is the network of the supervillains; they are two
+    different measurement instruments on the same 370 objects, and the 14% where they overlap is
+    about the only part you'd want to call structure in both senses.
+  </p>
+  <p>
+    A modeling footnote we had to live: with <code>max_seq_length = 256</code> word pieces and a
+    median page of 795 words, plain truncation would have discarded roughly three quarters of
+    every article. The 180-word passage rule above is the modeling choice that keeps the whole
+    page in the picture — change it and these numbers move (the course's own corpus atlas got
+    <em>different but similar</em> results with the same rule on the heroes).
+  </p>
+
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data: Marvel Comics supervillains
+    crawl (2026-09-13) + Wikipedia page extracts · embeddings: all-MiniLM-L6-v2 · code in
+    <code>analysis/fetch_week7_pages.py</code> and <code>analysis/build_week7_test.py</code>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/vis-network@10.1.2/standalone/umd/vis-network.min.js"></script>
+<script src="week7test.js"></script>
+</body>
+</html>
