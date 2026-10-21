@@ -53,6 +53,14 @@ overlay (6.2), a Marvel map with user-defined word axes (6.3), single-character 
 
 **Weeks 7 and 8** (`posts/week-7.html`, `posts/week-8.html`) — placeholders only; not implemented.
 
+**Week 7 test — links vs. meaning** (`posts/week-7-test.html`)
+Test post for week 7: the Marvel supervillains network (370 characters) drawn twice — once as the
+Wikipedia link network, once as a MiniLM "skeleton" where each character is wired to its k nearest
+pages by cosine similarity in the frozen `all-MiniLM-L6-v2` embedding space (180-word passage
+chunking; neighbor search always in the original 384-d space). `analysis/fetch_week7_pages.py`
+fetches the page text from Wikipedia's extracts API, `analysis/build_week7_test.py` embeds it and
+writes `data/week7/week7_supervillains.json`.
+
 ## Data and analysis
 
 Raw data is frozen on disk. Scripts in `analysis/` read it, compute reference numbers offline,
@@ -86,6 +94,8 @@ The Week 2 datasets were crawled from Wikipedia with `crawler/`, not taken from 
 | `build_week5_investigation.py` | `week5_summary.json` | `week5_investigation.json` | stdlib only |
 | `build_week6.py` | pages + week 1 network | `week6_summary.json`, `week6_words.json`, `week6_sents.json` | gensim, scikit-learn, scipy, networkx |
 | `build_week63.py` | week 6 payloads | `week63_vecs.json`, `week63_map.json`, `week63_terms.json` | gensim, numpy |
+| `fetch_week7_pages.py` (site `.venv` not needed) | `data/Marvel_Comics_supervillains/` nodes TSV | `data/Marvel_Comics_supervillains/pages/*.txt` + manifest; Wikipedia extracts API (stdlib, uses the sibling `marvel-crawler` client) |
+| `build_week7_test.py` | supervillains TSVs + `pages/` | `data/week7/week7_supervillains.json` | sentence-transformers, scikit-learn, networkx |
 
 Notes:
 - There is no requirements file. `build_week1.py` asserts 303 nodes, 1,784 directed edges and 17
@@ -122,6 +132,7 @@ marvel-site/
 │   ├── week-3*.html               analysis posts and the two save-the-network games
 │   ├── week-4.html, week-5.html
 │   ├── week-6.html, week-6-2..6.html
+│   ├── week-7-test.html        test post, driven by week7test.js
 │   ├── week-7.html, week-8.html   placeholders
 │   └── week2.js, week3*.js, week4-*.js, week5-*.js, week6-lean.js, week62..66.js
 ├── data/                frozen datasets and generated JSON (see above)

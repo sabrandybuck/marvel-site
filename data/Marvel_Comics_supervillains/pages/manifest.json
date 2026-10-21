@@ -1,0 +1,1488 @@
+{
+ "requested": 370,
+ "fetched": 370,
+ "failed": [],
+ "pages": {
+  "Abraham_Cornelius": {
+   "file": "Abraham_Cornelius.txt",
+   "words": 325
+  },
+  "Absorbing_Man": {
+   "file": "Absorbing_Man.txt",
+   "words": 2615
+  },
+  "Alex_Wilder": {
+   "file": "Alex_Wilder.txt",
+   "words": 761
+  },
+  "Alexander_Bont": {
+   "file": "Alexander_Bont.txt",
+   "words": 572
+  },
+  "Answer_(comics)": {
+   "file": "Answer_(comics).txt",
+   "words": 657
+  },
+  "Apocalypse_(character)": {
+   "file": "Apocalypse_(character).txt",
+   "words": 4790
+  },
+  "Ares_(Marvel_Comics)": {
+   "file": "Ares_(Marvel_Comics).txt",
+   "words": 2927
+  },
+  "Aries_(character)": {
+   "file": "Aries_(character).txt",
+   "words": 1196
+  },
+  "Attuma": {
+   "file": "Attuma.txt",
+   "words": 999
+  },
+  "Awesome_Android": {
+   "file": "Awesome_Android.txt",
+   "words": 1023
+  },
+  "Barney_Barton": {
+   "file": "Barney_Barton.txt",
+   "words": 1343
+  },
+  "Baron_Brimstone": {
+   "file": "Baron_Brimstone.txt",
+   "words": 353
+  },
+  "Baron_Strucker": {
+   "file": "Baron_Strucker.txt",
+   "words": 1362
+  },
+  "Baron_Von_Blitzschlag": {
+   "file": "Baron_Von_Blitzschlag.txt",
+   "words": 592
+  },
+  "Batroc_the_Leaper": {
+   "file": "Batroc_the_Leaper.txt",
+   "words": 1605
+  },
+  "Batwing_(Marvel_Comics)": {
+   "file": "Batwing_(Marvel_Comics).txt",
+   "words": 804
+  },
+  "Beyonder": {
+   "file": "Beyonder.txt",
+   "words": 1551
+  },
+  "Bi-Beast": {
+   "file": "Bi-Beast.txt",
+   "words": 495
+  },
+  "Birdy_(character)": {
+   "file": "Birdy_(character).txt",
+   "words": 203
+  },
+  "Black_Cat_(Marvel_Comics)": {
+   "file": "Black_Cat_(Marvel_Comics).txt",
+   "words": 9173
+  },
+  "Black_Knight_(Marvel_Comics)": {
+   "file": "Black_Knight_(Marvel_Comics).txt",
+   "words": 2834
+  },
+  "Black_Knight_(Nathan_Garrett)": {
+   "file": "Black_Knight_(Nathan_Garrett).txt",
+   "words": 766
+  },
+  "Black_Mariah": {
+   "file": "Black_Mariah.txt",
+   "words": 593
+  },
+  "Black_Spectre": {
+   "file": "Black_Spectre.txt",
+   "words": 1422
+  },
+  "Black_Talon_(comics)": {
+   "file": "Black_Talon_(comics).txt",
+   "words": 702
+  },
+  "Blastaar": {
+   "file": "Blastaar.txt",
+   "words": 808
+  },
+  "Blizzard_(Marvel_Comics)": {
+   "file": "Blizzard_(Marvel_Comics).txt",
+   "words": 1835
+  },
+  "Blood_Brothers_(comics)": {
+   "file": "Blood_Brothers_(comics).txt",
+   "words": 908
+  },
+  "Blood_Spider_(character)": {
+   "file": "Blood_Spider_(character).txt",
+   "words": 400
+  },
+  "Bonebreaker": {
+   "file": "Bonebreaker.txt",
+   "words": 363
+  },
+  "Brain_Drain_(character)": {
+   "file": "Brain_Drain_(character).txt",
+   "words": 468
+  },
+  "Brent_Jackson": {
+   "file": "Brent_Jackson.txt",
+   "words": 189
+  },
+  "Bulldozer_(character)": {
+   "file": "Bulldozer_(character).txt",
+   "words": 1317
+  },
+  "Bullseye_(Marvel_Comics)": {
+   "file": "Bullseye_(Marvel_Comics).txt",
+   "words": 3125
+  },
+  "Bushman_(character)": {
+   "file": "Bushman_(character).txt",
+   "words": 521
+  },
+  "Bushwacker_(comics)": {
+   "file": "Bushwacker_(comics).txt",
+   "words": 667
+  },
+  "Captain_Atlas": {
+   "file": "Captain_Atlas.txt",
+   "words": 671
+  },
+  "Carrion_(comics)": {
+   "file": "Carrion_(comics).txt",
+   "words": 1423
+  },
+  "Champion_of_the_Universe": {
+   "file": "Champion_of_the_Universe.txt",
+   "words": 532
+  },
+  "Charcoal_(comics)": {
+   "file": "Charcoal_(comics).txt",
+   "words": 395
+  },
+  "Chondu_the_Mystic": {
+   "file": "Chondu_the_Mystic.txt",
+   "words": 308
+  },
+  "Cobra_(Marvel_Comics)": {
+   "file": "Cobra_(Marvel_Comics).txt",
+   "words": 1657
+  },
+  "Cockroach_Hamilton": {
+   "file": "Cockroach_Hamilton.txt",
+   "words": 623
+  },
+  "Condor_(comics)": {
+   "file": "Condor_(comics).txt",
+   "words": 486
+  },
+  "Controller_(Marvel_Comics)": {
+   "file": "Controller_(Marvel_Comics).txt",
+   "words": 863
+  },
+  "Copperhead_(Marvel_Comics)": {
+   "file": "Copperhead_(Marvel_Comics).txt",
+   "words": 959
+  },
+  "Cottonmouth_(Burchell_Clemens)": {
+   "file": "Cottonmouth_(Burchell_Clemens).txt",
+   "words": 620
+  },
+  "Cottonmouth_(Cornell_Stokes)": {
+   "file": "Cottonmouth_(Cornell_Stokes).txt",
+   "words": 670
+  },
+  "Crippler_(character)": {
+   "file": "Crippler_(character).txt",
+   "words": 352
+  },
+  "Cyber_(Marvel_Comics)": {
+   "file": "Cyber_(Marvel_Comics).txt",
+   "words": 749
+  },
+  "Daddy_Longlegs_(comics)": {
+   "file": "Daddy_Longlegs_(comics).txt",
+   "words": 275
+  },
+  "Damage_(Marvel_Comics)": {
+   "file": "Damage_(Marvel_Comics).txt",
+   "words": 509
+  },
+  "Damon_Dran": {
+   "file": "Damon_Dran.txt",
+   "words": 403
+  },
+  "Danger_Room": {
+   "file": "Danger_Room.txt",
+   "words": 1286
+  },
+  "David_8": {
+   "file": "David_8.txt",
+   "words": 3548
+  },
+  "Deadpool": {
+   "file": "Deadpool.txt",
+   "words": 9149
+  },
+  "Death-Stalker": {
+   "file": "Death-Stalker.txt",
+   "words": 444
+  },
+  "Deathbird": {
+   "file": "Deathbird.txt",
+   "words": 1524
+  },
+  "Desak": {
+   "file": "Desak.txt",
+   "words": 475
+  },
+  "Detroit_Steel": {
+   "file": "Detroit_Steel.txt",
+   "words": 1265
+  },
+  "Devil_Hulk": {
+   "file": "Devil_Hulk.txt",
+   "words": 1076
+  },
+  "Devos_the_Devastator": {
+   "file": "Devos_the_Devastator.txt",
+   "words": 379
+  },
+  "Diamondback_(Willis_Stryker)": {
+   "file": "Diamondback_(Willis_Stryker).txt",
+   "words": 896
+  },
+  "Diamondhead_(comics)": {
+   "file": "Diamondhead_(comics).txt",
+   "words": 386
+  },
+  "Doctor_Druid": {
+   "file": "Doctor_Druid.txt",
+   "words": 2147
+  },
+  "Doctor_Faustus_(character)": {
+   "file": "Doctor_Faustus_(character).txt",
+   "words": 1151
+  },
+  "Doctor_Nemesis": {
+   "file": "Doctor_Nemesis.txt",
+   "words": 1245
+  },
+  "Doom_2099": {
+   "file": "Doom_2099.txt",
+   "words": 1664
+  },
+  "Doomsday_Man": {
+   "file": "Doomsday_Man.txt",
+   "words": 864
+  },
+  "Doppelganger_(Marvel_Comics)": {
+   "file": "Doppelganger_(Marvel_Comics).txt",
+   "words": 850
+  },
+  "Dracula_(Marvel_Comics)": {
+   "file": "Dracula_(Marvel_Comics).txt",
+   "words": 3456
+  },
+  "Dragon_Lord_(character)": {
+   "file": "Dragon_Lord_(character).txt",
+   "words": 700
+  },
+  "Dreadknight": {
+   "file": "Dreadknight.txt",
+   "words": 571
+  },
+  "Dreadnought_(comics)": {
+   "file": "Dreadnought_(comics).txt",
+   "words": 462
+  },
+  "Dweller-in-Darkness": {
+   "file": "Dweller-in-Darkness.txt",
+   "words": 814
+  },
+  "Eddie_Brock": {
+   "file": "Eddie_Brock.txt",
+   "words": 10443
+  },
+  "Eel_(Marvel_Comics)": {
+   "file": "Eel_(Marvel_Comics).txt",
+   "words": 1168
+  },
+  "Egghead_(Marvel_Comics)": {
+   "file": "Egghead_(Marvel_Comics).txt",
+   "words": 1092
+  },
+  "Ego_the_Living_Planet": {
+   "file": "Ego_the_Living_Planet.txt",
+   "words": 2529
+  },
+  "Emma_Frost": {
+   "file": "Emma_Frost.txt",
+   "words": 10009
+  },
+  "Empath_(character)": {
+   "file": "Empath_(character).txt",
+   "words": 739
+  },
+  "Equinox_(comics)": {
+   "file": "Equinox_(comics).txt",
+   "words": 617
+  },
+  "Farley_Stillwell": {
+   "file": "Farley_Stillwell.txt",
+   "words": 557
+  },
+  "Fin_Fang_Foom": {
+   "file": "Fin_Fang_Foom.txt",
+   "words": 2050
+  },
+  "Firebrand_(Marvel_Comics)": {
+   "file": "Firebrand_(Marvel_Comics).txt",
+   "words": 1262
+  },
+  "Firepower_(comics)": {
+   "file": "Firepower_(comics).txt",
+   "words": 722
+  },
+  "Flag-Smasher": {
+   "file": "Flag-Smasher.txt",
+   "words": 932
+  },
+  "Flying_Tiger_(Marvel_Comics)": {
+   "file": "Flying_Tiger_(Marvel_Comics).txt",
+   "words": 462
+  },
+  "Force_(comics)": {
+   "file": "Force_(comics).txt",
+   "words": 506
+  },
+  "Forearm_(comics)": {
+   "file": "Forearm_(comics).txt",
+   "words": 409
+  },
+  "Foreigner_(character)": {
+   "file": "Foreigner_(character).txt",
+   "words": 787
+  },
+  "Fury_(Marvel_Comics)": {
+   "file": "Fury_(Marvel_Comics).txt",
+   "words": 594
+  },
+  "Gargoyle_(comics)": {
+   "file": "Gargoyle_(comics).txt",
+   "words": 1011
+  },
+  "Garokk": {
+   "file": "Garokk.txt",
+   "words": 876
+  },
+  "Gemini_(Marvel_Comics)": {
+   "file": "Gemini_(Marvel_Comics).txt",
+   "words": 737
+  },
+  "Gentleman_(character)": {
+   "file": "Gentleman_(character).txt",
+   "words": 1754
+  },
+  "Gideon_Mace": {
+   "file": "Gideon_Mace.txt",
+   "words": 438
+  },
+  "Giganto": {
+   "file": "Giganto.txt",
+   "words": 840
+  },
+  "Gladiator_(Melvin_Potter)": {
+   "file": "Gladiator_(Melvin_Potter).txt",
+   "words": 629
+  },
+  "Glenn_Talbot": {
+   "file": "Glenn_Talbot.txt",
+   "words": 1543
+  },
+  "Glob_(comics)": {
+   "file": "Glob_(comics).txt",
+   "words": 641
+  },
+  "Glob_Herman": {
+   "file": "Glob_Herman.txt",
+   "words": 938
+  },
+  "Golem_(Marvel_Comics)": {
+   "file": "Golem_(Marvel_Comics).txt",
+   "words": 832
+  },
+  "Gorgon_(Inhuman)": {
+   "file": "Gorgon_(Inhuman).txt",
+   "words": 819
+  },
+  "Gorr_the_God_Butcher": {
+   "file": "Gorr_the_God_Butcher.txt",
+   "words": 960
+  },
+  "Grappler_(comics)": {
+   "file": "Grappler_(comics).txt",
+   "words": 301
+  },
+  "Green_Goblin": {
+   "file": "Green_Goblin.txt",
+   "words": 2693
+  },
+  "Gremlin_(comics)": {
+   "file": "Gremlin_(comics).txt",
+   "words": 615
+  },
+  "Grizzly_(comics)": {
+   "file": "Grizzly_(comics).txt",
+   "words": 1174
+  },
+  "Grog_(Marvel_Comics)": {
+   "file": "Grog_(Marvel_Comics).txt",
+   "words": 258
+  },
+  "Guardsman_(character)": {
+   "file": "Guardsman_(character).txt",
+   "words": 1803
+  },
+  "Hammer_and_Anvil_(comics)": {
+   "file": "Hammer_and_Anvil_(comics).txt",
+   "words": 266
+  },
+  "Hangman_(Marvel_Comics)": {
+   "file": "Hangman_(Marvel_Comics).txt",
+   "words": 602
+  },
+  "Harold_Meachum": {
+   "file": "Harold_Meachum.txt",
+   "words": 416
+  },
+  "Hate-Monger": {
+   "file": "Hate-Monger.txt",
+   "words": 1307
+  },
+  "Headsman_(character)": {
+   "file": "Headsman_(character).txt",
+   "words": 555
+  },
+  "Hellfire_(J._T._Slade)": {
+   "file": "Hellfire_(J._T._Slade).txt",
+   "words": 221
+  },
+  "Hippo_(character)": {
+   "file": "Hippo_(character).txt",
+   "words": 393
+  },
+  "Hive_(character)": {
+   "file": "Hive_(character).txt",
+   "words": 612
+  },
+  "Hobgoblin_(Marvel_Comics)": {
+   "file": "Hobgoblin_(Marvel_Comics).txt",
+   "words": 4313
+  },
+  "Hulk": {
+   "file": "Hulk.txt",
+   "words": 7651
+  },
+  "Human_Cannonball_(Marvel_Comics)": {
+   "file": "Human_Cannonball_(Marvel_Comics).txt",
+   "words": 481
+  },
+  "Human_Fly_(character)": {
+   "file": "Human_Fly_(character).txt",
+   "words": 1172
+  },
+  "Humus_Sapien": {
+   "file": "Humus_Sapien.txt",
+   "words": 370
+  },
+  "Hurricane_(comics)": {
+   "file": "Hurricane_(comics).txt",
+   "words": 575
+  },
+  "Hydro-Man": {
+   "file": "Hydro-Man.txt",
+   "words": 2347
+  },
+  "Hypno-Hustler": {
+   "file": "Hypno-Hustler.txt",
+   "words": 724
+  },
+  "In-Betweener": {
+   "file": "In-Betweener.txt",
+   "words": 454
+  },
+  "Iron_Man_2020": {
+   "file": "Iron_Man_2020.txt",
+   "words": 1387
+  },
+  "Iron_Monger": {
+   "file": "Iron_Monger.txt",
+   "words": 2427
+  },
+  "Isbisa": {
+   "file": "Isbisa.txt",
+   "words": 734
+  },
+  "Jackal_(Marvel_Comics_character)": {
+   "file": "Jackal_(Marvel_Comics_character).txt",
+   "words": 3049
+  },
+  "Jackhammer_(comics)": {
+   "file": "Jackhammer_(comics).txt",
+   "words": 389
+  },
+  "Janice_Lincoln": {
+   "file": "Janice_Lincoln.txt",
+   "words": 1053
+  },
+  "Jason_Macendale": {
+   "file": "Jason_Macendale.txt",
+   "words": 1159
+  },
+  "Jerry_Jaxon": {
+   "file": "Jerry_Jaxon.txt",
+   "words": 553
+  },
+  "Jester_(Marvel_Comics)": {
+   "file": "Jester_(Marvel_Comics).txt",
+   "words": 414
+  },
+  "John_Ryker": {
+   "file": "John_Ryker.txt",
+   "words": 471
+  },
+  "Jonas_Harrow": {
+   "file": "Jonas_Harrow.txt",
+   "words": 585
+  },
+  "Kaluu": {
+   "file": "Kaluu.txt",
+   "words": 530
+  },
+  "Kangaroo_(character)": {
+   "file": "Kangaroo_(character).txt",
+   "words": 1117
+  },
+  "Karla_Sofen": {
+   "file": "Karla_Sofen.txt",
+   "words": 2694
+  },
+  "Kearson_DeWitt": {
+   "file": "Kearson_DeWitt.txt",
+   "words": 735
+  },
+  "Kingpin_(Matt_Murdock)": {
+   "file": "Kingpin_(Matt_Murdock).txt",
+   "words": 2635
+  },
+  "Korath_the_Pursuer": {
+   "file": "Korath_the_Pursuer.txt",
+   "words": 678
+  },
+  "Krang_(Marvel_Comics)": {
+   "file": "Krang_(Marvel_Comics).txt",
+   "words": 825
+  },
+  "Kristoff_Vernard": {
+   "file": "Kristoff_Vernard.txt",
+   "words": 1070
+  },
+  "Kro_(character)": {
+   "file": "Kro_(character).txt",
+   "words": 841
+  },
+  "Kulan_Gath": {
+   "file": "Kulan_Gath.txt",
+   "words": 857
+  },
+  "Kurse_(comics)": {
+   "file": "Kurse_(comics).txt",
+   "words": 945
+  },
+  "Lady_Gorgon": {
+   "file": "Lady_Gorgon.txt",
+   "words": 574
+  },
+  "Lash_(comics)": {
+   "file": "Lash_(comics).txt",
+   "words": 1087
+  },
+  "Laufey_(character)": {
+   "file": "Laufey_(character).txt",
+   "words": 87
+  },
+  "Leader_(character)": {
+   "file": "Leader_(character).txt",
+   "words": 2865
+  },
+  "Leap-Frog_(comics)": {
+   "file": "Leap-Frog_(comics).txt",
+   "words": 1032
+  },
+  "Lemuel_Dorcas": {
+   "file": "Lemuel_Dorcas.txt",
+   "words": 442
+  },
+  "Leo_(comics)": {
+   "file": "Leo_(comics).txt",
+   "words": 725
+  },
+  "Libra_(Marvel_Comics)": {
+   "file": "Libra_(Marvel_Comics).txt",
+   "words": 620
+  },
+  "Lightmaster": {
+   "file": "Lightmaster.txt",
+   "words": 468
+  },
+  "Living_Brain": {
+   "file": "Living_Brain.txt",
+   "words": 976
+  },
+  "Living_Laser": {
+   "file": "Living_Laser.txt",
+   "words": 1417
+  },
+  "Living_Monolith": {
+   "file": "Living_Monolith.txt",
+   "words": 611
+  },
+  "Lizard_(character)": {
+   "file": "Lizard_(character).txt",
+   "words": 6644
+  },
+  "Lloyd_Bloch": {
+   "file": "Lloyd_Bloch.txt",
+   "words": 376
+  },
+  "Llyra": {
+   "file": "Llyra.txt",
+   "words": 426
+  },
+  "Locksmith_(comics)": {
+   "file": "Locksmith_(comics).txt",
+   "words": 254
+  },
+  "Looter_(character)": {
+   "file": "Looter_(character).txt",
+   "words": 778
+  },
+  "Lunatik": {
+   "file": "Lunatik.txt",
+   "words": 517
+  },
+  "Mac_Gargan": {
+   "file": "Mac_Gargan.txt",
+   "words": 3717
+  },
+  "Mad_Dog_(Marvel_Comics)": {
+   "file": "Mad_Dog_(Marvel_Comics).txt",
+   "words": 385
+  },
+  "Maestro_(character)": {
+   "file": "Maestro_(character).txt",
+   "words": 2527
+  },
+  "Magician_(Marvel_Comics)": {
+   "file": "Magician_(Marvel_Comics).txt",
+   "words": 1003
+  },
+  "Mahkizmo": {
+   "file": "Mahkizmo.txt",
+   "words": 477
+  },
+  "Maker_(character)": {
+   "file": "Maker_(character).txt",
+   "words": 2507
+  },
+  "Malcolm_Colcord": {
+   "file": "Malcolm_Colcord.txt",
+   "words": 470
+  },
+  "Man_Mountain_Marko": {
+   "file": "Man_Mountain_Marko.txt",
+   "words": 871
+  },
+  "Man-Elephant": {
+   "file": "Man-Elephant.txt",
+   "words": 522
+  },
+  "Man-Killer": {
+   "file": "Man-Killer.txt",
+   "words": 481
+  },
+  "Mania_(character)": {
+   "file": "Mania_(character).txt",
+   "words": 2706
+  },
+  "Marduk_Kurios": {
+   "file": "Marduk_Kurios.txt",
+   "words": 716
+  },
+  "Masked_Marauder": {
+   "file": "Masked_Marauder.txt",
+   "words": 1173
+  },
+  "Massacre_(Marvel_Comics)": {
+   "file": "Massacre_(Marvel_Comics).txt",
+   "words": 604
+  },
+  "Master_Khan": {
+   "file": "Master_Khan.txt",
+   "words": 419
+  },
+  "Master_Man_(Marvel_Comics)": {
+   "file": "Master_Man_(Marvel_Comics).txt",
+   "words": 837
+  },
+  "Master_Menace": {
+   "file": "Master_Menace.txt",
+   "words": 584
+  },
+  "Master_Mold": {
+   "file": "Master_Mold.txt",
+   "words": 1070
+  },
+  "Master_Pandemonium": {
+   "file": "Master_Pandemonium.txt",
+   "words": 431
+  },
+  "Master_of_the_World_(character)": {
+   "file": "Master_of_the_World_(character).txt",
+   "words": 1290
+  },
+  "Mauler_(comics)": {
+   "file": "Mauler_(comics).txt",
+   "words": 434
+  },
+  "Maur-Konn": {
+   "file": "Maur-Konn.txt",
+   "words": 178
+  },
+  "Megatak": {
+   "file": "Megatak.txt",
+   "words": 194
+  },
+  "Mentallo": {
+   "file": "Mentallo.txt",
+   "words": 1140
+  },
+  "Metal_Master_(comics)": {
+   "file": "Metal_Master_(comics).txt",
+   "words": 410
+  },
+  "Michael_Pointer_(character)": {
+   "file": "Michael_Pointer_(character).txt",
+   "words": 666
+  },
+  "Midgard_Serpent_(Marvel_Comics)": {
+   "file": "Midgard_Serpent_(Marvel_Comics).txt",
+   "words": 1022
+  },
+  "Midnight_Man_(comics)": {
+   "file": "Midnight_Man_(comics).txt",
+   "words": 327
+  },
+  "Mikhail_Rasputin": {
+   "file": "Mikhail_Rasputin.txt",
+   "words": 1465
+  },
+  "Mind-Wave": {
+   "file": "Mind-Wave.txt",
+   "words": 531
+  },
+  "Mindless_Ones": {
+   "file": "Mindless_Ones.txt",
+   "words": 1104
+  },
+  "Mirage_(Marvel_Comics)": {
+   "file": "Mirage_(Marvel_Comics).txt",
+   "words": 615
+  },
+  "Missing_Link_(comics)": {
+   "file": "Missing_Link_(comics).txt",
+   "words": 813
+  },
+  "Mister_Fear": {
+   "file": "Mister_Fear.txt",
+   "words": 975
+  },
+  "Mister_Hyde_(Marvel_Comics)": {
+   "file": "Mister_Hyde_(Marvel_Comics).txt",
+   "words": 1528
+  },
+  "Mister_Negative": {
+   "file": "Mister_Negative.txt",
+   "words": 2812
+  },
+  "Mister_Sinister": {
+   "file": "Mister_Sinister.txt",
+   "words": 4418
+  },
+  "Mister_X_(Marvel_Comics)": {
+   "file": "Mister_X_(Marvel_Comics).txt",
+   "words": 795
+  },
+  "Modular_Man": {
+   "file": "Modular_Man.txt",
+   "words": 406
+  },
+  "Mojo_(comics)": {
+   "file": "Mojo_(comics).txt",
+   "words": 1944
+  },
+  "Mole_Man": {
+   "file": "Mole_Man.txt",
+   "words": 3069
+  },
+  "Molecule_Man": {
+   "file": "Molecule_Man.txt",
+   "words": 1266
+  },
+  "Monsteroso": {
+   "file": "Monsteroso.txt",
+   "words": 441
+  },
+  "Montana_(character)": {
+   "file": "Montana_(character).txt",
+   "words": 962
+  },
+  "Morbius": {
+   "file": "Morbius.txt",
+   "words": 8846
+  },
+  "Morg": {
+   "file": "Morg.txt",
+   "words": 561
+  },
+  "Morpheus_(Marvel_Comics)": {
+   "file": "Morpheus_(Marvel_Comics).txt",
+   "words": 401
+  },
+  "Mountjoy_(comics)": {
+   "file": "Mountjoy_(comics).txt",
+   "words": 429
+  },
+  "Mr._Fish": {
+   "file": "Mr._Fish.txt",
+   "words": 509
+  },
+  "Mysterio": {
+   "file": "Mysterio.txt",
+   "words": 7543
+  },
+  "Naga_(Marvel_Comics)": {
+   "file": "Naga_(Marvel_Comics).txt",
+   "words": 6503
+  },
+  "Nanny_and_Orphan-Maker": {
+   "file": "Nanny_and_Orphan-Maker.txt",
+   "words": 805
+  },
+  "Nathaniel_Richards_(Marvel_Comics)": {
+   "file": "Nathaniel_Richards_(Marvel_Comics).txt",
+   "words": 517
+  },
+  "Nebulon_(comics)": {
+   "file": "Nebulon_(comics).txt",
+   "words": 500
+  },
+  "Nicholas_Scratch": {
+   "file": "Nicholas_Scratch.txt",
+   "words": 643
+  },
+  "Nicodemus_West": {
+   "file": "Nicodemus_West.txt",
+   "words": 396
+  },
+  "Nightwatch_(character)": {
+   "file": "Nightwatch_(character).txt",
+   "words": 772
+  },
+  "Noh-Varr": {
+   "file": "Noh-Varr.txt",
+   "words": 4593
+  },
+  "Nomad_(Marvel_Comics)": {
+   "file": "Nomad_(Marvel_Comics).txt",
+   "words": 699
+  },
+  "Norman_Osborn": {
+   "file": "Norman_Osborn.txt",
+   "words": 10667
+  },
+  "Northstar_(character)": {
+   "file": "Northstar_(character).txt",
+   "words": 4327
+  },
+  "Nth_Man": {
+   "file": "Nth_Man.txt",
+   "words": 417
+  },
+  "Nuke_(Marvel_Comics)": {
+   "file": "Nuke_(Marvel_Comics).txt",
+   "words": 1111
+  },
+  "Obnoxio_the_Clown": {
+   "file": "Obnoxio_the_Clown.txt",
+   "words": 369
+  },
+  "Occulus": {
+   "file": "Occulus.txt",
+   "words": 418
+  },
+  "Ogre_(Marvel_Comics)": {
+   "file": "Ogre_(Marvel_Comics).txt",
+   "words": 338
+  },
+  "Ogun_(comics)": {
+   "file": "Ogun_(comics).txt",
+   "words": 663
+  },
+  "Olivier_(comics)": {
+   "file": "Olivier_(comics).txt",
+   "words": 1105
+  },
+  "Orb_(comics)": {
+   "file": "Orb_(comics).txt",
+   "words": 964
+  },
+  "Orka_(character)": {
+   "file": "Orka_(character).txt",
+   "words": 666
+  },
+  "Overdrive_(character)": {
+   "file": "Overdrive_(character).txt",
+   "words": 568
+  },
+  "Overmind_(comics)": {
+   "file": "Overmind_(comics).txt",
+   "words": 657
+  },
+  "Painter_(comics)": {
+   "file": "Painter_(comics).txt",
+   "words": 636
+  },
+  "Phalanx_(comics)": {
+   "file": "Phalanx_(comics).txt",
+   "words": 733
+  },
+  "Phil_Urich": {
+   "file": "Phil_Urich.txt",
+   "words": 996
+  },
+  "Phoenix_Force": {
+   "file": "Phoenix_Force.txt",
+   "words": 3829
+  },
+  "Piledriver_(character)": {
+   "file": "Piledriver_(character).txt",
+   "words": 860
+  },
+  "Pisces_(character)": {
+   "file": "Pisces_(character).txt",
+   "words": 829
+  },
+  "Plunderer_(comics)": {
+   "file": "Plunderer_(comics).txt",
+   "words": 755
+  },
+  "Porcupine_(character)": {
+   "file": "Porcupine_(character).txt",
+   "words": 1801
+  },
+  "Power_Broker_(character)": {
+   "file": "Power_Broker_(character).txt",
+   "words": 1095
+  },
+  "Powerhouse_(Marvel_Comics)": {
+   "file": "Powerhouse_(Marvel_Comics).txt",
+   "words": 562
+  },
+  "Predator_X_(character)": {
+   "file": "Predator_X_(character).txt",
+   "words": 359
+  },
+  "Primus_(Marvel_Comics)": {
+   "file": "Primus_(Marvel_Comics).txt",
+   "words": 479
+  },
+  "Princess_Python": {
+   "file": "Princess_Python.txt",
+   "words": 1179
+  },
+  "Professor_Power": {
+   "file": "Professor_Power.txt",
+   "words": 549
+  },
+  "Profile_(Marvel_Comics)": {
+   "file": "Profile_(Marvel_Comics).txt",
+   "words": 541
+  },
+  "Prowler_(Marvel_Comics)": {
+   "file": "Prowler_(Marvel_Comics).txt",
+   "words": 4649
+  },
+  "Psycho-Man": {
+   "file": "Psycho-Man.txt",
+   "words": 777
+  },
+  "Psyklop": {
+   "file": "Psyklop.txt",
+   "words": 686
+  },
+  "Puppet_Master_(Marvel_Comics)": {
+   "file": "Puppet_Master_(Marvel_Comics).txt",
+   "words": 1460
+  },
+  "Purple_Man": {
+   "file": "Purple_Man.txt",
+   "words": 1569
+  },
+  "Pyro_(Marvel_Comics)": {
+   "file": "Pyro_(Marvel_Comics).txt",
+   "words": 1680
+  },
+  "Quicksilver_(Marvel_Comics)": {
+   "file": "Quicksilver_(Marvel_Comics).txt",
+   "words": 6868
+  },
+  "Radioactive_Man_(comics)": {
+   "file": "Radioactive_Man_(comics).txt",
+   "words": 1446
+  },
+  "Ragnarok_(comics)": {
+   "file": "Ragnarok_(comics).txt",
+   "words": 893
+  },
+  "Rampage_(Marvel_Comics)": {
+   "file": "Rampage_(Marvel_Comics).txt",
+   "words": 686
+  },
+  "Rapido_(comics)": {
+   "file": "Rapido_(comics).txt",
+   "words": 811
+  },
+  "Red_Hulk": {
+   "file": "Red_Hulk.txt",
+   "words": 888
+  },
+  "Red_Raven_(Marvel_Comics)": {
+   "file": "Red_Raven_(Marvel_Comics).txt",
+   "words": 1543
+  },
+  "Redneck_(comics)": {
+   "file": "Redneck_(comics).txt",
+   "words": 258
+  },
+  "Redstone_(comics)": {
+   "file": "Redstone_(comics).txt",
+   "words": 350
+  },
+  "Rev_(comics)": {
+   "file": "Rev_(comics).txt",
+   "words": 860
+  },
+  "Ringmaster_(comics)": {
+   "file": "Ringmaster_(comics).txt",
+   "words": 994
+  },
+  "Romulus_(comics)": {
+   "file": "Romulus_(comics).txt",
+   "words": 1102
+  },
+  "Ronan_the_Accuser": {
+   "file": "Ronan_the_Accuser.txt",
+   "words": 1778
+  },
+  "Rose_(Marvel_Comics)": {
+   "file": "Rose_(Marvel_Comics).txt",
+   "words": 827
+  },
+  "Russian_(comics)": {
+   "file": "Russian_(comics).txt",
+   "words": 1203
+  },
+  "Rusty_Collins": {
+   "file": "Rusty_Collins.txt",
+   "words": 980
+  },
+  "Sabretooth_(character)": {
+   "file": "Sabretooth_(character).txt",
+   "words": 6619
+  },
+  "Sagittarius_(comics)": {
+   "file": "Sagittarius_(comics).txt",
+   "words": 630
+  },
+  "Samuel_Silke": {
+   "file": "Samuel_Silke.txt",
+   "words": 536
+  },
+  "Sapphire_Styx": {
+   "file": "Sapphire_Styx.txt",
+   "words": 333
+  },
+  "Sarnak_(comics)": {
+   "file": "Sarnak_(comics).txt",
+   "words": 461
+  },
+  "Satana_(Marvel_Comics)": {
+   "file": "Satana_(Marvel_Comics).txt",
+   "words": 2514
+  },
+  "Scarecrow_(Marvel_Comics)": {
+   "file": "Scarecrow_(Marvel_Comics).txt",
+   "words": 1226
+  },
+  "Scarlet_Scarab": {
+   "file": "Scarlet_Scarab.txt",
+   "words": 1163
+  },
+  "Scarlet_Spider": {
+   "file": "Scarlet_Spider.txt",
+   "words": 959
+  },
+  "Scientist_Supreme": {
+   "file": "Scientist_Supreme.txt",
+   "words": 630
+  },
+  "Scorpio_(Marvel_Comics)": {
+   "file": "Scorpio_(Marvel_Comics).txt",
+   "words": 1175
+  },
+  "Screwball_(character)": {
+   "file": "Screwball_(character).txt",
+   "words": 795
+  },
+  "Selene_(comics)": {
+   "file": "Selene_(comics).txt",
+   "words": 2137
+  },
+  "Sentinel_(comics)": {
+   "file": "Sentinel_(comics).txt",
+   "words": 2203
+  },
+  "Sentry_(Curtis_Elkins)": {
+   "file": "Sentry_(Curtis_Elkins).txt",
+   "words": 292
+  },
+  "Sentry_(Kree)": {
+   "file": "Sentry_(Kree).txt",
+   "words": 745
+  },
+  "Sentry_(Robert_Reynolds)": {
+   "file": "Sentry_(Robert_Reynolds).txt",
+   "words": 3278
+  },
+  "Shadow_Knight_(character)": {
+   "file": "Shadow_Knight_(character).txt",
+   "words": 776
+  },
+  "Shepard_(comics)": {
+   "file": "Shepard_(comics).txt",
+   "words": 8697
+  },
+  "Shockwave_(comics)": {
+   "file": "Shockwave_(comics).txt",
+   "words": 566
+  },
+  "Shriek_(character)": {
+   "file": "Shriek_(character).txt",
+   "words": 1295
+  },
+  "Sidewinder_(character)": {
+   "file": "Sidewinder_(character).txt",
+   "words": 948
+  },
+  "Silvermane": {
+   "file": "Silvermane.txt",
+   "words": 1495
+  },
+  "Sin_(Marvel_Comics)": {
+   "file": "Sin_(Marvel_Comics).txt",
+   "words": 1377
+  },
+  "Slaymaster": {
+   "file": "Slaymaster.txt",
+   "words": 450
+  },
+  "Sleeper_(Marvel_Comics)": {
+   "file": "Sleeper_(Marvel_Comics).txt",
+   "words": 708
+  },
+  "Space_Phantom": {
+   "file": "Space_Phantom.txt",
+   "words": 851
+  },
+  "Sphinx_(Marvel_Comics)": {
+   "file": "Sphinx_(Marvel_Comics).txt",
+   "words": 749
+  },
+  "Spider-Bitch_(Ashley_Barton)": {
+   "file": "Spider-Bitch_(Ashley_Barton).txt",
+   "words": 3416
+  },
+  "Spider-Girl": {
+   "file": "Spider-Girl.txt",
+   "words": 2102
+  },
+  "Spider-Woman": {
+   "file": "Spider-Woman.txt",
+   "words": 2382
+  },
+  "Spot_(Marvel_Comics)": {
+   "file": "Spot_(Marvel_Comics).txt",
+   "words": 2049
+  },
+  "Steel_Serpent": {
+   "file": "Steel_Serpent.txt",
+   "words": 1064
+  },
+  "Stiletto_(comics)": {
+   "file": "Stiletto_(comics).txt",
+   "words": 444
+  },
+  "Stonewall_(comics)": {
+   "file": "Stonewall_(comics).txt",
+   "words": 677
+  },
+  "Strongman_(character)": {
+   "file": "Strongman_(character).txt",
+   "words": 621
+  },
+  "Super-Adaptoid": {
+   "file": "Super-Adaptoid.txt",
+   "words": 1742
+  },
+  "Super-Patriot_(Marvel_Comics)": {
+   "file": "Super-Patriot_(Marvel_Comics).txt",
+   "words": 663
+  },
+  "Super-Skrull": {
+   "file": "Super-Skrull.txt",
+   "words": 1775
+  },
+  "Synapse_(character)": {
+   "file": "Synapse_(character).txt",
+   "words": 425
+  },
+  "T-Ray_(comics)": {
+   "file": "T-Ray_(comics).txt",
+   "words": 1042
+  },
+  "Talos_the_Untamed": {
+   "file": "Talos_the_Untamed.txt",
+   "words": 876
+  },
+  "Tarantula_(Marvel_Comics)": {
+   "file": "Tarantula_(Marvel_Comics).txt",
+   "words": 1555
+  },
+  "Tatterdemalion": {
+   "file": "Tatterdemalion.txt",
+   "words": 782
+  },
+  "Taurus_(Marvel_Comics)": {
+   "file": "Taurus_(Marvel_Comics).txt",
+   "words": 787
+  },
+  "Technovore": {
+   "file": "Technovore.txt",
+   "words": 511
+  },
+  "Tempus_(comics)": {
+   "file": "Tempus_(comics).txt",
+   "words": 599
+  },
+  "Tetu_(comics)": {
+   "file": "Tetu_(comics).txt",
+   "words": 337
+  },
+  "Thanos": {
+   "file": "Thanos.txt",
+   "words": 6358
+  },
+  "Thermo_(comics)": {
+   "file": "Thermo_(comics).txt",
+   "words": 239
+  },
+  "Thunderball_(character)": {
+   "file": "Thunderball_(character).txt",
+   "words": 593
+  },
+  "Thunderbolt_Ross": {
+   "file": "Thunderbolt_Ross.txt",
+   "words": 3095
+  },
+  "Tiger_Shark_(Marvel_Comics)": {
+   "file": "Tiger_Shark_(Marvel_Comics).txt",
+   "words": 1242
+  },
+  "Tinkerer_(Marvel_Comics)": {
+   "file": "Tinkerer_(Marvel_Comics).txt",
+   "words": 1696
+  },
+  "Tombstone_(character)": {
+   "file": "Tombstone_(character).txt",
+   "words": 2140
+  },
+  "Torpedo_(Marvel_Comics)": {
+   "file": "Torpedo_(Marvel_Comics).txt",
+   "words": 694
+  },
+  "Tracer_(Marvel_Comics)": {
+   "file": "Tracer_(Marvel_Comics).txt",
+   "words": 375
+  },
+  "Tricephalous_(comics)": {
+   "file": "Tricephalous_(comics).txt",
+   "words": 352
+  },
+  "Tumbler_(comics)": {
+   "file": "Tumbler_(comics).txt",
+   "words": 404
+  },
+  "Tundra_(Marvel_Comics)": {
+   "file": "Tundra_(Marvel_Comics).txt",
+   "words": 18047
+  },
+  "Typeface_(character)": {
+   "file": "Typeface_(character).txt",
+   "words": 462
+  },
+  "Typhon_(comics)": {
+   "file": "Typhon_(comics).txt",
+   "words": 1224
+  },
+  "U-Man": {
+   "file": "U-Man.txt",
+   "words": 521
+  },
+  "Ulik": {
+   "file": "Ulik.txt",
+   "words": 725
+  },
+  "Ultimo_(Marvel_Comics)": {
+   "file": "Ultimo_(Marvel_Comics).txt",
+   "words": 1763
+  },
+  "Ultron": {
+   "file": "Ultron.txt",
+   "words": 4971
+  },
+  "Val_Rhymin": {
+   "file": "Val_Rhymin.txt",
+   "words": 273
+  },
+  "Varnae": {
+   "file": "Varnae.txt",
+   "words": 642
+  },
+  "Venom_(character)": {
+   "file": "Venom_(character).txt",
+   "words": 10465
+  },
+  "Vibro_(comics)": {
+   "file": "Vibro_(comics).txt",
+   "words": 261
+  },
+  "Victor_Timely": {
+   "file": "Victor_Timely.txt",
+   "words": 767
+  },
+  "Virgo_(character)": {
+   "file": "Virgo_(character).txt",
+   "words": 611
+  },
+  "Vulcan_(Marvel_Comics)": {
+   "file": "Vulcan_(Marvel_Comics).txt",
+   "words": 2542
+  },
+  "War_(Marvel_Comics)": {
+   "file": "War_(Marvel_Comics).txt",
+   "words": 1273
+  },
+  "Warrior_Woman_(Marvel_Comics)": {
+   "file": "Warrior_Woman_(Marvel_Comics).txt",
+   "words": 486
+  },
+  "Warwolves": {
+   "file": "Warwolves.txt",
+   "words": 464
+  },
+  "Wendigo_(comics)": {
+   "file": "Wendigo_(comics).txt",
+   "words": 1608
+  },
+  "Werner_von_Strucker": {
+   "file": "Werner_von_Strucker.txt",
+   "words": 414
+  },
+  "Whiplash_(Marvel_Comics)": {
+   "file": "Whiplash_(Marvel_Comics).txt",
+   "words": 2015
+  },
+  "Wild_Child_(character)": {
+   "file": "Wild_Child_(character).txt",
+   "words": 1252
+  },
+  "Will_o'_the_Wisp_(comics)": {
+   "file": "Will_o'_the_Wisp_(comics).txt",
+   "words": 510
+  },
+  "William_Burnside_(character)": {
+   "file": "William_Burnside_(character).txt",
+   "words": 2010
+  },
+  "Wong-Chu": {
+   "file": "Wong-Chu.txt",
+   "words": 429
+  },
+  "Wrecker_(comics)": {
+   "file": "Wrecker_(comics).txt",
+   "words": 1986
+  },
+  "Xorn": {
+   "file": "Xorn.txt",
+   "words": 1692
+  },
+  "Yelena_Belova": {
+   "file": "Yelena_Belova.txt",
+   "words": 1333
+  },
+  "Ymir_(Marvel_Comics)": {
+   "file": "Ymir_(Marvel_Comics).txt",
+   "words": 684
+  },
+  "Zarathos": {
+   "file": "Zarathos.txt",
+   "words": 527
+  },
+  "Zarrko": {
+   "file": "Zarrko.txt",
+   "words": 621
+  },
+  "Zenzi_(comics)": {
+   "file": "Zenzi_(comics).txt",
+   "words": 223
+  },
+  "Zheng_Zu": {
+   "file": "Zheng_Zu.txt",
+   "words": 4420
+  },
+  "Zhou_Cheng": {
+   "file": "Zhou_Cheng.txt",
+   "words": 352
+  },
+  "Zzzax": {
+   "file": "Zzzax.txt",
+   "words": 732
+  }
+ },
+ "total_words": 522110
+}
