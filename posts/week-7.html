@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 7 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 7: semantically close, structurally far — The Web of Heroes</title>
+  <meta name="description" content="Marvel supervillain pages whose text embeddings are close but whose directed Wikipedia link-network distance is large: five pairs, read against their source pages.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .pair-table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 0.92em; }
+    .pair-table th, .pair-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border, rgba(128,128,128,.35)); }
+    .pair-table th { font-weight: 600; }
+    .table-scroll { overflow-x: auto; }
+    .pair { margin: 0 0 26px; }
+    .pair h3 { margin-bottom: 6px; }
+  </style>
 </head>
 <body>
 
@@ -22,19 +31,342 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 7</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 7 · Text embeddings vs. the link network</div>
+  <h1>Who is semantically close but structurally far away?</h1>
+  <p class="subtitle">
+    We embed the Wikipedia text of 370 Marvel supervillains, find pairs of pages that read almost
+    alike, and then check how many links it takes to get from one to the other in the collected link network.
+    Five pairs, each checked against the actual page text.
+  </p>
 
-  <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Two kinds of close</a>
+    <a href="#method">Two rulers</a>
+    <a href="#findings">Distant twins</a>
+    <a href="#interpretation">Why the gap?</a>
+    <a href="#limitations">Limits</a>
+    <a href="#conclusion">The answer</a>
+    <a href="#sources">Sources</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>Two kinds of &ldquo;close&rdquo;</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    A Wikipedia page can be close to another page in two different ways. It can be close in
+    <strong>text</strong>: the two articles talk about similar things, in similar words. Or it can
+    be close in the <strong>link network</strong>: one article links to the other, or both link to
+    the same neighbours, so a reader can click from one to the other in a few steps.
+  </p>
+  <p>
+    These two notions usually agree, but not always. Links are chosen by human editors, one article
+    at a time, and an editor only links what they happen to think of. Text embeddings, on the other
+    hand, only see the words. This week we look for the disagreements: pairs of supervillains that
+    read as near-twins but that the link network keeps many links apart.
+  </p>
+
+</article>
+
+<article class="post wide" id="method">
+
+  <div class="section-head">
+    <h2>Data and method</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    <strong>Pages.</strong> We use the 370 pages of Wikipedia&rsquo;s
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Category:Marvel Comics supervillains</a>
+    (crawled 2026-09-13 with <code>crawler/</code>). The plain text of each page was fetched from
+    Wikipedia&rsquo;s extracts API by <code>analysis/fetch_week7_pages.py</code>: 370 of 370 pages,
+    about 522,000 words in total, median page 795 words.
+  </p>
+
+  <h3>Semantic similarity</h3>
+  <p>
+    Everything here is done by <code>analysis/build_week7_test.py</code>, and this is what the code does:
+  </p>
+  <ol class="takeaways">
+    <li>Each page&rsquo;s text is cut into <strong>passages</strong> of at most 180 words, breaking only at sentence ends (a very long single sentence stays whole). The 370 pages give 3,281 passages.</li>
+    <li>Every passage is embedded separately with the frozen <code>all-MiniLM-L6-v2</code> sentence model, with the vectors normalised to length 1. The model reads at most 256 word-pieces (<code>max_seq_length</code> is 256 in the stored metadata), so a passage that is longer than that is truncated.</li>
+    <li>The <strong>page vector</strong> is the plain average of the page&rsquo;s passage vectors, divided by its own length so that it again has length 1.</li>
+    <li>The similarity of two pages is the <strong>cosine similarity</strong> of their page vectors, which for unit vectors is just their dot product.</li>
+  </ol>
+  <p>
+    <code>analysis/build_week7_pairs.py</code> runs exactly this procedure for all 370 pages and takes the
+    dot product of every pair of page vectors, giving 68,265 cosines (one per unordered pair, in
+    <code>data/week7/week7_pairs.tsv</code>). The earlier file <code>data/week7/week7_supervillains.json</code>
+    kept only each page&rsquo;s 12 nearest neighbours; the new cosines agree with those stored scores to within
+    their three-decimal rounding (4,440 scores compared, largest difference 0.0005). The cosines below are the
+    four-decimal values from the pair table.
+  </p>
+
+  <h3>Structural distance</h3>
+  <p>
+    The link network comes from the same crawl. It is a <strong>directed graph</strong> with 370 nodes and
+    1,136 edges: an edge A&nbsp;&rarr;&nbsp;B means the article of A links to the article of B.
+    <strong>Only links between two of these 370 category pages are in the data.</strong> A
+    &ldquo;path&rdquo; therefore means a chain of links that stays inside this collected
+    graph; it says nothing about how close two pages are in the whole of Wikipedia, where a
+    link to a hero, a god or a team page could shorten the route a lot. The &ldquo;distance&rdquo; in this report is the number
+    of links followed on the shortest <em>directed</em> path from A to B, and we give it for both directions
+    because the graph is not symmetric.
+  </p>
+  <p>
+    We only feature pairs where a directed path exists in the collected graph (in at least one direction).
+    Of the 68,265 pairs of pages, 18,561 have a directed path in both directions and 24,781 in one direction only
+    (13,324 from the page whose identifier sorts first to the other, 11,457 the other way round); the remaining 24,923 have no
+    directed path in either direction and are left out of the featured examples entirely. The graph has 46 weakly connected components: one giant component with
+    323 villains, two pairs and 43 villains with no link in or out.
+  </p>
+
+  <h3>Choosing the pairs</h3>
+  <p>
+    From all 68,265 pairs we kept those with a cosine of at least 0.60 and a shortest directed path of at least 5
+    links in at least one direction, and left out three very long pages (&ldquo;Naga&rdquo;, &ldquo;Tundra&rdquo; and
+    &ldquo;Shepard&rdquo;, 6,500 to 18,000 words) that sit near many other pages (they account for 79 of the 128 pairs that
+    otherwise pass). That leaves 49 pairs: 16 with a path in both directions and 33 in one direction only. The five pairs below
+    were chosen from the seven with a cosine of at least 0.66, after reading the pages. Masked Marauder&ndash;Mysterio
+    (0.678, 5 links each way) is moved to the extra candidates because
+    Mysterio&rsquo;s page is long (7,543 words) and we only read its opening, and
+    Power Broker&ndash;Professor Power (0.666, 6 links) is left out because after reading both pages the
+    main thing we could see them sharing is the word &ldquo;Power&rdquo;. So the selection is partly by hand and the order below is not a ranking.
+  </p>
+
+</article>
+
+<article class="post wide" id="findings">
+
+  <div class="section-head">
+    <h2>Five pairs</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
   </div>
 
+  <div class="table-scroll">
+  <table class="pair-table">
+    <thead>
+      <tr><th>Pair (A &ndash; B)</th><th>Cosine</th><th>Rank of the other in each list</th><th>Directed distance A&nbsp;&rarr;&nbsp;B</th><th>Directed distance B&nbsp;&rarr;&nbsp;A</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Firebrand &ndash; Firepower</td><td>0.7285</td><td>#1 and #2</td><td>7</td><td>no path</td></tr>
+      <tr><td>Doom 2099 &ndash; Kristoff Vernard</td><td>0.7217</td><td>#1 and #1</td><td>no path</td><td>6</td></tr>
+      <tr><td>Masked Marauder &ndash; Gentleman</td><td>0.6690</td><td>#2 and #1</td><td>6</td><td>6</td></tr>
+      <tr><td>Gorgon (Inhuman) &ndash; Lady Gorgon</td><td>0.6693</td><td>#1 and #1</td><td>no path</td><td>7</td></tr>
+      <tr><td>Condor &ndash; Flying Tiger</td><td>0.6629</td><td>#1 and #2</td><td>no path</td><td>6</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    A is the page named first in each row (the table is ordered by cosine). For scale, the median cosine between a villain and its nearest
+    neighbour is 0.636, so these scores are somewhat above typical; what is unusual is the combination with a
+    long directed path. &ldquo;No path&rdquo; here means no chain of links in that direction (there is a path the
+    other way, so the pair is connected). In the giant component the average undirected distance is 3.55 links.
+  </p>
+
+  <div class="pair">
+    <h3>1. Firebrand and Firepower: armour-era Iron Man villains</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Firebrand_(Marvel_Comics)" target="_blank" rel="noopener">Firebrand</a> and
+      <a href="https://en.wikipedia.org/wiki/Firepower_(comics)" target="_blank" rel="noopener">Firepower</a>
+      are both alias pages shared by several characters (&ldquo;the name of several supervillains&rdquo; and &ldquo;an alias
+      used by two supervillains&rdquo;), and the first character of each fights Iron Man. Firebrand&rsquo;s Gary Gilbert is an
+      enforcer for the industrialist Justin Hammer who first appears in <em>Iron Man</em> #27; Firepower&rsquo;s Jack Taggert
+      wears an experimental armour built to stop Iron Man during the &ldquo;Armor Wars&rdquo;, and the second Firepower&rsquo;s armour is
+      disabled by a War Machine EMP blast. Both pages are also about armoured or technology-backed villains working for powerful backers (Hammer;
+      Edwin Cord, who blackmails the military). The only route in the collected graph is from Firebrand to Firepower, 7 links:
+      Firebrand &rarr; Flying Tiger &rarr; Tiger Shark &rarr; Attuma &rarr; Orka &rarr; Iron Monger &rarr; Guardsman &rarr; Firepower.
+      Firepower is linked only to Iron Monger and Guardsman, so the path has to go around through a group of
+      sea-themed villains (Tiger Shark, Attuma, Orka) before it reaches them.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>2. Doom 2099 and Kristoff Vernard: two heirs to Doctor Doom</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Doom_2099" target="_blank" rel="noopener">Doom 2099</a> is
+      a future version of Victor von Doom who retakes Latveria and becomes its monarch again.
+      <a href="https://en.wikipedia.org/wiki/Kristoff_Vernard" target="_blank" rel="noopener">Kristoff Vernard</a>
+      is Doom&rsquo;s adopted son and heir, &ldquo;formerly known as Kristoff von Doom and Dr. Doom&rdquo;,
+      who rules Latveria in Doom&rsquo;s absence. Both pages are, in effect, about someone wearing Doctor
+      Doom&rsquo;s armour and ruling Latveria. The category does not contain Doctor Doom himself, so the
+      obvious bridge is not in the graph. The only directed path runs from Vernard to Doom&nbsp;2099, 6 links:
+      Vernard &rarr; Nathaniel Richards &rarr; Maker &rarr; Molecule Man &rarr; Super-Adaptoid &rarr; Phalanx &rarr; Doom&nbsp;2099.
+      Doom&nbsp;2099&rsquo;s page does not lead back to Vernard.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>3. Masked Marauder and Gentleman: crime bosses who stage plots against Spider-Man</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Masked_Marauder" target="_blank" rel="noopener">Masked Marauder</a> is an
+      already successful crime leader &ldquo;with men, money, and resources at his command&rdquo;, first noticed in a
+      confrontation with Spider-Man, and who briefly becomes the central villain of <em>Daredevil</em>. He has his men
+      impersonate Daredevil to set the two heroes against each other and later tries to take over the Maggia.
+      <a href="https://en.wikipedia.org/wiki/Gentleman_(character)" target="_blank" rel="noopener">The Gentleman</a>
+      is an underworld mastermind &ldquo;known for conducting elaborate plans to increase his own wealth&rdquo;
+      who has the Chameleon recruit the Sinister Six for a &ldquo;Day of Terror&rdquo; against Spider-Man.
+      The shared pattern is a crime boss who runs an organisation and uses hired
+      villains in elaborate, many-step schemes against Spider-Man. This is the only pair with a finite directed path
+      both ways, 6 links each: from Masked Marauder via Gladiator (Melvin Potter), Mister Fear, Eel, Black Cat and Lizard; from
+      Gentleman via Mysterio, Black Cat, Lizard, Mister Hyde and Gladiator. The two characters come from different periods
+      (the Marauder from 1966 comics, the Gentleman from novels and then a 2016 comic), which fits their separate neighbourhoods.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>4. Gorgon and Lady Gorgon: mostly a shared name</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Gorgon_(Inhuman)" target="_blank" rel="noopener">Gorgon</a> is
+      Gorgon Petragon of the Inhumans&rsquo; Royal Family, with hooves that produce seismic waves and a role as
+      Black Bolt&rsquo;s bodyguard.
+      <a href="https://en.wikipedia.org/wiki/Lady_Gorgon" target="_blank" rel="noopener">Lady Gorgon</a> (Tanya Adrian) is
+      a jōnin of the Hand and an enemy of the Punisher who uses telepathy. After reading both pages we could not find much that they share beyond the
+      name and a general &ldquo;Marvel character biography&rdquo; layout, so we read this match as mostly a
+      name effect, like the Firebrand and Firepower alias pages. The graph keeps them far apart: the only
+      directed path runs from Lady Gorgon, 7 links, through Rampage, Wrecker, Hulk, Leader, Super-Skrull and Quicksilver
+      to Gorgon.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>5. Condor and Flying Tiger: winged villains from different corners</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Condor_(comics)" target="_blank" rel="noopener">Condor</a> is a
+      winged criminal from the Bird People and an enemy of Nova;
+      <a href="https://en.wikipedia.org/wiki/Flying_Tiger_(Marvel_Comics)" target="_blank" rel="noopener">Flying Tiger</a>
+      is a former football player whose costume lets him fly, a mercenary who fights Spider-Woman and Iron Man.
+      Both are minor flyers whose pages are mostly lists of appearances and teams, and both end up on
+      the villain side of Helmut Zemo&rsquo;s plots: Condor joins the villains attacking S.H.I.E.L.D. after
+      Zemo restores his memory, Flying Tiger joins Zemo&rsquo;s New Masters. Condor links to Blastaar, Diamondhead,
+      Powerhouse, Red Raven and Sphinx, and Flying Tiger to Eel, Firebrand, Locksmith and Tiger Shark; the two sets
+      do not overlap. The only directed path runs from Flying Tiger, 6 links: Tiger Shark, Egghead, Puppet Master, Sphinx, Diamondhead, Condor.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>More candidates from the full table</h3>
+    <p>
+      Three further pairs from the 49, found after the all-pairs run. For these we read only the opening part of each page (not the full text) and checked
+      the cosine and the paths in the graph, so they are candidates for a closer reading, not findings.
+    </p>
+    <ul class="takeaways">
+      <li><strong>Jonas Harrow and Whiplash</strong> (cosine 0.6359; Harrow&rarr;Whiplash 7 links, Whiplash&rarr;Harrow 6).
+        <a href="https://en.wikipedia.org/wiki/Jonas_Harrow" target="_blank" rel="noopener">Harrow</a> is a disgraced surgeon who, in the
+        words of his creator on the page, is &ldquo;a Tony Stark for bad guys&rdquo;: he enhances criminals for a fee (Hammerhead, Kangaroo) and supplies
+        villains such as Living Laser. <a href="https://en.wikipedia.org/wiki/Whiplash_(Marvel_Comics)" target="_blank" rel="noopener">Whiplash</a>
+        is a gifted electrical technician who becomes a weapons designer and assassin for the Maggia and later works for Justin Hammer. Our reading: both are
+        technically skilled hired helpers to other criminals, in different rogues&rsquo; galleries (Spider-Man&rsquo;s and Iron Man&rsquo;s).
+        Paths: Harrow &rarr; Kangaroo &rarr; Grizzly &rarr; Jackal &rarr; Spider-Girl &rarr; Iron Man 2020 &rarr; Blizzard &rarr; Whiplash; and
+        Whiplash &rarr; Scorpio &rarr; Norman Osborn &rarr; Jackal &rarr; Grizzly &rarr; Kangaroo &rarr; Harrow.</li>
+      <li><strong>Human Cannonball and Thunderball</strong> (cosine 0.6460; Thunderball&rarr;Human Cannonball 6 links, no path the other way).
+        Both pages describe the character mainly as a member of a villain team: <a href="https://en.wikipedia.org/wiki/Human_Cannonball_(Marvel_Comics)" target="_blank" rel="noopener">Human Cannonball</a>
+        of the Circus of Crime, <a href="https://en.wikipedia.org/wiki/Thunderball_(character)" target="_blank" rel="noopener">Thunderball</a> of the Wrecking Crew.
+        Path: Thunderball &rarr; Hulk &rarr; Maestro &rarr; Spider-Girl &rarr; Spider-Bitch &rarr; Ringmaster &rarr; Human Cannonball.</li>
+      <li><strong>Masked Marauder and Mysterio</strong> (cosine 0.6778; 5 links each way). Mysterio&rsquo;s page says he is a Spider-Man enemy who
+        has also been a major villain of <em>Daredevil</em>; the Masked Marauder briefly served as the central villain of <em>Daredevil</em> and first came to public attention in a clash with Spider-Man.
+        We read only the opening of the long Mysterio page, so treat this as a candidate, not a finding.
+        Paths: Masked Marauder &rarr; Gladiator &rarr; Mister Fear &rarr; Eel &rarr; Sin &rarr; Mysterio; and
+        Mysterio &rarr; Black Cat &rarr; Lizard &rarr; Mister Hyde &rarr; Gladiator &rarr; Masked Marauder.</li>
+    </ul>
+  </div>
+
+</article>
+
+<article class="post wide" id="interpretation">
+
+  <div class="section-head">
+    <h2>Why would text be close when links are far?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>The five pairs suggest a few mechanisms. What the pages say is stated first; the causes are our reading.</p>
+  <ul class="takeaways">
+    <li><strong>Shared role, separate storylines.</strong> Condor and Flying Tiger are interchangeable in function (a minor flying criminal, later a recruit for a Zemo team), yet one is an enemy of Nova and the other of Spider-Woman and Iron Man. Doom&nbsp;2099 and Vernard play the same role (ruler of Latveria in Doom&rsquo;s armour) in different eras. Masked Marauder and the Gentleman are the same kind of schemer in different decades. A link is usually placed where characters meet, and the pages we read do not describe these characters meeting.</li>
+    <li><strong>Shared name or page template.</strong> Firebrand/Firepower are both multi-character alias pages, and Gorgon/Lady Gorgon share little more than a name. For these two the embedding is closer to matching the title word and the page layout than to matching the plot.</li>
+    <li><strong>How big are the name, franchise and length effects?</strong> These are rough proxies, not tested measures. All of them
+      are computed over the 67,161 pairs that do not involve Naga, Tundra or Shepard, and &ldquo;the 712&rdquo; are the pairs among them with a cosine of at least 0.60
+      (whatever their reachability: 455 reachable both ways, 192 one way, 65 not at all).
+      <ul>
+        <li><em>Shared title word.</em> Two characters share one if their names (without any bracketed part) have a word in common other than
+          &ldquo;the, of, and, a, Marvel, comics, character, man, woman&rdquo;, such as &ldquo;Gorgon&rdquo; or &ldquo;Master&rdquo;. 106 pairs do; their mean cosine is 0.577
+          against 0.388 for all other pairs. But they are only 40 of the 712, so a shared name is not the main driver of high cosines.</li>
+        <li><em>Shared franchise.</em> A page&rsquo;s &ldquo;franchise&rdquo; is whichever of 17 hero and team names (Spider-Man, Iron Man, Captain America, Thor, Hulk,
+          Daredevil, Fantastic Four, X-Men, Avengers, Punisher, Wolverine, Doctor Strange, Nova, Spider-Woman, Black Panther, Luke Cage, Namor) its text mentions most, if at
+          least 3 times (303 of the 370 pages have one). Both pages share it in 446 of the 712 pairs (63%), but in only 6.9% of all 67,161 pairs and in 11 of the 49
+          far-but-reachable pairs (22%). Franchise vocabulary thus helps explain high cosines in general, and the far pairs are mostly cross-franchise.</li>
+        <li><em>Alias pages.</em> A page counts as an alias page if its first 500 characters say it is the name or alias of several characters, or of two to five
+          (wording such as &ldquo;the name of several supervillains&rdquo; or &ldquo;an alias used by two supervillains&rdquo;): 82 of the 367 pages. Both pages are alias pages
+          in 83 of the 712 pairs (11.7%) against 4.9% of all pairs; Firebrand&ndash;Firepower is one of them.</li>
+        <li><em>Page length.</em> The Pearson correlation between the cosine and the logarithm of the word count of the shorter page is 0.29, so pairs of longer pages tend to be more similar.</li>
+      </ul></li>
+    <li><strong>Missing hubs.</strong> The obvious link between the two Dooms goes through a page that is not in the data. Since only links inside the category count, the distance partly reflects how the dataset was cut, not only Marvel&rsquo;s story world.</li>
+    <li><strong>Direction.</strong> In four of the five pairs a path exists in only one direction. A directed path from A to B does not mean that a reader of B can get back to A, so the same pair can look near from one side and unreachable from the other.</li>
+  </ul>
+  <p>
+    What the data supports: each pair has a high cosine and a shortest directed path of at least 6 links in the collected graph, and the page texts
+    have clear shared elements (except for the Gorgon pair, which is mostly a name effect). What it does not support: that links
+    <em>should</em> exist between these pages. Editors may have good reasons to leave out a link, and a link is not a statement of similarity.
+  </p>
+
+</article>
+
+<article class="post wide" id="limitations">
+
+  <div class="section-head">
+    <h2>Limitations</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <ul class="takeaways">
+    <li><strong>The model.</strong> MiniLM reads at most 256 word-pieces per passage, and a page vector is a plain average of its passages, so long pages become blurred averages. The model is not trained on comics, so names, formatting and template sentences can weigh as much as plot.</li>
+    <li><strong>Cosines are model scores, not measurements of meaning.</strong> All 68,265 pairs are compared, but a high cosine only says that two pages use similar words and sentences in the model&rsquo;s space. Library versions of the first, top-12 run were not recorded; the new run agrees with it to within rounding.</li>
+    <li><strong>The network is the 370 category pages only.</strong> Links to heroes, gods, teams and other pages are not in the data, so some &ldquo;far&rdquo; pairs may be close in the full Wikipedia graph. Long directed paths are partly a sign of how few links a page has (Firepower has two).</li>
+    <li><strong>We dropped all pairs without a directed path.</strong> 24,923 of the 68,265 pairs have no path in either direction, many involving pages with no links at all. Those are the most &ldquo;structurally far&rdquo; pairs of all, so this report looks only at pairs that are far but still reachable.</li>
+    <li><strong>Hand-picked examples.</strong> The five pairs were chosen from the seven that have a cosine of at least 0.66 (among 49 with at least 0.60), after reading the pages. The explanations are our reading of the text, not tested hypotheses.</li>
+    <li><strong>Page text is a snapshot</strong> from the extracts API, and its length varies widely (87 to 18,047 words), which changes how much an embedding can say.</li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>Conclusion</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    <strong>Who is semantically close but structurally far away?</strong> Characters who play the same
+    role, or who share a name, but belong to different storylines: the Iron Man armour villains Firebrand and Firepower
+    (7 links), the two heirs of Doctor Doom, Doom&nbsp;2099 and Kristoff Vernard (6 links), the Spider-Man schemers Masked Marauder
+    and Gentleman (6 links in both directions), the two minor flyers Condor and Flying Tiger (6 links) and, mostly through the name,
+    Gorgon and Lady Gorgon (7 links). The link network records who <em>meets</em> whom, the embedding records
+    who <em>sounds like</em> whom, and these pairs live in the gap. A caveat that matters as much as the examples:
+    some of the distance comes from the data cut (a missing Doctor Doom page, only category-internal links, one-way links), not
+    from the stories alone.
+  </p>
+
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+
+<article class="post wide" id="sources">
+
+  <div class="section-head">
+    <h2>Sources and references</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <ul class="takeaways">
+    <li>Wikipedia pages: <a href="https://en.wikipedia.org/wiki/Firebrand_(Marvel_Comics)" target="_blank" rel="noopener">Firebrand</a>, <a href="https://en.wikipedia.org/wiki/Firepower_(comics)" target="_blank" rel="noopener">Firepower</a>, <a href="https://en.wikipedia.org/wiki/Doom_2099" target="_blank" rel="noopener">Doom 2099</a>, <a href="https://en.wikipedia.org/wiki/Kristoff_Vernard" target="_blank" rel="noopener">Kristoff Vernard</a>, <a href="https://en.wikipedia.org/wiki/Masked_Marauder" target="_blank" rel="noopener">Masked Marauder</a>, <a href="https://en.wikipedia.org/wiki/Gentleman_(character)" target="_blank" rel="noopener">Gentleman</a>, <a href="https://en.wikipedia.org/wiki/Gorgon_(Inhuman)" target="_blank" rel="noopener">Gorgon (Inhuman)</a>, <a href="https://en.wikipedia.org/wiki/Lady_Gorgon" target="_blank" rel="noopener">Lady Gorgon</a>, <a href="https://en.wikipedia.org/wiki/Condor_(comics)" target="_blank" rel="noopener">Condor</a>, <a href="https://en.wikipedia.org/wiki/Flying_Tiger_(Marvel_Comics)" target="_blank" rel="noopener">Flying Tiger</a>.</li>
+    <li>Dataset: <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia, Category:Marvel Comics supervillains</a> (crawled 2026-09-13); page text via the Wikipedia extracts API.</li>
+    <li>Model: Reimers &amp; Gurevych, <a href="https://arxiv.org/abs/1908.10084" target="_blank" rel="noopener">Sentence-BERT</a> (2019); <code>all-MiniLM-L6-v2</code> from the <a href="https://www.sbert.net/" target="_blank" rel="noopener">sentence-transformers</a> library.</li>
+    <li>Course material: <a href="https://sunelehmann.com/socialgraphs2026-web/weeks/week7.html" target="_blank" rel="noopener">Social Graphs 2026, Week 7</a>.</li>
+    <li>Code and data in this repository: <code>analysis/fetch_week7_pages.py</code>, <code>analysis/build_week7_test.py</code>, <code>data/week7/week7_supervillains.json</code>, <code>data/Marvel_Comics_supervillains/</code>. The directed distances were computed from the edge list in that JSON with <code>networkx</code>, and <code>analysis/check_week7_distances.py</code> recomputes the five pairs above and compares them with the table.</li>
+  </ul>
 
 </article>
 </main>
@@ -42,7 +374,7 @@
 <footer>
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics supervillains</a>
   </div>
 </footer>
 

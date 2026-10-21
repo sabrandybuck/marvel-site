@@ -12,8 +12,8 @@ JSON/TSV files that the pages load.
 
 **Live site:** https://sabrandybuck.github.io/marvel-site/
 
-**Status:** Weeks 1–6 are implemented. Weeks 7 and 8 are placeholder pages ("Coming soon") with
-no content or data yet.
+**Status:** Weeks 1–7 are implemented (Week 7 is a text-only report). Week 8 is a placeholder page
+("Coming soon") with no content or data yet.
 
 ## Week by week
 
@@ -51,15 +51,25 @@ an analogy "slot machine"; the other pages are bonus explorables: a text-vs-link
 overlay (6.2), a Marvel map with user-defined word axes (6.3), single-character deep dives
 (6.4), topic-mixture ambiguity (6.5) and a per-character neighbour explorer (`week-6-6.html`).
 
-**Weeks 7 and 8** (`posts/week-7.html`, `posts/week-8.html`) — placeholders only; not implemented.
+**Week 7 — Semantically close, structurally far** (`posts/week-7.html`)
+Text-only report on the Marvel supervillains (370 Wikipedia pages). Each page is cut into passages of
+at most 180 words, each passage is embedded with `all-MiniLM-L6-v2`, the passage vectors are averaged
+and re-normalised into a page vector, and page similarity is the cosine of those vectors. The stored
+`data/week7/week7_supervillains.json` keeps only each page's top-12 neighbours and cosines. These are
+compared with directed shortest paths in the link network of the 370 category pages (not all of
+Wikipedia); pairs with no directed path are excluded. Five hand-picked pairs are discussed against their
+page text. `analysis/fetch_week7_pages.py` fetches the page text from Wikipedia's extracts API and
+`analysis/build_week7_test.py` builds the JSON. `analysis/build_week7_pairs.py` extends it to every
+pair of the 370 pages (cosine of all page vectors, directed shortest-path distances, reachability,
+components) and `analysis/check_week7_distances.py` re-checks the post's five pairs and those outputs
+with networkx; `analysis/test_week7_pairs.py` tests the pipeline on synthetic vectors (cache
+invalidation, graph-only safeguard, determinism); see the table below. The all-pairs script needs
+`sentence-transformers` for the real similarities (`pip install sentence-transformers`); its outputs
+are in `data/week7/` (`week7_embeddings.npz` is the page-vector cache, reused while the model, passage
+setting and page texts are unchanged). `--graph-only` refuses to overwrite a full run unless
+`--force-overwrite-full`. The post discusses five featured pairs plus three extra candidates from the full table; it has no interactive explorable yet.
 
-**Week 7 test — links vs. meaning** (`posts/week-7-test.html`)
-Test post for week 7: the Marvel supervillains network (370 characters) drawn twice — once as the
-Wikipedia link network, once as a MiniLM "skeleton" where each character is wired to its k nearest
-pages by cosine similarity in the frozen `all-MiniLM-L6-v2` embedding space (180-word passage
-chunking; neighbor search always in the original 384-d space). `analysis/fetch_week7_pages.py`
-fetches the page text from Wikipedia's extracts API, `analysis/build_week7_test.py` embeds it and
-writes `data/week7/week7_supervillains.json`.
+**Week 8** (`posts/week-8.html`) — placeholder only; not implemented.
 
 ## Data and analysis
 
@@ -96,6 +106,9 @@ The Week 2 datasets were crawled from Wikipedia with `crawler/`, not taken from 
 | `build_week63.py` | week 6 payloads | `week63_vecs.json`, `week63_map.json`, `week63_terms.json` | gensim, numpy |
 | `fetch_week7_pages.py` (site `.venv` not needed) | `data/Marvel_Comics_supervillains/` nodes TSV | `data/Marvel_Comics_supervillains/pages/*.txt` + manifest; Wikipedia extracts API (stdlib, uses the sibling `marvel-crawler` client) |
 | `build_week7_test.py` | supervillains TSVs + `pages/` | `data/week7/week7_supervillains.json` | sentence-transformers, scikit-learn, networkx |
+| `build_week7_pairs.py` | supervillains TSVs + `pages/` (+ cached embeddings) | `data/week7/week7_characters.json` (always), `week7_embeddings.npz`, `week7_pairs.tsv`, `week7_pair_summaries.json` (need embeddings; `--graph-only` skips them) | numpy, scipy; sentence-transformers only when no valid embedding cache exists |
+| `check_week7_distances.py` | `data/week7/` outputs | stdout checks, exit status | networkx |
+| `test_week7_pairs.py` | synthetic vectors in temp dirs | unittest results (never writes `data/`) | numpy, scipy, networkx |
 
 Notes:
 - There is no requirements file. `build_week1.py` asserts 303 nodes, 1,784 directed edges and 17
@@ -132,8 +145,8 @@ marvel-site/
 │   ├── week-3*.html               analysis posts and the two save-the-network games
 │   ├── week-4.html, week-5.html
 │   ├── week-6.html, week-6-2..6.html
-│   ├── week-7-test.html        test post, driven by week7test.js
-│   ├── week-7.html, week-8.html   placeholders
+│   ├── week-7.html            text-only Week 7 report
+│   ├── week-8.html            placeholder
 │   └── week2.js, week3*.js, week4-*.js, week5-*.js, week6-lean.js, week62..66.js
 ├── data/                frozen datasets and generated JSON (see above)
 ├── assets/week1, week2  figures generated by the analysis scripts
