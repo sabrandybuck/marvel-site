@@ -1,10 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 7 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 7: Semantically close, structurally far — The Web of Heroes</title>
+  <meta name="description" content="Who is semantically close but structurally far away? 370 Marvel supervillains, two lenses — MiniLM document embeddings and the Wikipedia hyperlink network — and the pairs where meaning and structure disagree.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* Week 7 explorable styles */
+    .w7-panel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .w7-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 28px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .w7-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 140px;
+    }
+    .w7-control-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+    .w7-proj-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .w7-proj-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 6px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .w7-proj-btn:hover { color: var(--text); border-color: var(--accent); }
+    .w7-proj-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .w7-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .w7-slider-row input[type="range"] {
+      flex: 1;
+      min-width: 100px;
+    }
+    .w7-slider-value {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      min-width: 36px;
+      text-align: right;
+    }
+    .w7-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .w7-search-input {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .w7-search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .w7-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+    .w7-stats strong { color: var(--text); }
+    .w7-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      padding: 10px 0;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .w7-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .w7-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .w7-legend-line {
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .w7-legend-sep {
+      color: var(--line);
+    }
+    #w7-div-count {
+      font-family: var(--mono);
+      color: var(--accent);
+    }
+    #w7-scatter {
+      width: 100%;
+      height: 500px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: block;
+    }
+    .w7-detail {
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 80px;
+    }
+    .w7-detail h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .w7-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+    .w7-detail-section {
+      margin-top: 14px;
+    }
+    .w7-detail-section h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+    }
+    .w7-nn-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .w7-nn-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+    .w7-nn-list li:last-child { border-bottom: 0; }
+    .w7-nn-list a {
+      color: var(--accent-2);
+      text-decoration: none;
+      flex: 1;
+    }
+    .w7-nn-list a:hover { text-decoration: underline; }
+    .w7-nn-cos, .w7-nn-path {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .w7-nn-flag {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      color: var(--accent);
+    }
+    .w7-divergent-item {
+      background: rgba(230, 53, 58, 0.06);
+      margin: 0 -8px;
+      padding: 6px 8px !important;
+      border-radius: 4px;
+    }
+    .w7-hint {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin: 0;
+    }
+    .w7-pair-view {
+      margin-top: 16px;
+    }
+    .w7-pair-loading {
+      color: var(--text-dim);
+      font-size: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .w7-pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      .w7-pair-grid { grid-template-columns: 1fr; }
+    }
+    .w7-excerpt {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .w7-excerpt h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--accent);
+    }
+    .w7-excerpt p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin: 0 0 10px;
+    }
+    .w7-excerpt p:last-child { margin-bottom: 0; }
+    .w7-excerpt-error {
+      color: var(--accent);
+      font-style: italic;
+    }
+    .w7-callout-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin: 20px 0;
+    }
+    .w7-finding {
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+    .w7-finding h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--accent);
+    }
+    .w7-finding .w7-finding-nums {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .w7-finding p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .week2-quicknav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      padding: 12px 0;
+      margin: 20px 0 30px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .week2-quicknav a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    .week2-quicknav a:hover { color: var(--accent); }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .back-to-top {
+      font-size: 18px;
+      color: var(--text-dim);
+      text-decoration: none;
+      flex: 0 0 auto;
+    }
+    .back-to-top:hover { color: var(--accent); }
+  </style>
 </head>
 <body>
 
@@ -22,29 +338,323 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 7</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 7 · From meaning to measurement</div>
+  <h1>Semantically close, structurally far</h1>
+  <p class="subtitle">
+    The week's question: <strong>who is semantically close but structurally far
+    away?</strong> We have two lenses over the same 370 Marvel supervillains —
+    a language model that reads each Wikipedia page and turns it into a vector,
+    and the hyperlink network that connects those pages. The pairs where the two
+    lenses disagree are the interesting ones: characters whose pages talk about
+    similar things but never link to each other.
+  </p>
 
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#method">Two lenses</a>
+    <a href="#explorable">The explorer</a>
+    <a href="#read">How to read it</a>
+    <a href="#findings">What we found</a>
+    <a href="#limits">Limitations</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="method">
+  <div class="section-head">
+    <h2>Two lenses, one universe</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Every supervillain page is measured twice. The <strong>semantic lens</strong>
+    is <code>all-MiniLM-L6-v2</code>, a pretrained sentence encoder: each page is
+    cut into passages of at most 180 words, every passage is embedded into a
+    384-dimensional vector, and the page's vector is the mean of its passage
+    vectors. Two pages are <em>semantically close</em> when their vectors have
+    high cosine similarity — they talk about similar things, even if they don't
+    share vocabulary.
+  </p>
+  <p>
+    The <strong>structural lens</strong> is the Wikipedia hyperlink network from
+    Week 2: 370 nodes, 1,136 directed edges. An edge <em>A → B</em> means page A
+    links to page B. Two characters are <em>structurally close</em> when the
+    shortest path between them in this network is short — ideally 1 (directly
+    linked), but 2 or 3 is still nearby.
+  </p>
+  <p>
+    The <strong>divergence score</strong> combines the two:
+    <code>divergence = cosine / (path_length + 1)</code>. It is high when the
+    pages are semantically similar (high cosine) but structurally far (long
+    path, or no path at all — disconnected pairs get path&nbsp;=&nbsp;∞). These are
+    the pairs the explorer highlights in red.
+  </p>
   <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+    <strong>Why would two pages be close in meaning but far in structure?</strong>
+    Wikipedia's linking conventions are editorial, not semantic. A page about a
+    minor 1970s villain might never link to the page of a thematically similar
+    character from a different era, team, or franchise corner — even though a
+    language model reads both and sees the same themes. The gap between the two
+    lenses is a map of what Wikipedia editors chose <em>not</em> to connect.
+  </div>
+</article>
+
+<article class="post wide" id="explorable">
+  <div class="section-head">
+    <h2>The divergence explorer</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The scatter plot shows all 370 villains projected onto two dimensions
+    (PCA of the 384-dimensional MiniLM embeddings — switch to t-SNE below).
+    Each dot is colored by its Louvain community in the hyperlink network and
+    sized by in-degree. <strong>Blue lines</strong> connect semantically close
+    pairs (cosine above the threshold). <strong>Red lines</strong> mark the
+    divergent pairs — drawn on top of the blue — where meaning and structure
+    disagree: semantically close (cosine above threshold) but separated by
+    3+ hyperlink hops (or in different connected components entirely).
+    The sliders below directly control what you see: adjust the cosine and
+    path thresholds to change what counts as "close" and "far", and the
+    max-lines slider to control how many red lines appear.
+  </p>
+
+  <div class="w7-panel">
+    <div class="w7-stats" id="w7-stats"></div>
+
+    <div class="w7-controls">
+      <div class="w7-control-group">
+        <span class="w7-control-label">Projection</span>
+        <div class="w7-proj-buttons">
+          <button class="w7-proj-btn active" id="w7-proj-pca" type="button">PCA</button>
+          <button class="w7-proj-btn" id="w7-proj-tsne" type="button">t-SNE</button>
+        </div>
+      </div>
+
+      <div class="w7-control-group">
+        <span class="w7-control-label">Min cosine: <span id="w7-cos-value">0.50</span></span>
+        <div class="w7-slider-row">
+          <input type="range" id="w7-cos-slider" min="0" max="0.9" step="0.05" value="0.5">
+        </div>
+      </div>
+
+      <div class="w7-control-group">
+        <span class="w7-control-label">Min path for divergence: <span id="w7-path-value">3</span></span>
+        <div class="w7-slider-row">
+          <input type="range" id="w7-path-slider" min="2" max="99" step="1" value="3">
+        </div>
+      </div>
+
+      <div class="w7-control-group">
+        <span class="w7-control-label">Max divergent lines: <span id="w7-maxdiv-value">50</span></span>
+        <div class="w7-slider-row">
+          <input type="range" id="w7-maxdiv-slider" min="0" max="200" step="10" value="50">
+        </div>
+      </div>
+
+      <div class="w7-control-group">
+        <span class="w7-control-label">Show</span>
+        <label class="w7-checkbox-row">
+          <input type="checkbox" id="w7-toggle-semantic" checked>
+          Semantic links (blue)
+        </label>
+        <label class="w7-checkbox-row">
+          <input type="checkbox" id="w7-toggle-divergent" checked>
+          Divergent pairs (red)
+        </label>
+        <label class="w7-checkbox-row">
+          <input type="checkbox" id="w7-toggle-links">
+          Hyperlinks (faint)
+        </label>
+      </div>
+
+      <div class="w7-control-group" style="flex: 1; min-width: 200px;">
+        <span class="w7-control-label">Search villain</span>
+        <input type="text" class="w7-search-input" id="w7-search"
+               list="w7-search-list" placeholder="Type a name…" autocomplete="off">
+        <datalist id="w7-search-list"></datalist>
+      </div>
+    </div>
+
+    <div class="w7-legend" id="w7-legend"></div>
+
+    <svg id="w7-scatter" role="img"
+         aria-label="Scatter plot of 370 Marvel supervillains in embedding space, with semantic links in blue and divergent pairs in red"></svg>
+
+    <div class="w7-detail" id="w7-detail">
+      <p class="w7-hint">Click a villain to inspect their semantic and structural neighborhoods, or click a red line to compare a divergent pair.</p>
+    </div>
+
+    <div class="w7-pair-view" id="w7-pair-view"></div>
+  </div>
+</article>
+
+<article class="post wide" id="read">
+  <div class="section-head">
+    <h2>How to read it</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <ul>
+    <li><strong>The map is a projection.</strong> PCA squeezes 384 dimensions
+      into 2 (explaining about 8% of the variance), so visible distance is only
+      a rough guide. The cosine and path-length numbers in the detail panel are
+      computed in the full spaces — trust those over what your eyes say.</li>
+    <li><strong>Blue = semantically close.</strong> A blue line means the two
+      pages have cosine similarity above your threshold — the language model
+      reads them as talking about similar things.</li>
+    <li><strong>Red = divergent (on top of blue).</strong> A red line means the
+      pair is <em>also</em> structurally far: separated by at least your
+      path-length threshold in the hyperlink network, or in different connected
+      components entirely. Every red line sits on top of a blue line — a
+      divergent pair is always semantically close.</li>
+    <li><strong>Sliders control everything.</strong> The cosine slider sets
+      how "close" means close. The path slider sets how "far" means far.
+      The max-lines slider caps how many red lines appear (the most divergent
+      pairs are shown first). What you set is what you see — no hidden
+      pre-computed lists.</li>
+    <li><strong>Click a dot</strong> to see that villain's semantic neighbors
+      (from the MiniLM kNN), their Wikipedia links, and their personal
+      "divergent pairs" list — the characters closest in meaning but farthest
+      in structure.</li>
+    <li><strong>Click a red line</strong> to read the opening paragraphs of both
+      pages side by side. The question to ask: <em>why</em> does the model think
+      these are similar, and <em>why</em> doesn't Wikipedia link them?</li>
+  </ul>
+</article>
+
+<article class="post wide" id="findings">
+  <div class="section-head">
+    <h2>What we found</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Of the 3,550 unique pairs in the semantic neighborhood graph, 598 are
+    <em>disconnected</em> in the hyperlink network — no path at all, not even
+    through intermediaries. The median connected pair sits at a path length of
+    3. The 50 most divergent pairs (highest cosine among those with path ≥ 3
+    or disconnected) reveal three recurring patterns:
+  </p>
+
+  <div class="w7-callout-row">
+    <div class="w7-finding">
+      <h4>Same name, different characters</h4>
+      <div class="w7-finding-nums">Sentry (Curtis Elkins) ↔ Sentry (Robert Reynolds)<br>cos 0.726 · path 3 · divergence 0.181</div>
+      <p>The two Sentinels are unrelated characters who happen to share a
+        code-name. Their pages are semantically close because both are about a
+        super-powered "Sentry" — the model sees the shared name and the shared
+        power-set framing. But Wikipedia's disambiguation keeps them apart:
+        Curtis Elkins' page links into the Vault/Thunderbolts corner, while
+        Robert Reynolds' page links into the Avengers/cosmic corner. Two
+        Sentinels, two neighborhoods, no bridge.</p>
+    </div>
+
+    <div class="w7-finding">
+      <h4>"Doom" by any other name</h4>
+      <div class="w7-finding-nums">Doom 2099 ↔ Doomsday Man<br>cos 0.690 · disconnected</div>
+      <p>Doom 2099 is a futuristic anti-hero; Doomsday Man is a 1970s
+        Captain Marvel villain — a robot-scientist fusion. Both carry "Doom"
+        in the name and both are about world-ending power, so the embedding
+        places them close. But they exist in entirely different corners of the
+        Marvel universe (Marvel 2099 vs. the Silver Surfer/Ms. Marvel legacy)
+        and the hyperlink network has no path between them at all.</p>
+    </div>
+
+    <div class="w7-finding">
+      <h4>The Spider-verse without the spider-links</h4>
+      <div class="w7-finding-nums">Blood Spider ↔ Spider-Woman<br>cos 0.692 · path 3<br>Kingpin (Matt Murdock) ↔ Spider-Woman<br>cos 0.686 · path 3</div>
+      <p>Spider-Woman appears in multiple divergent pairs. Her page is a
+        disambiguation hub — "Spider-Woman is the code name of several
+        fictional characters" — so the embedding is pulled toward the
+        Spider-Man family's themes (clones, symbiotes, alternate costumes).
+        Blood Spider and Kingpin (Matt Murdock) are thematically adjacent but
+        structurally distant: they link into the Spider-Man pages, not to
+        Spider-Woman's disambiguation page directly.</p>
+    </div>
+
+    <div class="w7-finding">
+      <h4>The Shepard cluster</h4>
+      <div class="w7-finding-nums">Naga ↔ Shepard: cos 0.688 · disconnected<br>Mister Sinister ↔ Shepard: cos 0.665 · disconnected<br>Emma Frost ↔ Shepard: cos 0.651 · disconnected</div>
+      <p>Shepard (comics) is a minor X-Men villain whose page is semantically
+        close to several major mutants — Naga, Mister Sinister, Emma Frost —
+        because all are X-Men-adjacent mutants with similar power descriptions.
+        But Shepard's page sits in a small disconnected component of the
+        hyperlink network, so the structural distance is infinite even though
+        the semantic distance is small.</p>
+    </div>
+
+    <div class="w7-finding">
+      <h4>Batroc ↔ Batwing: the "Bat" trap</h4>
+      <div class="w7-finding-nums">Batroc the Leaper ↔ Batwing (Marvel Comics)<br>cos 0.689 · path 3 · divergence 0.172</div>
+      <p>A pure surface-similarity case: both names start with "Bat". Batroc is
+        a Captain America villain (a French mercenary who can leap); Batwing
+        is a minor Batman-analog in the Marvel universe. The embedding picks up
+        the name overlap and the shared "vigilante-adjacent fighter" framing.
+        Wikipedia's link structure keeps them in different teams' corners.</p>
+    </div>
+
+    <div class="w7-finding">
+      <h4>The Leader's gamma neighbors</h4>
+      <div class="w7-finding-nums">Leader ↔ Radioactive Man: cos 0.704 · path 3<br>Leader ↔ Tundra: cos 0.674 · path 3</div>
+      <p>The Leader (a Hulk villain) is semantically close to other
+        gamma-powered characters — Radioactive Man, Tundra — because their
+        pages share the vocabulary of radiation, gamma mutation, and Hulk
+        rogues' galleries. The link network routes through Hulk's page rather
+        than connecting the villains directly, creating a path of 3.</p>
+    </div>
   </div>
 
-  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+  <p>
+    The pattern across all of these: <strong>the embedding groups by theme,
+    the link network groups by editorial adjacency.</strong> A language model
+    sees "gamma-powered villain" and places the Leader next to Radioactive
+    Man. Wikipedia's editors see "this page is about Hulk's rogues' gallery"
+    and link both to Hulk — but not to each other. The divergent pairs are
+    where these two grouping logics part ways.
+  </p>
+</article>
 
+<article class="post wide" id="limits">
+  <div class="section-head">
+    <h2>Limitations</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The MiniLM encoder reads at most 256 word pieces per passage; with our
+    180-word chunking rule, long pages are summarized as the mean of several
+    passage vectors. This is a modeling choice — a single vector for a 5,000-word
+    biography necessarily loses detail. The cosine similarities are computed in
+    this compressed space, not on the raw text.
+  </p>
+  <p>
+    The hyperlink network is a snapshot of Wikipedia's Marvel Comics
+    supervillains category as crawled in September 2026. Wikipedia's linking is
+    editorial: pages link to what their authors chose to link to, which
+    reflects narrative importance, recency, and editor conventions more than
+    semantic similarity. A path length of 3 does not mean "unrelated" — it
+    means "not directly connected, and not connected through one
+    intermediary."
+  </p>
+  <p>
+    Disconnected pairs (path = ∞) are mostly small, isolated pages in
+    non-giant components of the link graph — 43 isolates and several small
+    clusters. Their semantic neighbors are often major villains whose pages are
+    in the giant component. The divergence score treats them as maximally far,
+    which is defensible but blunt: a 2-node component and a 50-node component
+    are both "disconnected" from the giant.
+  </p>
+</article>
+
+<article class="post">
+  <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
 </article>
 </main>
 
 <footer>
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics supervillains</a>
   </div>
 </footer>
 
+<script src="week7.js"></script>
 </body>
 </html>
