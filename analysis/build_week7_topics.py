@@ -154,19 +154,34 @@ def main():
         topics.append({
             "id": k,
             "words": top_words,
+            "top_words": [w for w, _ in top_words[:8]],       # for cards
+            "also_close": [w for w, _ in top_words[8:12]],    # ranks 9-12
             "size": int(dominant),
-            "label": "",  # filled in below
+            "label": "",        # human-readable, filled below
+            "auto_label": "",   # from top words, filled below
         })
 
     # Sort topics by size (largest first) and re-index
     topics.sort(key=lambda t: -t["size"])
     for new_id, t in enumerate(topics):
         t["id"] = new_id
+        t["auto_label"] = " / ".join(t["top_words"][:3])
 
-    # Generate labels from top words
+    # Human-readable labels (manually curated from top words)
+    HUMAN_LABELS = {
+        0: "Street-level heroes",
+        1: "Gamma & Hulk",
+        2: "X-Men / mutants",
+        3: "Spider-Man rogues",
+        4: "Magic & Doctor Strange",
+        5: "Moon Knight",
+        6: "Iron Man & tech",
+        7: "Namor & Atlantis",
+        8: "Wrecking Crew",
+        9: "Zodiac",
+    }
     for t in topics:
-        top_words = [w for w, _ in t["words"][:5]]
-        t["label"] = " / ".join(top_words[:3])
+        t["label"] = HUMAN_LABELS.get(t["id"], t["auto_label"])
 
     # Assign each villain to topics
     assignments = {}
@@ -251,8 +266,10 @@ def main():
     # Report
     print("\n----- topic report -----")
     for t in topics:
-        print(f"\nTopic {t['id']} ({t['size']} villains): {t['label']}")
-        print(f"  top words: {', '.join(w for w, _ in t['words'][:10])}")
+        print(f"\nTopic T{t['id']}: {t['label']}  ({t['size']} villains)")
+        print(f"  auto: {t['auto_label']}")
+        print(f"  top: {', '.join(t['top_words'])}")
+        print(f"  also close: {', '.join(t['also_close'])}")
         div_count = topic_div_counts[t["id"]]
         print(f"  divergent pairs within topic: {div_count}")
         if div_count > 0:

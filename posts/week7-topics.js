@@ -134,16 +134,21 @@
     var html = "";
     TOPICS.topics.forEach(function (t) {
       var divCount = TOPICS.topic_div_counts[t.id] || 0;
-      var words = t.words.slice(0, 8).map(function (w) {
-        return '<span class="w7t-word">' + esc(w[0]) + '</span>';
+      var words = (t.top_words || []).map(function (w) {
+        return '<span class="w7t-word">' + esc(w) + '</span>';
+      }).join(" ");
+      var alsoClose = (t.also_close || []).map(function (w) {
+        return '<span class="w7t-word w7t-word-dim">' + esc(w) + '</span>';
       }).join(" ");
       html += '<div class="w7t-card" data-topic="' + t.id + '" style="border-left-color:' + topicColor(t.id) + '">' +
         '<div class="w7t-card-header">' +
         '<span class="w7t-topic-badge" style="background:' + topicColor(t.id) + '">T' + t.id + '</span>' +
-        '<span class="w7t-topic-size">' + t.size + ' villains</span>' +
-        (divCount > 0 ? '<span class="w7t-topic-div">' + divCount + ' divergent pairs</span>' : '') +
+        '<span class="w7t-topic-label">' + esc(t.label) + '</span>' +
+        '<span class="w7t-topic-size">' + t.size + '</span>' +
+        (divCount > 0 ? '<span class="w7t-topic-div">' + divCount + ' div</span>' : '') +
         '</div>' +
         '<div class="w7t-topic-words">' + words + '</div>' +
+        (alsoClose ? '<div class="w7t-also-close"><span class="w7t-also-label">also:</span> ' + alsoClose + '</div>' : '') +
         '</div>';
     });
     els.cards.innerHTML = html;
@@ -191,18 +196,24 @@
     villains.sort(function (a, b) { return b.weight - a.weight; });
 
     // Build detail HTML
+    var allWords = (topic.words || []).map(function (w) {
+      return '<span class="w7t-word" title="weight ' + w[1] + '">' + esc(w[0]) + '</span>';
+    }).join(" ");
+    var alsoClose = (topic.also_close || []).map(function (w) {
+      return '<span class="w7t-word w7t-word-dim">' + esc(w) + '</span>';
+    }).join(" ");
+
     var html = '<div class="w7t-detail-header">' +
       '<h3><span class="w7t-topic-badge" style="background:' + topicColor(tid) + '">T' + tid + '</span> ' +
       esc(topic.label) + '</h3>' +
       '<div class="w7t-detail-meta">' +
       '<span>' + topic.size + ' villains</span>' +
       '<span>' + divCount + ' divergent pairs within topic</span>' +
+      '<span class="w7t-auto-label">auto: ' + esc(topic.auto_label) + '</span>' +
       '</div>' +
-      '<div class="w7t-topic-words-full">' +
-      topic.words.slice(0, 15).map(function (w) {
-        return '<span class="w7t-word" title="weight ' + w[1] + '">' + esc(w[0]) + '</span>';
-      }).join(" ") +
-      '</div></div>';
+      '<div class="w7t-topic-words-full">' + allWords + '</div>' +
+      (alsoClose ? '<div class="w7t-also-close"><span class="w7t-also-label">also close:</span> ' + alsoClose + '</div>' : '') +
+      '</div>';
 
     els.detail.innerHTML = html;
 
