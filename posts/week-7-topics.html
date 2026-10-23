@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 7: What are the villains about? — The Web of Heroes</title>
+  <meta name="description" content="Ten topics extracted from 370 Marvel supervillain pages with TF-IDF + NMF. Click a topic to see its villains, and find divergent pairs within each topic — where meaning and structure disagree.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .w7t-panel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .w7t-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+    .w7t-stats strong { color: var(--text); }
+    .w7t-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .w7t-control-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+    .w7t-color-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .w7t-color-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 6px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .w7t-color-btn:hover { color: var(--text); border-color: var(--accent); }
+    .w7t-color-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .w7t-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .w7t-card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .w7t-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .w7t-card.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .w7t-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .w7t-topic-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .w7t-topic-size {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .w7t-topic-div {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+    .w7t-topic-words {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .w7t-word {
+      font-size: 12px;
+      color: var(--text);
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    .w7t-detail {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      min-height: 60px;
+    }
+    .w7t-detail h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .w7t-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .w7t-topic-words-full {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .w7t-hint {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin: 0;
+    }
+    .w7t-error {
+      color: var(--accent);
+      font-size: 14px;
+    }
+    .w7t-loading {
+      color: var(--text-dim);
+      font-size: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .w7t-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .w7t-two-col { grid-template-columns: 1fr; }
+    }
+    .w7t-villain-list, .w7t-pair-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+    }
+    .w7t-villain-list li, .w7t-pair-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .w7t-villain-list li:hover, .w7t-pair-list li:hover {
+      background: var(--bg-elevated);
+    }
+    .w7t-villain-list li.selected {
+      background: var(--accent-soft);
+    }
+    .w7t-villain-list li:last-child, .w7t-pair-list li:last-child {
+      border-bottom: 0;
+    }
+    .w7t-rank {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      min-width: 28px;
+    }
+    .w7t-vname {
+      flex: 1;
+      color: var(--text);
+    }
+    .w7t-vweight, .w7t-vdeg {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .w7t-pair-names {
+      flex: 1;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .w7t-pair-nums {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .w7t-more {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin: 8px 0 0;
+    }
+    .w7t-scatter-wrap {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    #w7t-scatter {
+      width: 100%;
+      height: 400px;
+      display: block;
+    }
+    .w7t-excerpt-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .w7t-pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .w7t-pair-grid { grid-template-columns: 1fr; }
+    }
+    .w7t-excerpt-card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .w7t-excerpt-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--accent);
+    }
+    .w7t-excerpt-card p {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      margin: 0 0 8px;
+    }
+    .w7t-excerpt-card p:last-child { margin-bottom: 0; }
+    .w7t-vtopics {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .w7t-vtopic {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .w7t-section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin: 0 0 4px;
+    }
+    .week2-quicknav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      padding: 12px 0;
+      margin: 20px 0 30px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .week2-quicknav a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    .week2-quicknav a:hover { color: var(--accent); }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .back-to-top {
+      font-size: 18px;
+      color: var(--text-dim);
+      text-decoration: none;
+      flex: 0 0 auto;
+    }
+    .back-to-top:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">02805</span>
+      <h1><a href="../index.html" style="color:inherit;text-decoration:none;">The Web of Heroes</a></h1>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#weeks">Weeks</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<article class="post wide">
+
+  <div class="post-meta">Week 7 · Bonus explorable</div>
+  <h1>What are the villains about?</h1>
+  <p class="subtitle">
+    Ten topics extracted from the 370 supervillain pages with
+    <strong>TF-IDF + NMF</strong> topic modeling. Click a topic to see its
+    villains, and find the <strong>divergent pairs within each topic</strong> —
+    characters that are topically similar and semantically close, but
+    structurally far apart in the Wikipedia hyperlink network.
+    <a href="week-7.html">← Back to the divergence explorer</a>
+  </p>
+
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#topics">Topics</a>
+    <a href="#how">How it works</a>
+    <a href="#cross">The cross-lens</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="topics">
+  <div class="section-head">
+    <h2>Ten topics, 370 villains</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+
+  <div class="w7t-panel">
+    <div class="w7t-stats" id="w7t-stats"></div>
+
+    <div class="w7t-controls">
+      <div>
+        <span class="w7t-control-label">Color scatter plot by</span>
+        <div class="w7t-color-buttons">
+          <button class="w7t-color-btn active" id="w7t-color-community" type="button">Community</button>
+          <button class="w7t-color-btn" id="w7t-color-topic" type="button">Topic</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="w7t-cards" id="w7t-cards"></div>
+
+    <div class="w7t-detail" id="w7t-detail">
+      <p class="w7t-hint">Click a topic card above to see its villains and divergent pairs.</p>
+    </div>
+
+    <div class="w7t-scatter-wrap">
+      <svg id="w7t-scatter" role="img"
+           aria-label="Scatter plot of 370 Marvel supervillains in PCA embedding space"></svg>
+    </div>
+
+    <div class="w7t-two-col">
+      <div>
+        <h4 class="w7t-section-title">Villains in topic</h4>
+        <div id="w7t-villain-list"></div>
+      </div>
+      <div>
+        <h4 class="w7t-section-title">Divergent pairs within topic</h4>
+        <div id="w7t-pair-list"></div>
+      </div>
+    </div>
+
+    <div class="w7t-excerpt-grid" id="w7t-excerpt"></div>
+  </div>
+</article>
+
+<article class="post wide" id="how">
+  <div class="section-head">
+    <h2>How it works</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    Each villain's Wikipedia page is turned into a <strong>TF-IDF vector</strong>
+    (5,000 features, unigrams and bigrams, stop words and common name fragments
+    removed). <strong>NMF</strong> (Non-negative Matrix Factorization) then
+    decomposes the document-term matrix into 10 topics — each topic is a
+    weighted list of words, and each document is a weighted mixture of topics.
+    A villain's <em>dominant topic</em> is the one with the highest weight.
+  </p>
+  <p>
+    This is a different lens from the <a href="week-7.html">divergence
+    explorer</a>: topics group villains by <em>shared vocabulary</em> (what
+    their pages literally say), while the MiniLM embeddings group them by
+    <em>semantic similarity</em> (what their pages mean). The two often agree
+    — the Spider-Man topic and the Spider-Man semantic neighborhood overlap —
+    but not always.
+  </p>
+</article>
+
+<article class="post wide" id="cross">
+  <div class="section-head">
+    <h2>The cross-lens: divergent pairs within a topic</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top">&uarr;</a>
+  </div>
+  <p>
+    The most interesting pairs are where <strong>all three lenses agree on
+    meaning but disagree on structure</strong>: two villains in the same topic
+    (similar vocabulary), semantically close (high MiniLM cosine), but
+    structurally far (long or no path in the hyperlink network). These are
+    characters whose pages talk about the same things, read as similar to a
+    language model — yet Wikipedia's editors never connected them.
+  </p>
+  <p>
+    Click a topic card, then look at the <em>divergent pairs within topic</em>
+    list. For example, the X-Men/mutant topic contains
+    <strong>Blood Spider ↔ Spider-Woman</strong> (cos 0.69, path 3) — both
+    mutant-era Spider-characters whose pages share vocabulary about clones,
+    costumes, and the Spider-verse, yet neither page links to the other.
+  </p>
+  <div class="callout">
+    <strong>Why does this happen?</strong> Topic models group by word overlap;
+    the hyperlink network groups by editorial choice. A page about a 1990s
+    Spider-clone and the Spider-Woman disambiguation page share words like
+    <em>spider, costume, clone, Marvel</em> — but the Wikipedia editor who wrote
+    one didn't think to link to the other. The gap between topic and structure
+    is a map of missed connections.
+  </div>
+</article>
+
+<article class="post">
+  <a class="back-link" href="week-7.html">&larr; Back to the divergence explorer</a>
+  <a class="back-link" href="../index.html" style="margin-left: 20px;">&larr; Back to all weeks</a>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for DTU course 02805, Social Graphs and Interactions · data from
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics supervillains</a>
+  </div>
+</footer>
+
+<script src="week7-topics.js"></script>
+</body>
+</html>
