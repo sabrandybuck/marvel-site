@@ -67,7 +67,7 @@ invalidation, graph-only safeguard, determinism); see the table below. The all-p
 `sentence-transformers` for the real similarities (`pip install sentence-transformers`); its outputs
 are in `data/week7/` (`week7_embeddings.npz` is the page-vector cache, reused while the model, passage
 setting and page texts are unchanged). `--graph-only` refuses to overwrite a full run unless
-`--force-overwrite-full`. The post discusses five featured pairs plus three extra candidates from the full table; it has no interactive explorable yet.
+`--force-overwrite-full`. The post now opens with an interactive explorer (`posts/week7-explore.js`, data `data/week7/week7_explore.json`, built by `analysis/build_week7_explore.py`): a PCA map of the page embeddings beside the directed link network, coordinated by selection, plus a cross-tab of 12 Ward embedding clusters against 12 Louvain communities (323-page giant component). The detailed notes on the five featured pairs remain in a collapsible section.
 
 **Week 8** (`posts/week-8.html`) — placeholder only; not implemented.
 
@@ -107,6 +107,7 @@ The Week 2 datasets were crawled from Wikipedia with `crawler/`, not taken from 
 | `fetch_week7_pages.py` (site `.venv` not needed) | `data/Marvel_Comics_supervillains/` nodes TSV | `data/Marvel_Comics_supervillains/pages/*.txt` + manifest; Wikipedia extracts API (stdlib, uses the sibling `marvel-crawler` client) |
 | `build_week7_test.py` | supervillains TSVs + `pages/` | `data/week7/week7_supervillains.json` | sentence-transformers, scikit-learn, networkx |
 | `build_week7_pairs.py` | supervillains TSVs + `pages/` (+ cached embeddings) | `data/week7/week7_characters.json` (always), `week7_embeddings.npz`, `week7_pairs.tsv`, `week7_pair_summaries.json` (need embeddings; `--graph-only` skips them) | numpy, scipy; sentence-transformers only when no valid embedding cache exists |
+| `build_week7_explore.py` | `data/week7/` embeddings, pairs, characters, supervillains JSON (read-only) | `data/week7/week7_explore.json` | numpy, scipy, scikit-learn, networkx |
 | `check_week7_distances.py` | `data/week7/` outputs | stdout checks, exit status | networkx |
 | `test_week7_pairs.py` | synthetic vectors in temp dirs | unittest results (never writes `data/`) | numpy, scipy, networkx |
 
