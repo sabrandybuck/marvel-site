@@ -4,3 +4,5 @@ __pycache__/
 Thumbs.db
 .venv/
 data/week7_cache/
+data/week7/*.tmp
+data/week7/*.bak

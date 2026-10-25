@@ -1,10 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 7 — The Web of Heroes</title>
-<link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 7: semantically close, structurally far — The Web of Heroes</title>
+  <meta name="description" content="Marvel supervillain pages whose text embeddings are close but whose Wikipedia link-network distance is large: an interactive comparison of embedding clusters and network communities.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .table-scroll { overflow-x: auto; margin: 0 0 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-elevated); }
+    .pair-table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+    .pair-table caption { text-align: left; padding: 10px 16px 0; }
+    .pair-table th, .pair-table td { text-align: left; vertical-align: middle; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+    .pair-table thead th { font-size: 0.74em; text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim); font-weight: 600; vertical-align: bottom; }
+    .pair-table tbody th { font-weight: 600; color: var(--text); }
+    .pair-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+    .pair-table tbody tr:hover { background: var(--accent-soft); }
+    .pair-table tbody tr:last-child > * { border-bottom: 0; }
+    .pair-table .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pair-table td.none { color: var(--text-dim); font-style: italic; }
+    .pair-table td:nth-child(2) { font-weight: 600; }
+    @media (max-width: 640px) {
+      .pair-scroll { overflow-x: visible; }
+      .pair-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .pair-table, .pair-table tbody, .pair-table tr, .pair-table th, .pair-table td, .pair-table caption { display: block; width: auto; }
+      .pair-table tbody tr { padding: 8px 0; border-bottom: 1px solid var(--line); }
+      .pair-table tbody tr:last-child { border-bottom: 0; }
+      .pair-table th, .pair-table td { border: 0; padding: 4px 14px; }
+      .pair-table tbody th { font-size: 1.05em; padding-top: 8px; }
+      .pair-table td { display: flex; justify-content: space-between; gap: 12px; text-align: right; }
+      .pair-table td.none::before { font-style: normal; }
+      .pair-table td::before { content: attr(data-label); color: var(--text-dim); font-family: var(--font); font-size: 0.82em; text-align: left; }
+    }
+    .pair { margin: 0 0 26px; }
+    .pair h3 { margin-bottom: 6px; }
+    .w7-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
+    .w7-controls select, .w7-controls input { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; font-size: 0.9em; }
+    .w7-controls input { min-width: 0; flex: 1 1 190px; max-width: 100%; }
+    .w7-controls select { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+    .w7-maps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    .w7-map-title { font-weight: 600; margin: 0 0 2px; }
+    .w7-map-sub { color: var(--text-dim); font-size: 0.82em; margin: 0 0 8px; min-height: 2.6em; }
+    .w7-legend { display: grid; gap: 2px; margin-top: 8px; max-height: 240px; overflow-y: auto; }
+    .w7-leg-row { display: grid; grid-template-columns: 14px 28px 62px 1fr; gap: 6px; align-items: center; text-align: left; background: none; border: 1px solid transparent; border-radius: 6px; color: var(--text); font: inherit; font-size: 0.78em; padding: 2px 4px; cursor: pointer; }
+    .w7-leg-row:hover { border-color: var(--line); }
+    .w7-leg-row.active { border-color: var(--accent); background: var(--accent-soft); }
+    .w7-leg-sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .w7-leg-id { font-weight: 600; } .w7-leg-n { color: var(--text-dim); }
+    .w7-leg-reps { color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #w7-evidence { margin-top: 18px; padding: 16px 18px; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: var(--radius); }
+    #w7-evidence h3 { margin: 0 0 10px; }
+    .w7-hint { color: var(--text-dim); margin: 0 0 10px; }
+    .w7-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+    .w7-stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+    .w7-stat-l { font-size: 0.72em; text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim); }
+    .w7-stat-v { font-size: 1.25em; font-weight: 600; margin: 2px 0; }
+    .w7-stat-s { font-size: 0.74em; color: var(--text-dim); line-height: 1.35; }
+    .w7-paths p { margin: 4px 0; font-size: 0.88em; }
+    .w7-pathkey { display: inline-block; font-weight: 600; padding: 0 7px; border-radius: 5px; border: 1px solid var(--line); margin-right: 4px; }
+    .w7-pathkey.ab { color: #fff; } .w7-pathkey.ba { color: #e0a020; }
+    .w7-why { margin: 10px 0 0; font-size: 0.92em; }
+    .w7-source { margin: 0 0 10px; font-size: 0.8em; color: var(--text-dim); }
+    .w7-controls label { margin-right: -2px; }
+    .w7-field { display: flex; align-items: center; gap: 8px; flex: 1 1 260px; min-width: 0; }
+    .w7-field label { font-weight: 600; font-size: 0.85em; white-space: nowrap; margin-right: 0; }
+    .w7-field input { flex: 1 1 auto; }
+    .w7-controls input[aria-invalid="true"] { border-color: var(--accent); }
+    .w7-case { cursor: pointer; }
+    .w7-controls .w7-clear { margin-left: auto; }
+    #w7-more { width: 340px; } #w7-agree-sel { width: 280px; }   /* fixed widths so Clear fits on the same line at desktop width; the lists still show full option text */
+    .w7-reading { margin-top: 10px; padding: 10px 12px; border-left: 3px solid var(--accent-3); background: rgba(224,160,32,.07); font-size: 0.9em; }
+    .w7-table { width: 100%; border-collapse: collapse; font-size: 0.86em; }
+    .w7-table th, .w7-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+    .w7-table tr.w7-click { cursor: pointer; } .w7-table tr.w7-click:hover { background: var(--accent-soft); }
+    .w7-case.active { border-color: var(--accent); background: var(--accent-soft); }
+    table.w7-cross { border-collapse: collapse; font-size: 0.8em; margin: 8px 0; }
+    table.w7-cross th, table.w7-cross td { padding: 4px 7px; text-align: center; min-width: 34px; border: 1px solid var(--line); }
+    table.w7-cross th.corner { font-size: 0.85em; color: var(--text-dim); font-weight: 400; min-width: 120px; }
+    table.w7-cross td.tot { color: var(--text-dim); }
+    td.w7-cell.active { outline: 2px solid var(--accent); outline-offset: -2px; }
+    details.w7-more > summary { cursor: pointer; font-weight: 600; margin: 12px 0; }
+    .w7-notes { font-size: 0.86em; color: var(--text-dim); }
+    @media (max-width: 760px) { .w7-maps { grid-template-columns: 1fr; } .w7-stats { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
 
@@ -22,19 +99,453 @@
 </header>
 
 <main class="wrap">
-<article class="post">
+<article class="post wide">
 
-  <div class="post-meta">Week 7</div>
-  <h1>Coming soon</h1>
-  <p class="subtitle">This week's post hasn't been written yet.</p>
+  <div class="post-meta">Week 7 · Text embeddings vs. the link network</div>
+  <h1>Who is semantically close but structurally far away?</h1>
+  <p class="subtitle">
+    We embed the Wikipedia text of 370 Marvel supervillains, find pages that read almost alike, and check
+    how many links it takes to get from one to the other in the collected link network. Then we ask a second question:
+    how much does the way we <em>group</em> characters change the story? Explore both below.
+  </p>
 
-  <div class="callout">
-    🚧 <strong>Under construction.</strong> Copy <code>posts/week-1-marvel-network.html</code> as a
-    starting template (same header/footer/CSS classes), fill in what you asked, what you did, a
-    figure or two, and what surprised you, then swap this card's link on the home page.
+  <nav class="week2-quicknav" id="top" aria-label="Section quick links">
+    <a href="#intro">Two kinds of close</a>
+    <a href="#findings">Distant twins</a>
+    <a href="#explore">Two maps</a>
+    <a href="#grouping">Two groupings</a>
+    <a href="#method">Two rulers</a>
+    <a href="#interpretation">Why the gap?</a>
+    <a href="#limitations">Limits</a>
+    <a href="#conclusion">The answer</a>
+    <a href="#sources">Sources</a>
+  </nav>
+
+</article>
+
+<article class="post wide" id="intro">
+
+  <div class="section-head">
+    <h2>Two kinds of &ldquo;close&rdquo;</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    A Wikipedia page can be close to another page in two different ways. It can be close in
+    <strong>text</strong>: the two articles talk about similar things, in similar words. Or it can
+    be close in the <strong>link network</strong>: one article links to the other, or both link to
+    the same neighbours, so a reader can click from one to the other in a few steps.
+  </p>
+  <p>
+    These two notions usually agree, but not always. Links are chosen by human editors, one article
+    at a time, and an editor only links what they happen to think of. Text embeddings, on the other
+    hand, only see the words. This week we look for the disagreements: pairs of supervillains that
+    read as near-twins but that the link network keeps many links apart. A second question follows from that:
+    if we sort the characters into <em>groups</em>, once by text (embedding clusters) and once by links (network communities),
+    do the groups agree, and where they do not, what is going on?
+  </p>
+
+</article>
+
+<article class="post wide" id="findings">
+
+  <div class="section-head">
+    <h2>Five pairs</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
   </div>
 
+  <div class="table-scroll pair-scroll">
+  <table class="pair-table">
+    <caption class="w7-notes">Five featured pairs, ordered by cosine. A is the page named first.</caption>
+    <thead>
+      <tr><th scope="col">Pair (A &ndash; B)</th><th scope="col" class="num">Cosine</th><th scope="col">Rank of the other in each list</th><th scope="col" class="num">Directed distance A&nbsp;&rarr;&nbsp;B</th><th scope="col" class="num">Directed distance B&nbsp;&rarr;&nbsp;A</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row" data-label="Pair">Firebrand &ndash; Firepower</th><td class="num" data-label="Cosine">0.7285</td><td data-label="Rank of the other in each list">#1 and #2</td><td class="num" data-label="Distance A &rarr; B">7</td><td class="num none" data-label="Distance B &rarr; A">no path</td></tr>
+      <tr><th scope="row" data-label="Pair">Doom 2099 &ndash; Kristoff Vernard</th><td class="num" data-label="Cosine">0.7217</td><td data-label="Rank of the other in each list">#1 and #1</td><td class="num none" data-label="Distance A &rarr; B">no path</td><td class="num" data-label="Distance B &rarr; A">6</td></tr>
+      <tr><th scope="row" data-label="Pair">Masked Marauder &ndash; Gentleman</th><td class="num" data-label="Cosine">0.6690</td><td data-label="Rank of the other in each list">#2 and #1</td><td class="num" data-label="Distance A &rarr; B">6</td><td class="num" data-label="Distance B &rarr; A">6</td></tr>
+      <tr><th scope="row" data-label="Pair">Gorgon (Inhuman) &ndash; Lady Gorgon</th><td class="num" data-label="Cosine">0.6693</td><td data-label="Rank of the other in each list">#1 and #1</td><td class="num none" data-label="Distance A &rarr; B">no path</td><td class="num" data-label="Distance B &rarr; A">7</td></tr>
+      <tr><th scope="row" data-label="Pair">Condor &ndash; Flying Tiger</th><td class="num" data-label="Cosine">0.6629</td><td data-label="Rank of the other in each list">#1 and #2</td><td class="num none" data-label="Distance A &rarr; B">no path</td><td class="num" data-label="Distance B &rarr; A">6</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <details class="w7-more"><summary>Full notes on the five featured pairs</summary>
+  <p>
+    A is the page named first in each row (the table is ordered by cosine). For scale, the median cosine between a villain and its nearest
+    neighbour is 0.636, so these scores are somewhat above typical; what is unusual is the combination with a
+    long directed path. &ldquo;No path&rdquo; here means no chain of links in that direction (there is a path the
+    other way, so the pair is connected). In the giant component the average undirected distance is 3.55 links.
+  </p>
+
+  <div class="pair">
+    <h3>1. Firebrand and Firepower: Iron Man villains with shared alias pages</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Firebrand_(Marvel_Comics)" target="_blank" rel="noopener">Firebrand</a> and
+      <a href="https://en.wikipedia.org/wiki/Firepower_(comics)" target="_blank" rel="noopener">Firepower</a>
+      are both alias pages shared by several characters (&ldquo;the name of several supervillains&rdquo; and &ldquo;an alias
+      used by two supervillains&rdquo;), and the first character of each fights Iron Man. Firebrand&rsquo;s Gary Gilbert is an
+      enforcer for the industrialist Justin Hammer who first appears in <em>Iron Man</em> #27; Firepower&rsquo;s Jack Taggert
+      wears an experimental armour built to stop Iron Man during the &ldquo;Armor Wars&rdquo;, and the second Firepower&rsquo;s armour is
+      disabled by a War Machine EMP blast. Both pages are also about villains who fight Iron Man for powerful backers (Hammer;
+      Edwin Cord, who blackmails the military); Iron Man is mentioned 13 and 15 times, and the pages share uncommon words such as &ldquo;Extremis&rdquo; and &ldquo;Stane&rdquo;.
+      A directed path exists only from Firebrand to Firepower. The shortest have 7 links and there are five of them; one is:
+      Firebrand &rarr; Flying Tiger &rarr; Tiger Shark &rarr; Attuma &rarr; Orka &rarr; Iron Monger &rarr; Guardsman &rarr; Firepower.
+      Only one page in the collected graph, Guardsman, links to Firepower, so every path to Firepower ends with Guardsman.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>2. Doom 2099 and Kristoff Vernard: two rulers of Latveria in Doctor Doom&rsquo;s role</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Doom_2099" target="_blank" rel="noopener">Doom 2099</a> is
+      a future version of Victor von Doom who retakes Latveria and becomes its monarch again.
+      <a href="https://en.wikipedia.org/wiki/Kristoff_Vernard" target="_blank" rel="noopener">Kristoff Vernard</a>
+      is Doom&rsquo;s adopted son and heir, &ldquo;formerly known as Kristoff von Doom and Dr. Doom&rdquo;,
+      who rules Latveria in Doom&rsquo;s absence. Both pages are, in effect, about someone in Doctor
+      Doom&rsquo;s role ruling Latveria. The category does not contain Doctor Doom himself, so any route
+      through his page is not in the graph. A directed path exists only from Vernard to Doom&nbsp;2099. The shortest have 6 links and there are two of them; one is:
+      Vernard &rarr; Nathaniel Richards &rarr; Maker &rarr; Molecule Man &rarr; Super-Adaptoid &rarr; Phalanx &rarr; Doom&nbsp;2099.
+      Only one page in the collected graph, Phalanx, links to Doom&nbsp;2099, and there is no directed path from Doom&nbsp;2099 back to Vernard.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>3. Masked Marauder and Gentleman: crime bosses who stage plots against Spider-Man</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Masked_Marauder" target="_blank" rel="noopener">Masked Marauder</a> is an
+      already successful crime leader &ldquo;with men, money, and resources at his command&rdquo;, first noticed in a
+      confrontation with Spider-Man, and who briefly becomes the central villain of <em>Daredevil</em>. He has his men
+      impersonate Daredevil to set the two heroes against each other and later tries to take over the Maggia.
+      <a href="https://en.wikipedia.org/wiki/Gentleman_(character)" target="_blank" rel="noopener">The Gentleman</a>
+      is an underworld mastermind &ldquo;known for conducting elaborate plans to increase his own wealth&rdquo;
+      who has the Chameleon recruit the Sinister Six for a &ldquo;Day of Terror&rdquo; against Spider-Man.
+      In our reading, the shared pattern is an underworld schemer who uses other villains
+      in elaborate, many-step plans against Spider-Man. This is the only pair with a finite directed path
+      both ways, 6 links each (two shortest paths one way and three the other; one of each is given): from Masked Marauder via Gladiator (Melvin Potter), Mister Fear, Eel, Black Cat and Lizard; from
+      Gentleman via Mysterio, Black Cat, Lizard, Mister Hyde and Gladiator. The two characters come from different periods
+      (the Marauder from 1966 comics, the Gentleman from novels and then a 2016 comic), which fits their separate neighbourhoods.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>4. Gorgon and Lady Gorgon: possibly a shared name</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Gorgon_(Inhuman)" target="_blank" rel="noopener">Gorgon</a> is
+      Gorgon Petragon of the Inhumans&rsquo; Royal Family, with hooves that produce seismic waves and a role as
+      Black Bolt&rsquo;s bodyguard.
+      <a href="https://en.wikipedia.org/wiki/Lady_Gorgon" target="_blank" rel="noopener">Lady Gorgon</a> (Tanya Adrian) is
+      a jōnin of the Hand and an enemy of the Punisher who uses telepathy. After reading both pages we could not find much that they share beyond the
+      name and a general &ldquo;Marvel character biography&rdquo; layout (apart from the name, the two pages share no word that occurs in fewer than 16 of the 370 pages), so we read this match as possibly a
+      name effect, which we have not tested. The graph keeps them far apart: a directed path exists only from Lady Gorgon. The shortest have 7 links and there are two of them;
+      one runs through Rampage, Wrecker, Hulk, Leader, Super-Skrull and Quicksilver to Gorgon.
+    </p>
+  </div>
+
+  <div class="pair">
+    <h3>5. Condor and Flying Tiger: flying villains from different corners</h3>
+    <p>
+      <a href="https://en.wikipedia.org/wiki/Condor_(comics)" target="_blank" rel="noopener">Condor</a> is a
+      winged criminal from the Bird People and an enemy of Nova;
+      <a href="https://en.wikipedia.org/wiki/Flying_Tiger_(Marvel_Comics)" target="_blank" rel="noopener">Flying Tiger</a>
+      is a former football player whose costume lets him fly, a mercenary who fights Spider-Woman and Iron Man.
+      Both are flying criminals with short pages (486 and 462 words), and both end up on
+      the villain side of Helmut Zemo&rsquo;s plots: Condor joins the villains attacking S.H.I.E.L.D. after
+      Zemo restores his memory, Flying Tiger joins Zemo&rsquo;s New Masters. Condor links to Blastaar, Diamondhead,
+      Powerhouse, Red Raven and Sphinx (and is linked from Diamondhead and Powerhouse); Flying Tiger links to Eel, Firebrand and Tiger Shark
+      (and is linked from Firebrand and Locksmith). The two pages do not link to each other and no page links to or from both of them. Both pages also mention Zemo and Jack Flag, but neither mentions the other character.
+      A directed path exists only from Flying Tiger. The shortest have 6 links and there are two of them; one goes through Tiger Shark, Egghead, Puppet Master, Sphinx and Diamondhead to Condor.
+    </p>
+  </div>
+
+  </details>
+
+</article>
+
+<article class="post wide" id="explore">
+
+  <div class="section-head">
+    <h2>Two maps of the same 370 pages</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    The left map places pages by what they <em>say</em>; the right map places them by what they <em>link to</em>. Choose one of the
+    five featured pairs below and watch where the two characters land in each map, how similar their
+    texts are, and how the shortest directed link path between them runs. You can also pick a further disagreement
+    (or a pair where both measures agree) from the dropdowns, type into the Character A and Character B boxes to
+    choose either character independently, or click dots in either map (the first dot fills an empty box, a second compares).
+    Clear resets the whole explorer to its starting state.
+  </p>
+
+  <div class="w7-controls" id="w7-chips" role="group" aria-label="Featured pairs"></div>
+  <div class="w7-controls">
+    <select id="w7-more" aria-label="More disagreements"><option value="">More disagreements&hellip;</option></select>
+    <select id="w7-agree-sel" aria-label="Agreements for contrast"><option value="">Pairs where both agree&hellip;</option><optgroup label="Same cluster, same community, close" id="w7-agree"></optgroup></select>
+    <button type="button" class="btn w7-clear" id="w7-clear" aria-label="Clear highlights and return to the first featured pair">Clear</button>
+  </div>
+  <div class="w7-controls" role="group" aria-label="Choose the two characters">
+    <div class="w7-field"><label for="w7-char-a">Character A</label><input id="w7-char-a" list="w7-names" placeholder="Search character A&hellip;" autocomplete="off"></div>
+    <div class="w7-field"><label for="w7-char-b">Character B</label><input id="w7-char-b" list="w7-names" placeholder="Search character B&hellip;" autocomplete="off"></div>
+    <datalist id="w7-names"></datalist>
+  </div>
+  <p class="w7-notes" id="w7-char-status" aria-live="polite"></p>
+  <div class="w7-controls">
+    <label for="w7-colour" class="w7-notes">Colouring</label>
+    <select id="w7-colour">
+      <option value="own">Each map by its own grouping</option>
+      <option value="cluster">Both by embedding cluster</option>
+      <option value="comm">Both by network community</option>
+    </select>
+  </div>
+  <p class="w7-notes" id="w7-colour-note"></p>
+
+  <div class="w7-maps">
+    <div>
+      <p class="w7-map-title">A &middot; Text: PCA of the page embeddings</p>
+      <p class="w7-map-sub">Colour = embedding cluster (E1&ndash;E12). Dots close on the map are <em>not necessarily</em> close in embedding space (see below).</p>
+      <div id="w7-map-a"></div>
+      <div class="w7-legend" id="w7-legend-a"></div>
+    </div>
+    <div>
+      <p class="w7-map-title">B &middot; Links: the directed hyperlink network</p>
+      <p class="w7-map-sub">Colour = network community (N1&ndash;N12). Lines are links between the 370 collected pages; grey dots have no community.</p>
+      <div id="w7-map-b"></div>
+      <div class="w7-legend" id="w7-legend-b"></div>
+    </div>
+  </div>
+  <p class="w7-notes" id="w7-group-status" aria-live="polite"></p>
+
+  <div id="w7-evidence" aria-live="polite"></div>
+
+  <p class="w7-notes" style="margin-top:14px">
+    <strong>How to read the maps.</strong> The embedding of each page has 384 numbers; the left map keeps only two directions
+    (PCA), which together carry just 7.9% of the variation between pages (4.5% and 3.4%). Across all pairs, the order of projected distances matches
+    the order of true cosines only weakly (Spearman 0.26), and of a page&rsquo;s ten most similar pages, on average only about one is also among its ten nearest dots.
+    Condor and Flying Tiger, for example, sit at the 62nd percentile of map distances. So use the left map for orientation,
+    and trust the <em>cosine</em> and the <em>cluster membership</em>, which are computed in the full space, rather than the distance between dots.
+    The right map is a force-directed drawing whose distances are not link counts either; the highlighted path is the actual shortest directed path.
+    Arrows follow link direction (white A&nbsp;&rarr;&nbsp;B, amber B&nbsp;&rarr;&nbsp;A, where A is Character A and B is Character B), and only links between the 370 collected pages exist. When several shortest paths have the same length the explorer draws one of them, so it can differ from the path named in the long notes above.
+  </p>
+
+</article>
+
+<article class="post wide" id="grouping">
+
+  <div class="section-head">
+    <h2>How much does the grouping method change the story?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    We sorted the pages into twelve <strong>embedding clusters</strong> (E1&ndash;E12, Ward clustering of the page vectors) and into twelve
+    <strong>network communities</strong> (N1&ndash;N12, Louvain on the link graph, for the 323 pages of the giant component).
+    Each cell below counts the pages that sit in both. Click a cell to light those pages up in both maps.
+  </p>
+  <div class="table-scroll"><div id="w7-cross"></div></div>
+  <p class="w7-notes" id="w7-cell-list"></p>
+
+  <h3>What the two groupings share, and where they part</h3>
+  <ul class="takeaways">
+    <li><strong>Some groups are the same in both worlds.</strong> The nine Zodiac pages (Aries, Taurus&hellip;) form embedding cluster E11 and all sit in community N7;
+      27 of the 47 pages of E3 (Venom, Hobgoblin, Lizard, Mysterio&hellip;) are in N1; 24 of the 32 giant-component pages of E4 (Mister Sinister, Sabretooth, Emma Frost&hellip;) are in N2. Text and links
+      agree where a franchise forms a tight, mutually linked group.</li>
+    <li><strong>Overall the agreement is weak but not zero.</strong> The adjusted Rand index between the two groupings of the 323 pages is 0.13 (normalised mutual information 0.29), against 0.00 on average
+      (at most 0.02 in 500 trials) when the labels are shuffled. With 8 to 20 embedding clusters the index stays between 0.10 and 0.15. Matching each community to its best embedding cluster covers 43% of pages, and each cluster to its best community 41%.</li>
+    <li><strong>Several embedding clusters are scattered over the network.</strong> E1 and E2 (60 and 62 pages) are spread over all twelve communities, with at most 14 and 12 pages in any one.
+      We have not examined why; E2&rsquo;s centre-most pages include the two very long pages Naga and Tundra, so page length may play a part.</li>
+    <li><strong>High cosine does not mean the same cluster, and the same cluster does not mean the same community.</strong> Of the 674 pairs with cosine &ge; 0.60 (both pages in the giant component, the three very long pages left out),
+      490 are in the same embedding cluster and 184 are not; 315 are in the same network community. The 674 split as 257 same cluster &amp; same community, 233 same cluster &amp; different communities,
+      58 different clusters &amp; same community, and 126 different on both.</li>
+    <li><strong>Where the two methods disagree most.</strong> All five featured pairs sit in the same embedding cluster but in different network communities (Firebrand&ndash;Firepower: E7, N6 and N5; Doom&nbsp;2099&ndash;Vernard: E2, N10 and N12; Masked Marauder&ndash;Gentleman: E3, N6 and N1; Gorgon&ndash;Lady Gorgon: E9, N7 and N5; Condor&ndash;Flying Tiger: E9, N11 and N8), and each has a shortest directed path of 6&ndash;7 links.
+      Only 34 of the 233 same-cluster, different-community pairs also have a shortest path of 5 or more links in either direction, so these are the extreme end of the disagreement, not typical of it.</li>
+  </ul>
+  <p>
+    These are different quantities. Cosine is a pairwise score; a cluster is a partition of the embedding space that depends on the method and on how many clusters we ask for;
+    shortest-path distance is a count of directed links; a community is a partition of the <em>undirected</em> link graph. Louvain can place two pages that are a few links apart in different
+    communities, and two pages in one community can be many links apart.
+  </p>
+
+</article>
+
+<article class="post wide" id="method">
+
+  <div class="section-head">
+    <h2>Data and method</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    <strong>Pages.</strong> We use the 370 pages of Wikipedia&rsquo;s
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Category:Marvel Comics supervillains</a>
+    (crawled 2026-09-13 with <code>crawler/</code>). The plain text of each page was fetched from
+    Wikipedia&rsquo;s extracts API by <code>analysis/fetch_week7_pages.py</code>: 370 of 370 pages,
+    about 522,000 words in total, median page 795 words.
+  </p>
+
+  <h3>Semantic similarity</h3>
+  <p>
+    Everything here is done by <code>analysis/build_week7_test.py</code>, and this is what the code does:
+  </p>
+  <ol class="takeaways">
+    <li>Each page&rsquo;s text is cut into <strong>passages</strong> of at most 180 words, breaking only at sentence ends (a very long single sentence stays whole). The 370 pages give 3,281 passages.</li>
+    <li>Every passage is embedded separately with the frozen <code>all-MiniLM-L6-v2</code> sentence model, with the vectors normalised to length 1. The model reads at most 256 word-pieces (<code>max_seq_length</code> is 256 in the stored metadata), so a passage that is longer than that is truncated.</li>
+    <li>The <strong>page vector</strong> is the plain average of the page&rsquo;s passage vectors, divided by its own length so that it again has length 1.</li>
+    <li>The similarity of two pages is the <strong>cosine similarity</strong> of their page vectors, which for unit vectors is just their dot product.</li>
+  </ol>
+  <p>
+    <code>analysis/build_week7_pairs.py</code> runs exactly this procedure for all 370 pages and takes the
+    dot product of every pair of page vectors, giving 68,265 cosines (one per unordered pair, in
+    <code>data/week7/week7_pairs.tsv</code>). The earlier file <code>data/week7/week7_supervillains.json</code>
+    kept only each page&rsquo;s 12 nearest neighbours; the new cosines agree with those stored scores to within
+    their three-decimal rounding (4,440 scores compared, largest difference 0.0005). The cosines in the table above are the
+    four-decimal values from the pair table.
+  </p>
+
+  <h3>Structural distance</h3>
+  <p>
+    The link network comes from the same crawl. It is a <strong>directed graph</strong> with 370 nodes and
+    1,136 edges: an edge A&nbsp;&rarr;&nbsp;B means the article of A links to the article of B.
+    <strong>Only links between two of these 370 category pages are in the data.</strong> A
+    &ldquo;path&rdquo; therefore means a chain of links that stays inside this collected
+    graph; it says nothing about how close two pages are in the whole of Wikipedia, where a
+    link to a hero, a god or a team page could shorten the route a lot. The &ldquo;distance&rdquo; in this report is the number
+    of links followed on the shortest <em>directed</em> path from A to B, and we give it for both directions
+    because the graph is not symmetric.
+  </p>
+  <p>
+    We only feature pairs where a directed path exists in the collected graph (in at least one direction).
+    Of the 68,265 pairs of pages, 18,561 have a directed path in both directions and 24,781 in one direction only
+    (13,324 from the page whose identifier sorts first to the other, 11,457 the other way round); the remaining 24,923 have no
+    directed path in either direction and are left out of the featured examples entirely. The graph has 46 weakly connected components: one giant component with
+    323 villains, two pairs and 43 villains with no link in or out.
+  </p>
+
+  <h3>Grouping the pages</h3>
+  <p>
+    Both groupings are computed by <code>analysis/build_week7_explore.py</code> from the stored page vectors and edge list (it does not recompute the embeddings).
+  </p>
+  <ul class="takeaways">
+    <li><strong>Embedding clusters.</strong> Ward agglomerative clustering (scikit-learn) of the 370 unit page vectors in the full 384 dimensions, not of the 2D map. It is deterministic, so there is no random seed.
+      The number of clusters, 12, is not discovered from the data: it is set equal to the number of network communities so the two partitions are comparable, and it is a choice. The pages are not
+      sharply separated (a silhouette check with k-means gave about 0.03 at several values of k), so the clusters are soft groupings.</li>
+    <li><strong>Network communities.</strong> Louvain (networkx, seed 42) on the <em>undirected</em> version of the link graph, so link direction is ignored for grouping.
+      Only the 323 pages of the giant weak component get a community (12 communities, modularity 0.52); the other 47 pages are in components of one or two pages and have none.
+      Louvain depends on its random seed and node order: the community labels stored earlier in <code>week7_supervillains.json</code> (from <code>build_week7_test.py</code>) differ from a rerun with the current libraries, so this page uses the labels in
+      <code>data/week7/week7_explore.json</code> only.</li>
+    <li><strong>Agreement.</strong> Adjusted Rand index and normalised mutual information between the two partitions of the 323 shared pages, with a permutation null (500 shuffles of the cluster labels).</li>
+    <li><strong>Maps.</strong> Left: the first two principal components of the page vectors. Right: <code>networkx.spring_layout</code> of the giant component (seed 42); the 47 other pages are placed in a side strip.</li>
+  </ul>
+
+  <h3>Choosing the pairs</h3>
+  <p>
+    From all 68,265 pairs we kept those with a cosine of at least 0.60 and a shortest directed path of at least 5
+    links (for a pair with a path in both directions the shorter of the two distances must be at least 5, so both are; for a pair with a path in one direction only that distance must be at least 5; a pair with no path is excluded), and left out three very long pages (&ldquo;Naga (Marvel Comics)&rdquo;, &ldquo;Tundra (Marvel Comics)&rdquo; and
+    &ldquo;Shepard (comics)&rdquo;, with 6,503, 18,047 and 8,697 words) that sit near many other pages (they account for 79 of the 128 pairs that
+    otherwise pass). That leaves 49 pairs: 16 with a path in both directions and 33 in one direction only. The five pairs above
+    were chosen from the seven with a cosine of at least 0.66, after reading the pages. Masked Marauder&ndash;Mysterio
+    (0.678, 5 links each way) is not featured because
+    Mysterio&rsquo;s page is long (7,543 words) and we only read its opening, and
+    Power Broker&ndash;Professor Power (0.666, 6 links) is left out because after reading both pages the
+    main thing we could see them sharing is the word &ldquo;Power&rdquo;. So the selection is partly by hand and the order above is not a ranking.
+  </p>
+
+</article>
+
+<article class="post wide" id="interpretation">
+
+  <div class="section-head">
+    <h2>Why would text be close when links are far?</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>The five pairs suggest a few possible mechanisms. What the pages say is stated first; the causes are our reading, not tested explanations. A cosine only says that two pages use similar language, and a missing path only says that the collected links do not connect them in that direction.</p>
+  <ul class="takeaways">
+    <li><strong>Similar role, separate storylines.</strong> Condor and Flying Tiger are both winged or flying criminals with short pages (486 and 462 words; the median page has 795). Condor joins the villains attacking S.H.I.E.L.D. after Helmut Zemo and Fixer restore his memory, and Flying Tiger is listed in Zemo&rsquo;s New Masters (both pages also mention Jack Flag, but neither mentions the other character, and no page links to or from both); Condor is an enemy of Nova and Flying Tiger was hired to kill Spider-Woman and fights Iron Man. Doom&nbsp;2099 (a future Doctor Doom who becomes monarch of Latveria again) and Kristoff Vernard (Doom&rsquo;s adoptive heir, who rules Latveria in Doom&rsquo;s absence) stand in Doom&rsquo;s role in different eras. Masked Marauder and the Gentleman are both crime bosses who plot against Spider-Man, with comic debuts decades apart (1966 and 2016). Links in this graph mostly point to a character that the linking page mentions by name (985 of the 1,136 links, 87%, by a simple name match; for comparison, a page mentions another page&rsquo;s name in only 0.9% of the 135,394 ordered pairs (A, B) with no link from A to B), whereas neither page of any of the five pairs mentions the other by name (Lady Gorgon&rsquo;s page only uses &ldquo;Gorgon&rdquo; for herself). These figures describe an association, not a cause: they do not show that a mention leads to a link. They fit the idea that these pairs have no direct textual connection, but that is a hypothesis about why the links are missing; the data cannot show why an editor did not link two pages.</li>
+    <li><strong>Shared name, alias-page template or franchise.</strong> Gorgon and Lady Gorgon share the word &ldquo;Gorgon&rdquo;, and in our reading of the two pages we found little else in common (an Inhuman royal and a Hand ninja who fights the Punisher; apart from the name, the two pages share no word that occurs in fewer than 16 of the 370 pages), so a name effect is plausible for this pair, though we have not tested it. Firebrand and Firepower do not share a title word (only the beginning &ldquo;Fire-&rdquo;), but both are alias pages for several characters, so a template effect is possible, and both pages mention Iron Man often (13 and 15 times) and share uncommon words such as &ldquo;Extremis&rdquo; and &ldquo;Stane&rdquo;, so their similarity is not only about form. We cannot tell from cosines alone what the embedding is responding to.</li>
+    <li><strong>How strongly do name, franchise, template and length go with high cosines?</strong> These are rough, correlational proxies, not tested causes. All of them
+      are computed over the 67,161 pairs that do not involve Naga (Marvel Comics), Tundra (Marvel Comics) or Shepard (comics) (the 68,265 pairs among all 370 pages minus the 1,104 pairs that involve at least one of those three), and &ldquo;the 712&rdquo; are the pairs among them with a cosine of at least 0.60
+      (whatever their reachability: 455 reachable both ways, 192 one way, 65 not at all).
+      <ul>
+        <li><em>Shared title word.</em> Two characters share one if their names (without any bracketed part) have a word in common other than
+          &ldquo;the, of, and, a, Marvel, comics, character, man, woman&rdquo;, such as &ldquo;Gorgon&rdquo; or &ldquo;Master&rdquo;. 106 pairs do; their mean cosine is 0.577
+          against 0.388 for all other pairs. But only 40 of the 712 high-cosine pairs (about 6%) share a title word, so a shared name accounts for only a small part of the high cosines.</li>
+        <li><em>Shared franchise.</em> A page&rsquo;s &ldquo;franchise&rdquo; is whichever of 17 hero and team names (Spider-Man, Iron Man, Captain America, Thor, Hulk,
+          Daredevil, Fantastic Four, X-Men, Avengers, Punisher, Wolverine, Doctor Strange, Nova, Spider-Woman, Black Panther, Luke Cage, Namor) its text mentions most, if at
+          least 3 times (303 of the 370 pages have one). Both pages share it in 446 of the 712 pairs (63%), but in only 6.9% of all 67,161 pairs, so sharing a franchise goes with high cosines; we did not test whether it causes them.
+          Of the 49 far-but-reachable pairs (high-cosine pairs with a path whose shorter distance is at least 5 links), 11 share a franchise, 28 have different most-mentioned franchises and 10 include a page with no franchise. Of the five featured pairs, four differ in their most-mentioned franchise (some on only 4 or 5 mentions) and Firebrand&ndash;Firepower share Iron Man.</li>
+        <li><em>Alias pages.</em> A page counts as an alias page if its first 500 characters say it is the name or alias of several characters, or of two to five
+          (wording such as &ldquo;the name of several supervillains&rdquo; or &ldquo;an alias used by two supervillains&rdquo;): roughly 70&ndash;90 of the 367 pages (the exact count depends on how the wording is matched; the original matching rule was not saved, and two reconstructions give 72 and 88). Both pages are alias pages
+          in roughly 64&ndash;83 of the 712 pairs (9&ndash;12%) against roughly 4&ndash;6% of all pairs; Firebrand&ndash;Firepower is one of them.</li>
+        <li><em>Page length.</em> The Pearson correlation between the cosine and the logarithm of the word count of the shorter page is 0.29, so pairs of longer pages tend to be more similar (mean cosine 0.37 when the shorter page has under 500 words, 0.40 otherwise). A possible reason is that a page vector is an average over passages, but we have not tested that. It also means that the short pages of Condor and Flying Tiger do not explain their high cosine.</li>
+      </ul></li>
+    <li><strong>Pages missing from the graph.</strong> Both Doom pages discuss Doctor Doom (5 and 12 mentions), who is not one of the 370 pages, so any route through his own page is absent from the collected graph. We did not check whether the two pages actually link to him, because only links between the 370 pages were collected. More generally, only links between the 370 pages count, so a distance reflects how the dataset was cut and which links Wikipedia editors chose to add, not only how the characters relate in the comics.</li>
+    <li><strong>Direction.</strong> In four of the five pairs (all except Masked Marauder&ndash;Gentleman) a path exists in only one direction in the collected graph. A directed path from A to B does not mean that a reader of B can get back to A, so the same pair can look near from one side and unreachable from the other.</li>
+  </ul>
+  <p>
+    What the data supports: each pair has a cosine of 0.66&ndash;0.73 (above the median nearest-neighbour cosine of 0.64, but not extreme) and a shortest directed path of 6&ndash;7 links in the collected graph in each direction where one exists (none in the other direction for four of the pairs); and, in our reading, the page texts
+    have shared elements (except the Gorgon pair, where we found little beyond the name). What it does not support: that links
+    <em>should</em> exist between these pages, or that the characters are unrelated because no short path was collected. Editors may have good reasons to leave out a link, and a link is not a statement of similarity.
+  </p>
+
+</article>
+
+<article class="post wide" id="limitations">
+
+  <div class="section-head">
+    <h2>Limitations</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <ul class="takeaways">
+    <li><strong>The model.</strong> MiniLM reads at most 256 word-pieces per passage, and a page vector is a plain average of its passages, so long pages become blurred averages. The model is not trained on comics, so names, formatting and template sentences can weigh as much as plot.</li>
+    <li><strong>Cosines are model scores, not measurements of meaning.</strong> All 68,265 pairs are compared, but a high cosine only says that two pages use similar words and sentences in the model&rsquo;s space. Library versions of the first, top-12 run were not recorded; the new run agrees with it to within rounding.</li>
+    <li><strong>The network is the 370 category pages only.</strong> Links to heroes, gods, teams and other pages are not in the data, so some &ldquo;far&rdquo; pairs may be close in the full Wikipedia graph. Long directed paths are partly a sign of how few links a page has (Firepower has two).</li>
+    <li><strong>We dropped all pairs without a directed path.</strong> 24,923 of the 68,265 pairs have no path in either direction, many involving pages with no links at all. Those are the most &ldquo;structurally far&rdquo; pairs of all, so this report looks only at pairs that are far but still reachable.</li>
+    <li><strong>Clusters and communities are method choices.</strong> The twelve embedding clusters are soft (k-means silhouette about 0.03) and the number 12 was set to match the community count; other values change the details, though the overall agreement stays weak (adjusted Rand 0.10&ndash;0.15 for 8 to 20 clusters). Louvain communities depend on the random seed and ignore link direction, and the 47 pages outside the giant component have none.</li>
+    <li><strong>The 2D map is a poor ruler.</strong> The two PCA axes keep 7.9% of the variation between pages. Distances between dots do not reliably reflect cosines or clusters, and the network layout does not encode link distance.</li>
+    <li><strong>Hand-picked examples.</strong> The five pairs were chosen from the seven that have a cosine of at least 0.66 (among 49 with at least 0.60), after reading the pages. The explanations are our reading of the text, not tested hypotheses.</li>
+    <li><strong>Page text is a snapshot</strong> from the extracts API, and its length varies widely (87 to 18,047 words), which changes how much an embedding can say.</li>
+  </ul>
+
+</article>
+
+<article class="post wide" id="conclusion">
+
+  <div class="section-head">
+    <h2>Conclusion</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <p>
+    <strong>Who is semantically close but structurally far away?</strong> Characters who play the same
+    role, or who share a name, but belong to different storylines: the Iron Man villains Firebrand and Firepower
+    (7 links), the two Latverian rulers in Doctor Doom&rsquo;s role, Doom&nbsp;2099 and Kristoff Vernard (6 links), the Spider-Man schemers Masked Marauder
+    and Gentleman (6 links in both directions), the two flying criminals Condor and Flying Tiger (6 links) and, possibly through the name,
+    Gorgon and Lady Gorgon (7 links). The link network records which pages editors linked (mostly to characters the linking page mentions), the embedding records
+    which pages use similar language, and these pairs live in the gap. A caveat that matters as much as the examples:
+    some of the distance comes from the data cut (a missing Doctor Doom page, only category-internal links, one-way links), not
+    from the stories alone.
+  </p>
+  <p>
+    <strong>How much does the grouping method change the story?</strong> Quite a lot, but not everywhere. Where a franchise is tightly interlinked
+    (the Zodiac, the Spider-Man foes, the X-Men foes) the clusters and the communities largely coincide. Overall, though, the agreement is weak
+    (adjusted Rand 0.13), several embedding clusters are spread across all twelve communities, and the featured pairs are all in the same cluster yet in different communities.
+    So &ldquo;semantically similar&rdquo; and &ldquo;in the same neighbourhood of links&rdquo; are different statements, and whether a pair counts as a disagreement
+    depends on whether you ask about a cosine, a cluster, a shortest path or a community. The grouping results rest on two choices (twelve clusters, Louvain on the undirected graph)
+    and on a link graph that contains only the 370 collected pages.
+  </p>
+
   <a class="back-link" href="../index.html">&larr; Back to all weeks</a>
+
+</article>
+
+<article class="post wide" id="sources">
+
+  <div class="section-head">
+    <h2>Sources and references</h2>
+    <a href="#top" class="back-to-top" aria-label="Back to top of Week 7 navigation">&uarr;</a>
+  </div>
+  <ul class="takeaways">
+    <li>Wikipedia pages: <a href="https://en.wikipedia.org/wiki/Firebrand_(Marvel_Comics)" target="_blank" rel="noopener">Firebrand</a>, <a href="https://en.wikipedia.org/wiki/Firepower_(comics)" target="_blank" rel="noopener">Firepower</a>, <a href="https://en.wikipedia.org/wiki/Doom_2099" target="_blank" rel="noopener">Doom 2099</a>, <a href="https://en.wikipedia.org/wiki/Kristoff_Vernard" target="_blank" rel="noopener">Kristoff Vernard</a>, <a href="https://en.wikipedia.org/wiki/Masked_Marauder" target="_blank" rel="noopener">Masked Marauder</a>, <a href="https://en.wikipedia.org/wiki/Gentleman_(character)" target="_blank" rel="noopener">Gentleman</a>, <a href="https://en.wikipedia.org/wiki/Gorgon_(Inhuman)" target="_blank" rel="noopener">Gorgon (Inhuman)</a>, <a href="https://en.wikipedia.org/wiki/Lady_Gorgon" target="_blank" rel="noopener">Lady Gorgon</a>, <a href="https://en.wikipedia.org/wiki/Condor_(comics)" target="_blank" rel="noopener">Condor</a>, <a href="https://en.wikipedia.org/wiki/Flying_Tiger_(Marvel_Comics)" target="_blank" rel="noopener">Flying Tiger</a>.</li>
+    <li>Dataset: <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia, Category:Marvel Comics supervillains</a> (crawled 2026-09-13); page text via the Wikipedia extracts API.</li>
+    <li>Model: Reimers &amp; Gurevych, <a href="https://arxiv.org/abs/1908.10084" target="_blank" rel="noopener">Sentence-BERT</a> (2019); <code>all-MiniLM-L6-v2</code> from the <a href="https://www.sbert.net/" target="_blank" rel="noopener">sentence-transformers</a> library.</li>
+    <li>Course material: <a href="https://sunelehmann.com/socialgraphs2026-web/weeks/week7.html" target="_blank" rel="noopener">Social Graphs 2026, Week 7</a>.</li>
+    <li>Code and data in this repository: <code>analysis/fetch_week7_pages.py</code>, <code>analysis/build_week7_test.py</code>, <code>analysis/build_week7_pairs.py</code>, <code>analysis/build_week7_explore.py</code>, <code>data/week7/week7_supervillains.json</code>, <code>data/week7/week7_explore.json</code>, <code>data/Marvel_Comics_supervillains/</code>. The directed distances were computed from the edge list in that JSON with <code>networkx</code>, and <code>analysis/check_week7_distances.py</code> recomputes the five pairs above and compares them with the table.</li>
+  </ul>
 
 </article>
 </main>
@@ -42,9 +553,10 @@
 <footer>
   <div class="wrap">
     Built for DTU course 02805, Social Graphs and Interactions · data from
-    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_superheroes" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics superheroes</a>
+    <a href="https://en.wikipedia.org/wiki/Category:Marvel_Comics_supervillains" target="_blank" rel="noopener">Wikipedia's Category:Marvel Comics supervillains</a>
   </div>
 </footer>
 
+<script src="week7-explore.js"></script>
 </body>
 </html>
