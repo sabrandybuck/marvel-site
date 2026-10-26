@@ -34,7 +34,7 @@
     .pair { margin: 0 0 26px; }
     .pair h3 { margin-bottom: 6px; }
     .w7-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
-    .w7-controls select, .w7-controls input { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; font-size: 0.9em; }
+    .w7-controls select, .w7-controls input { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; font-size: 0.9em; }
     .w7-controls input { min-width: 0; flex: 1 1 190px; max-width: 100%; }
     .w7-controls select { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
     .w7-maps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
@@ -47,7 +47,7 @@
     .w7-leg-sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
     .w7-leg-id { font-weight: 600; } .w7-leg-n { color: var(--text-dim); }
     .w7-leg-reps { color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #w7-evidence { margin-top: 18px; padding: 16px 18px; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: var(--radius); }
+    #w7-evidence { margin-top: 18px; padding: 16px 18px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
     #w7-evidence h3 { margin: 0 0 10px; }
     .w7-hint { color: var(--text-dim); margin: 0 0 10px; }
     .w7-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
@@ -276,6 +276,10 @@
     Clear resets the whole explorer to its starting state.
   </p>
 
+</article>
+
+<figure class="wide-figure explorer" id="w7-explorer">
+
   <div class="w7-controls" id="w7-chips" role="group" aria-label="Featured pairs"></div>
   <div class="w7-controls">
     <select id="w7-more" aria-label="More disagreements"><option value="">More disagreements&hellip;</option></select>
@@ -326,7 +330,7 @@
     Arrows follow link direction (white A&nbsp;&rarr;&nbsp;B, amber B&nbsp;&rarr;&nbsp;A, where A is Character A and B is Character B), and only links between the 370 collected pages exist. When several shortest paths have the same length the explorer draws one of them, so it can differ from the path named in the long notes above.
   </p>
 
-</article>
+</figure>
 
 <article class="post wide" id="grouping">
 
